@@ -10,6 +10,7 @@ from .config_validation import config_summary, format_config_summary, format_val
 from .context import format_context_pack
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
+from .integration import export_devspace_contract, format_contract_summary, integration_self_test
 from .observability import (
     export_langsmith_files,
     format_observability_status,
@@ -77,6 +78,9 @@ def main(argv: list[str] | None = None) -> int:
     simulate_parser.add_argument("--scenario", required=True)
     simulate_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("list-scenarios", help="list available simulation scenarios")
+    subparsers.add_parser("api-contract", help="print DevSpace integration contract summary")
+    subparsers.add_parser("export-devspace-contract", help="write DevSpace integration contract files")
+    subparsers.add_parser("integration-test", help="run built-in integration contract checks")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -166,6 +170,20 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "simulate":
         result = run_scenario(args.scenario)
         print(json.dumps(result, indent=2) if args.json_output else format_simulation(result))
+    elif args.command == "api-contract":
+        print(format_contract_summary())
+    elif args.command == "export-devspace-contract":
+        result = export_devspace_contract()
+        print(f"Exported DevSpace contract files to {result['export_folder']}")
+        for path in result["files"].values():
+            print(f"- {path}")
+    elif args.command == "integration-test":
+        result = integration_self_test()
+        print(f"Integration contract checks: {'pass' if result['ok'] else 'fail'}")
+        print(f"Checked requests: {result['checked']}")
+        if result["failures"]:
+            print(json.dumps(result["failures"], indent=2))
+        return 0 if result["ok"] else 1
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

@@ -4,6 +4,7 @@ const result = document.querySelector("#result");
 const observability = document.querySelector("#observability");
 const configStudio = document.querySelector("#config-studio");
 const scenarioSimulator = document.querySelector("#scenario-simulator");
+const integrationContract = document.querySelector("#integration-contract");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -97,6 +98,35 @@ async function loadScenarioSimulator() {
     <div id="simulation-result" class="simulation-result"></div>
   `;
   document.querySelector("#run-simulation").addEventListener("click", runSimulation);
+}
+
+async function loadIntegrationContract() {
+  const [health, version, contract] = await Promise.all([
+    getJson("/api/health"),
+    getJson("/api/version"),
+    getJson("/api/contracts"),
+  ]);
+  integrationContract.innerHTML = `
+    <h2>DevSpace Integration</h2>
+    <p>Stable local API contract for DevSpace or another caller.</p>
+    <div class="metrics observability-metrics">
+      <div><span>Health</span><strong>${health.ok ? "ok" : "bad"}</strong></div>
+      <div><span>Contract</span><strong>${escapeHtml(contract.contract_version)}</strong></div>
+      <div><span>Local only</span><strong>${health.local_only ? "yes" : "no"}</strong></div>
+    </div>
+    <dl>
+      <dt>App version</dt><dd>${escapeHtml(version.app_version)}</dd>
+      <dt>Modes</dt><dd>${escapeHtml(contract.modes.join(", "))}</dd>
+      <dt>Endpoints</dt><dd><ul>${listItems(Object.keys(contract.endpoints))}</ul></dd>
+    </dl>
+    <div class="action-row">
+      <button type="button" id="run-v1-advise">Test v1 advise</button>
+      <button type="button" id="run-v1-strict">Test v1 strict</button>
+    </div>
+    <div id="integration-status" class="status"></div>
+  `;
+  document.querySelector("#run-v1-advise").addEventListener("click", testIntegrationAdvise);
+  document.querySelector("#run-v1-strict").addEventListener("click", testIntegrationStrict);
 }
 
 function filesFromInput(value) {
@@ -373,6 +403,26 @@ async function runSimulation() {
   loadObservability();
 }
 
+async function testIntegrationAdvise() {
+  const payload = {
+    project_name: "Diana Test Project",
+    task_description: "Make hello world page prettier",
+    files_touched: ["index.html"],
+  };
+  const data = await postJson("/api/v1/route", payload);
+  setIntegrationStatus(`v1 advise: ${data.recommended_model} / ${data.model_tier}`, true);
+}
+
+async function testIntegrationStrict() {
+  const payload = {
+    project_name: "Veteran's Intake Application",
+    task_description: "Fix auth ping redirect bug",
+    files_touched: ["Auth/ping.php"],
+  };
+  const data = await postJson("/api/v1/strict-check", payload);
+  setIntegrationStatus(`v1 strict block=${data.block} (${data.block_reason || "not blocked"})`, data.block);
+}
+
 function showSimulation(data) {
   const summary = data.summary;
   const savings = summary.savings;
@@ -411,8 +461,25 @@ async function getJson(path) {
   return data;
 }
 
+async function postJson(path, payload) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
 function setConfigStatus(message, ok) {
   const status = document.querySelector("#config-status");
+  status.textContent = message;
+  status.className = ok ? "status ok" : "status bad";
+}
+
+function setIntegrationStatus(message, ok) {
+  const status = document.querySelector("#integration-status");
   status.textContent = message;
   status.className = ok ? "status ok" : "status bad";
 }
@@ -425,3 +492,4 @@ loadProjects().catch((error) => showError(error.message));
 loadObservability().catch(() => {});
 loadConfigStudio().catch(() => {});
 loadScenarioSimulator().catch(() => {});
+loadIntegrationContract().catch(() => {});

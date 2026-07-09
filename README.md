@@ -108,6 +108,14 @@ python -m agentic_router.cli simulate --scenario mixed_devspace_month
 python -m agentic_router.cli simulate --scenario forge_bot_maintenance_week --json
 ```
 
+DevSpace integration contract:
+
+```bash
+python -m agentic_router.cli api-contract
+python -m agentic_router.cli export-devspace-contract
+python -m agentic_router.cli integration-test
+```
+
 Local web UI:
 
 ```bash
@@ -115,6 +123,12 @@ python -m agentic_router.web
 ```
 
 Then open http://127.0.0.1:8765.
+
+If that port is already in use:
+
+```bash
+$env:AGENTIC_ROUTER_PORT=8766; python -m agentic_router.web
+```
 
 Installed console script:
 
@@ -243,6 +257,13 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/config/eval`
 - `/api/scenarios`
 - `/api/simulate`
+- `/api/health`
+- `/api/version`
+- `/api/contracts`
+- `/api/v1/route`
+- `/api/v1/packet`
+- `/api/v1/shadow`
+- `/api/v1/strict-check`
 
 Record CLI feedback after a route:
 
@@ -287,13 +308,14 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/traces.jsonl`: Local sanitized route trace records.
 - `data/config_schemas.json`: Lightweight schema notes for config validation.
 - `data/simulation_scenarios.json`: Named hypothetical task batches for the simulator.
+- `data/api_contracts.json`: Stable v1 DevSpace request/response contract metadata.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, and provides a Scenario Simulator panel for hypothetical batch routing. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, and shows the local DevSpace Integration contract status. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 
@@ -302,3 +324,22 @@ Run packets are copy-pasteable prompts for DevSpace/Codex. They include model ch
 AgenticRouter is the policy brain: it decides tier, effort, risk, context, safety, validation, and human-review flags. A LiteLLM-style or internal gateway is the traffic layer: it handles model aliases, provider credentials, fallbacks, budgets, virtual keys, logging, and enforcement.
 
 The files under `exports/` are safe placeholder templates, not production configs. They include no real secrets, tokens, emails, URLs, tenant IDs, production values, or records. Replace `CHANGE_ME_*` placeholders outside this repo before adapting them to a real gateway.
+
+## DevSpace Integration Contract
+
+The stable local API contract lives in `data/api_contracts.json` and is documented in `docs/devspace_integration_contract.md` and `docs/api_reference.md`.
+
+Modes:
+
+- `shadow`: log what AgenticRouter would recommend while DevSpace keeps its current routing.
+- `advise`: return a model recommendation.
+- `packet`: return a recommendation plus a DevSpace run packet.
+- `strict`: return `block=true` for human-review-required work or forbidden context.
+
+Export safe local contract files:
+
+```bash
+python -m agentic_router.cli export-devspace-contract
+```
+
+This writes `exports/devspace/agentic_router_api_contract.json` and `exports/devspace/example_requests.json`. Example stdlib clients live in `examples/devspace_client.py` and `examples/devspace_client.js`.

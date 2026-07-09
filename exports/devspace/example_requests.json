@@ -1,0 +1,41 @@
+{
+  "requests": [
+    {
+      "files_touched": [
+        "index.html"
+      ],
+      "mode": "advise",
+      "previous_failure_count": 0,
+      "profile": "balanced",
+      "project_name": "Diana Test Project",
+      "task_description": "Make hello world page prettier"
+    },
+    {
+      "files_touched": [
+        "forge_bot/gap_bills_bot.py"
+      ],
+      "live_prod": true,
+      "mode": "packet",
+      "project_name": "Gap Bills Forge Conversion",
+      "task_description": "Change PDF output naming format"
+    },
+    {
+      "files_touched": [
+        "Auth/ping.php"
+      ],
+      "live_prod": true,
+      "mode": "strict",
+      "project_name": "Veteran's Intake Application",
+      "task_description": "Fix auth ping redirect bug"
+    },
+    {
+      "actual_model_used": "Sonnet 4.6",
+      "files_touched": [
+        "reports/quarterly.py"
+      ],
+      "mode": "shadow",
+      "project_name": "Grant Quarter Reporting",
+      "task_description": "Create a dashboard report for quarter totals"
+    }
+  ]
+}

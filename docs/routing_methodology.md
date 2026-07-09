@@ -79,6 +79,19 @@ Summaries include tier/model/alias/risk/context distributions, human-review coun
 
 Savings estimates use abstract planning units only. Model units are cheap = 1, mid = 3, advanced = 8, compared against naive all-advanced routing. Context units are tiny = 1, small = 2, medium = 5, large = 10, compared against naive full-repo context.
 
+## DevSpace Integration Contract
+
+The v1 integration layer is a stable wrapper around the existing local router. DevSpace or another caller sends a small request to `/api/v1/route`, `/api/v1/packet`, `/api/v1/shadow`, or `/api/v1/strict-check`; AgenticRouter returns the same routing decision plus contract metadata, warnings, block status, and optional packet data.
+
+Modes:
+
+- `shadow`: log what AgenticRouter would have recommended while the caller keeps its current routing.
+- `advise`: return the recommendation only.
+- `packet`: return the recommendation plus a DevSpace run packet.
+- `strict`: block when human review is required or forbidden context is detected.
+
+The integration contract is local-only. It does not call a model, cloud service, LangSmith API, or remote tracing endpoint. Requests must not contain secrets, real records, emails, tenant IDs, USB serials, private Windows paths, production logs, or PII/PHI. If forbidden-looking content is detected, strict mode blocks and packet generation is suppressed.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

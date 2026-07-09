@@ -1,0 +1,97 @@
+{
+  "contract_version": "v1",
+  "endpoints": {
+    "GET /api/contracts": "Stable request/response contract.",
+    "GET /api/health": "Local health check.",
+    "GET /api/version": "Version and contract metadata.",
+    "POST /api/v1/packet": "Return route plus DevSpace run packet.",
+    "POST /api/v1/route": "Run advise or requested mode.",
+    "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
+    "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases."
+  },
+  "modes": [
+    "advise",
+    "packet",
+    "shadow",
+    "strict"
+  ],
+  "optional_fields": [
+    "files_touched",
+    "previous_failure_count",
+    "live_prod",
+    "session_id",
+    "profile",
+    "cost_quality_tradeoff",
+    "allowed_models",
+    "mode",
+    "actual_model_used",
+    "caller",
+    "task_id",
+    "include_packet"
+  ],
+  "privacy": [
+    "No secrets",
+    "No API keys",
+    "No bearer tokens",
+    "No passwords",
+    "No emails",
+    "No tenant IDs",
+    "No USB serials",
+    "No PII or real records",
+    "No production logs"
+  ],
+  "request_shape": {
+    "actual_model_used": "string|null",
+    "allowed_models": [
+      "string"
+    ],
+    "caller": "string|null",
+    "cost_quality_tradeoff": "integer|null",
+    "files_touched": [
+      "string"
+    ],
+    "include_packet": "boolean",
+    "live_prod": "boolean|null",
+    "mode": "advise|packet|shadow|strict",
+    "previous_failure_count": "integer",
+    "profile": "string",
+    "project_name": "string",
+    "session_id": "string|null",
+    "task_description": "string",
+    "task_id": "string|null"
+  },
+  "required_fields": [
+    "project_name",
+    "task_description"
+  ],
+  "response_shape": {
+    "block": "boolean",
+    "block_reason": "string|null",
+    "context_pack": "object",
+    "contract_version": "v1",
+    "devspace_run_packet": "object",
+    "effort_level": "low|medium|high",
+    "fallback_candidates": [
+      "string"
+    ],
+    "human_review_required": "boolean",
+    "matched_rules": [
+      "string"
+    ],
+    "mode": "advise|packet|shadow|strict",
+    "model_tier": "cheap|mid|advanced",
+    "observability": {
+      "prompt_body_logged": "boolean",
+      "trace_written": "boolean"
+    },
+    "reason": "string",
+    "recommended_model": "string",
+    "recommended_next_action": "string",
+    "risk_level": "low|medium|medium-high|high|critical",
+    "route_id": "string",
+    "selected_model_alias": "string",
+    "warnings": [
+      "string"
+    ]
+  }
+}

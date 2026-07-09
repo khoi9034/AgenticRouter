@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -10,6 +11,7 @@ from urllib.parse import unquote
 from .config_studio import EXPORT_CONFIG_DEFAULT, add_project, export_config
 from .config_validation import config_summary, validate_config
 from .evaluator import evaluate_tasks
+from .integration import handle_request, health, load_contract, version
 from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
@@ -30,6 +32,12 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path == "/api/projects":
             self._json({"projects": load_projects()})
+        elif self.path == "/api/health":
+            self._json(health())
+        elif self.path == "/api/version":
+            self._json(version())
+        elif self.path == "/api/contracts":
+            self._json(load_contract())
         elif self.path == "/api/eval":
             self._json(evaluate_tasks())
         elif self.path == "/api/outcomes":
@@ -64,6 +72,14 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def do_POST(self) -> None:
         if self.path == "/api/route":
             self._handle_route()
+        elif self.path == "/api/v1/route":
+            self._handle_integration()
+        elif self.path == "/api/v1/packet":
+            self._handle_integration("packet")
+        elif self.path == "/api/v1/shadow":
+            self._handle_integration("shadow")
+        elif self.path == "/api/v1/strict-check":
+            self._handle_integration("strict")
         elif self.path == "/api/context":
             self._handle_context()
         elif self.path == "/api/packet":
@@ -103,6 +119,12 @@ class RouterHandler(SimpleHTTPRequestHandler):
             result,
         )
         self._json(result)
+
+    def _handle_integration(self, forced_mode: str | None = None) -> None:
+        try:
+            self._json(handle_request(self._read_json(), forced_mode=forced_mode))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 
     def _handle_context(self) -> None:
         try:
@@ -261,8 +283,9 @@ def make_server(host: str = HOST, port: int = PORT) -> ThreadingHTTPServer:
 
 
 def main() -> int:
-    with make_server() as server:
-        print(f"DevSpace Smart Router running at http://{HOST}:{PORT}")
+    port = int(os.environ.get("AGENTIC_ROUTER_PORT", PORT))
+    with make_server(port=port) as server:
+        print(f"DevSpace Smart Router running at http://{HOST}:{port}")
         server.serve_forever()
     return 0
 
