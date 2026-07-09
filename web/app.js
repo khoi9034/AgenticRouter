@@ -1,6 +1,7 @@
 const project = document.querySelector("#project");
 const form = document.querySelector("#route-form");
 const result = document.querySelector("#result");
+let currentRouteId = "";
 
 async function loadProjects() {
   const response = await fetch("/api/projects");
@@ -25,6 +26,7 @@ function badgeClass(risk) {
 
 function showResult(data) {
   const rules = data.matched_rules.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("");
+  currentRouteId = data.route_id;
   result.className = "panel result";
   result.innerHTML = `
     <div class="result-head">
@@ -41,12 +43,55 @@ function showResult(data) {
     </div>
     ${data.human_review_required ? '<div class="warning">Human review required before sensitive or production changes.</div>' : ""}
     <dl>
+      <dt>Route ID</dt><dd class="route-id">${escapeHtml(data.route_id)}</dd>
       <dt>Reason</dt><dd>${escapeHtml(data.reason)}</dd>
       <dt>Context policy</dt><dd>${escapeHtml(data.context_policy)}</dd>
       <dt>Escalation policy</dt><dd>${escapeHtml(data.escalation_policy)}</dd>
       <dt>Matched rules</dt><dd><ul>${rules}</ul></dd>
     </dl>
+    <form id="feedback-form" class="feedback">
+      <h3>Feedback</h3>
+      <p>Notes should be sanitized. Do not include secrets, PII, records, emails, tokens, or serial numbers.</p>
+      <div class="split">
+        <label>
+          Accepted recommendation?
+          <select id="accepted" required>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </label>
+        <label>
+          Task succeeded?
+          <select id="task-succeeded" required>
+            <option value="unknown">Unknown</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </label>
+      </div>
+      <div class="split">
+        <label>
+          Actual model used
+          <input id="actual-model" required placeholder="${escapeHtml(data.recommended_model)}">
+        </label>
+        <label>
+          Recommendation fit
+          <select id="recommendation-fit" required>
+            <option value="right">Right</option>
+            <option value="too_cheap">Too cheap</option>
+            <option value="overkill">Overkill</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        Notes
+        <textarea id="feedback-notes" rows="3" placeholder="Sanitized feedback only"></textarea>
+      </label>
+      <button type="submit">Save feedback</button>
+      <div id="feedback-status" class="status"></div>
+    </form>
   `;
+  document.querySelector("#feedback-form").addEventListener("submit", saveFeedback);
 }
 
 function showError(message) {
@@ -87,5 +132,32 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadProjects().catch((error) => showError(error.message));
+async function saveFeedback(event) {
+  event.preventDefault();
+  const status = document.querySelector("#feedback-status");
+  const succeeded = document.querySelector("#task-succeeded").value;
+  const payload = {
+    route_id: currentRouteId,
+    accepted: document.querySelector("#accepted").value === "true",
+    task_succeeded: succeeded === "unknown" ? null : succeeded === "true",
+    actual_model: document.querySelector("#actual-model").value,
+    recommendation_fit: document.querySelector("#recommendation-fit").value,
+    notes: document.querySelector("#feedback-notes").value,
+  };
 
+  try {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    status.textContent = response.ok ? "Feedback saved." : data.error || "Feedback failed.";
+    status.className = response.ok ? "status ok" : "status bad";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+loadProjects().catch((error) => showError(error.message));

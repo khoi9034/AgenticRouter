@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .models import default_model_for_tier
+from .outcomes import make_route_id
 from .projects import find_project
 from .rules import escalate_tier, hits, load_routing_rules, max_risk, max_tier, touches_code
 
@@ -69,7 +70,7 @@ def route(
     if security_hits:
         matched_rules.append("security_controls:" + ", ".join(security_hits[:4]))
 
-    return {
+    result = {
         "recommended_model": default_model_for_tier(tier),
         "model_tier": tier,
         "effort_level": EFFORT_BY_TIER[tier],
@@ -80,6 +81,8 @@ def route(
         "escalation_policy": _escalation_policy(tier, previous_failure_count, needs_human),
         "matched_rules": matched_rules,
     }
+    result["route_id"] = make_route_id(project_name, task_description, files, result)
+    return result
 
 
 def _reason(tier: str, matched_rules: list[str]) -> str:
@@ -105,4 +108,3 @@ def _escalation_policy(tier: str, failures: int, human_review: bool) -> str:
     if human_review:
         parts.append("Human review is required before production or sensitive-data changes.")
     return " ".join(parts)
-

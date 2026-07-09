@@ -219,6 +219,41 @@ dt {
   font-weight: 800;
 }
 
+.route-id {
+  overflow-wrap: anywhere;
+  font-family: Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.feedback {
+  border-top: 1px solid #27313d;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.feedback h3 {
+  margin: 0 0 8px;
+}
+
+.feedback p {
+  color: #aeb9c5;
+  font-size: 0.9rem;
+}
+
+.status {
+  min-height: 22px;
+  margin-top: 10px;
+  font-weight: 800;
+}
+
+.ok {
+  color: #86efac;
+}
+
+.bad {
+  color: #fca5a5;
+}
+
 dl {
   display: grid;
   gap: 8px;
@@ -243,4 +278,3 @@ ul {
     grid-template-columns: 1fr;
   }
 }
-

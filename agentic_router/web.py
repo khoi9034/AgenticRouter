@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .evaluator import evaluate_tasks
+from .outcomes import save_feedback, summarize_outcomes
 from .projects import load_projects
 from .router import route
 
@@ -24,16 +25,26 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json({"projects": load_projects()})
         elif self.path == "/api/eval":
             self._json(evaluate_tasks())
+        elif self.path == "/api/outcomes":
+            self._json(summarize_outcomes())
         else:
             if self.path == "/":
                 self.path = "/index.html"
             super().do_GET()
 
     def do_POST(self) -> None:
-        if self.path != "/api/route":
+        if self.path == "/api/route":
+            self._handle_route()
+        elif self.path == "/api/feedback":
+            self._handle_feedback()
+        else:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
+    def log_message(self, format: str, *args: Any) -> None:
+        return
+
+    def _handle_route(self) -> None:
         try:
             payload = self._read_json()
             result = route(
@@ -49,8 +60,22 @@ class RouterHandler(SimpleHTTPRequestHandler):
 
         self._json(result)
 
-    def log_message(self, format: str, *args: Any) -> None:
-        return
+    def _handle_feedback(self) -> None:
+        try:
+            payload = self._read_json()
+            record = save_feedback(
+                route_id=str(payload["route_id"]),
+                accepted=_bool(payload["accepted"]),
+                task_succeeded=_optional_bool(payload["task_succeeded"]),
+                actual_model=str(payload["actual_model"]),
+                recommendation_fit=str(payload["recommendation_fit"]),
+                notes=str(payload.get("notes", "")),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+
+        self._json({"saved": True, "record": record})
 
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", 0))
@@ -75,6 +100,16 @@ def _files(value: Any) -> list[str]:
     raise ValueError("files_touched must be a list or string")
 
 
+def _bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    raise ValueError("value must be true or false")
+
+
+def _optional_bool(value: Any) -> bool | None:
+    return None if value is None else _bool(value)
+
+
 def make_server(host: str = HOST, port: int = PORT) -> ThreadingHTTPServer:
     return ThreadingHTTPServer((host, port), RouterHandler)
 
@@ -88,4 +123,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

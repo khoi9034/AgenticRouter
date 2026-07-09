@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from .evaluator import evaluate_tasks, format_summary
+from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .router import route
 
 
@@ -22,6 +23,14 @@ def main(argv: list[str] | None = None) -> int:
     route_parser.add_argument("--format", choices=["text", "json"], default="text")
     route_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
+    feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
+    feedback_parser.add_argument("--route-id", required=True)
+    feedback_parser.add_argument("--accepted", required=True, type=_bool_arg)
+    feedback_parser.add_argument("--task-succeeded", required=True, type=_unknown_bool_arg)
+    feedback_parser.add_argument("--actual-model", required=True)
+    feedback_parser.add_argument("--recommendation-fit", required=True)
+    feedback_parser.add_argument("--notes", default="")
+    subparsers.add_parser("outcomes", help="summarize routing feedback outcomes")
 
     args = parser.parse_args(argv)
     if args.command == "route":
@@ -40,6 +49,18 @@ def main(argv: list[str] | None = None) -> int:
         summary = evaluate_tasks()
         print(format_summary(summary))
         return 1 if summary["failed"] else 0
+    elif args.command == "feedback":
+        record = save_feedback(
+            route_id=args.route_id,
+            accepted=args.accepted,
+            task_succeeded=args.task_succeeded,
+            actual_model=args.actual_model,
+            recommendation_fit=args.recommendation_fit,
+            notes=args.notes,
+        )
+        print(f"Saved feedback for {record['project_name']} ({record['recommended_tier']}).")
+    elif args.command == "outcomes":
+        print(format_outcomes_summary(summarize_outcomes()))
     return 0
 
 
@@ -49,6 +70,7 @@ def _format_text(result: dict[str, Any]) -> str:
     return "\n".join(
         [
             f"Recommended model: {result['recommended_model']}",
+            f"Route ID: {result['route_id']}",
             f"Tier: {result['model_tier']}",
             f"Effort: {result['effort_level']}",
             f"Risk: {result['risk_level']}",
@@ -60,6 +82,20 @@ def _format_text(result: dict[str, Any]) -> str:
             rules,
         ]
     )
+
+
+def _bool_arg(value: str) -> bool:
+    if value.casefold() == "true":
+        return True
+    if value.casefold() == "false":
+        return False
+    raise argparse.ArgumentTypeError("must be true or false")
+
+
+def _unknown_bool_arg(value: str) -> bool | None:
+    if value.casefold() == "unknown":
+        return None
+    return _bool_arg(value)
 
 
 if __name__ == "__main__":
