@@ -237,6 +237,12 @@ dt {
   padding-top: 18px;
 }
 
+.run-packet {
+  border-top: 1px solid #27313d;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
 .context-head {
   display: flex;
   justify-content: space-between;
@@ -245,8 +251,16 @@ dt {
 }
 
 .context-pack h3,
-.context-pack h4 {
+.context-pack h4,
+.run-packet h3,
+.run-packet h4 {
   margin: 0 0 8px;
+}
+
+.packet-text {
+  min-height: 280px;
+  font-family: Consolas, monospace;
+  line-height: 1.45;
 }
 
 .size-badge {

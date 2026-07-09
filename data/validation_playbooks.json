@@ -1,0 +1,55 @@
+{
+  "static_ui_docs": [
+    "Check affected HTML/CSS/docs render or read correctly.",
+    "Confirm links and simple navigation still work.",
+    "Do not change unrelated files."
+  ],
+  "normal_web_app": [
+    "Run available unit tests or the smallest relevant smoke check.",
+    "Verify forms, dashboards, or reports still preserve expected inputs and outputs.",
+    "Check related API contract assumptions without broad backend changes."
+  ],
+  "forge_bot": [
+    "Run Python parse check on touched bot scripts.",
+    "Run unit tests if present.",
+    "Confirm no secrets, env values, __pycache__, or generated files are included."
+  ],
+  "live_prod_forge_bot": [
+    "Run Python parse check on touched bot scripts.",
+    "Run unit tests if present.",
+    "Confirm no secrets, env values, __pycache__, or generated files are included.",
+    "Require human review before deployment.",
+    "Include a rollback note and keep the diff narrow."
+  ],
+  "laserfiche_integration": [
+    "Run syntax or lint checks available for the touched language.",
+    "Confirm Laserfiche endpoint or document contract is preserved.",
+    "Use sanitized fixtures only; do not include credentials or PII."
+  ],
+  "teamdynamix_integration": [
+    "Confirm TeamDynamix request and response contract is preserved.",
+    "Use mocked or sanitized payloads only.",
+    "Verify no bearer token or production ticket content is included."
+  ],
+  "microsoft_graph_cybersecurity": [
+    "Confirm Microsoft Graph or Advanced Hunting query shape is preserved.",
+    "Use sanitized IDs and sample payloads only.",
+    "Check Intune/security-control assumptions with a human reviewer."
+  ],
+  "public_official_budget_content": [
+    "Verify figures against source documents.",
+    "Do not invent numbers or publish unverified claims.",
+    "Check affected generated pages or exports."
+  ],
+  "sensitive_intake_or_claims": [
+    "Run available syntax, lint, or unit checks.",
+    "Use sanitized fixtures only.",
+    "Confirm no PII, PHI, legal records, veteran records, or claim details are included."
+  ],
+  "infrastructure_network_security": [
+    "Validate config syntax with the safest available local check.",
+    "Confirm rollback path before change.",
+    "Require human review before touching live infrastructure."
+  ]
+}
+

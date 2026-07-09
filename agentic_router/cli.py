@@ -7,6 +7,7 @@ from typing import Any
 from .context import format_context_pack
 from .evaluator import evaluate_tasks, format_summary
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
+from .packets import format_packet, generate_packet
 from .router import route
 
 
@@ -28,6 +29,13 @@ def main(argv: list[str] | None = None) -> int:
     context_parser.add_argument("--task", required=True)
     context_parser.add_argument("--files", nargs="*", default=[])
     context_parser.add_argument("--json", action="store_true", dest="json_output")
+    packet_parser = subparsers.add_parser("packet", help="generate a DevSpace run packet")
+    packet_parser.add_argument("--project", required=True)
+    packet_parser.add_argument("--task", required=True)
+    packet_parser.add_argument("--files", nargs="*", default=[])
+    packet_parser.add_argument("--failures", type=int, default=0)
+    packet_parser.add_argument("--live-prod", action="store_true")
+    packet_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -59,6 +67,15 @@ def main(argv: list[str] | None = None) -> int:
         )
         pack = result["context_pack"]
         print(json.dumps(pack, indent=2) if args.json_output else format_context_pack(pack))
+    elif args.command == "packet":
+        packet = generate_packet(
+            project_name=args.project,
+            task_description=args.task,
+            files_touched=args.files,
+            previous_failure_count=args.failures,
+            live_prod=True if args.live_prod else None,
+        )
+        print(json.dumps(packet, indent=2) if args.json_output else format_packet(packet))
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))

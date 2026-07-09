@@ -27,6 +27,7 @@ function badgeClass(risk) {
 function showResult(data) {
   const rules = data.matched_rules.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("");
   const pack = data.context_pack;
+  const packet = data.run_packet;
   currentRouteId = data.route_id;
   result.className = "panel result";
   result.innerHTML = `
@@ -71,6 +72,27 @@ function showResult(data) {
       </div>
       <p class="context-warning">${escapeHtml(pack.redaction_warning)}</p>
       <p>${escapeHtml(pack.context_reason)}</p>
+    </section>
+    <section class="run-packet">
+      <h3>DevSpace Run Packet</h3>
+      <label>
+        Execution prompt
+        <textarea class="packet-text" rows="14" readonly>${escapeHtml(packet.execution_prompt)}</textarea>
+      </label>
+      <div class="context-grid">
+        <div>
+          <h4>Validation checklist</h4>
+          <ul>${listItems(packet.validation_checklist)}</ul>
+        </div>
+        <div>
+          <h4>Stop conditions</h4>
+          <ul>${listItems(packet.stop_conditions)}</ul>
+        </div>
+      </div>
+      <div class="forbidden">
+        <strong>Escalation plan</strong>
+        <ul>${listItems(packet.escalation_plan)}</ul>
+      </div>
     </section>
     <form id="feedback-form" class="feedback">
       <h3>Feedback</h3>

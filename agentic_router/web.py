@@ -8,6 +8,7 @@ from typing import Any
 
 from .evaluator import evaluate_tasks
 from .outcomes import save_feedback, summarize_outcomes
+from .packets import generate_packet, packet_from_route
 from .projects import load_projects
 from .router import route
 
@@ -37,6 +38,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_route()
         elif self.path == "/api/context":
             self._handle_context()
+        elif self.path == "/api/packet":
+            self._handle_packet()
         elif self.path == "/api/feedback":
             self._handle_feedback()
         else:
@@ -60,6 +63,12 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return
 
+        result["run_packet"] = packet_from_route(
+            str(payload["project_name"]),
+            str(payload["task_description"]),
+            _files(payload.get("files_touched", [])),
+            result,
+        )
         self._json(result)
 
     def _handle_context(self) -> None:
@@ -77,6 +86,22 @@ class RouterHandler(SimpleHTTPRequestHandler):
             return
 
         self._json(result["context_pack"])
+
+    def _handle_packet(self) -> None:
+        try:
+            payload = self._read_json()
+            packet = generate_packet(
+                project_name=str(payload["project_name"]),
+                task_description=str(payload["task_description"]),
+                files_touched=_files(payload.get("files_touched", [])),
+                previous_failure_count=int(payload.get("previous_failure_count", 0)),
+                live_prod=True if payload.get("live_prod") is True else None,
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+
+        self._json(packet)
 
     def _handle_feedback(self) -> None:
         try:

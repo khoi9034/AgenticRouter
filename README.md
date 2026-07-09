@@ -36,6 +36,12 @@ Context pack recommendation:
 python -m agentic_router.cli context --project "Veteran's Intake Application" --task "Fix auth ping redirect bug" --files Auth/ping.php api/list_intakes.php
 ```
 
+DevSpace run packet:
+
+```bash
+python -m agentic_router.cli packet --project "Gap Bills Forge Conversion" --task "Change PDF output naming format" --files forge_bot/gap_bills_bot.py --json
+```
+
 Save sanitized outcome feedback:
 
 ```bash
@@ -84,6 +90,7 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `matched_rules`
 - `route_id`
 - `context_pack`
+- `run_packet` in the web route response
 
 ## Routing Rules
 
@@ -126,6 +133,7 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/projects`
 - `/api/route`
 - `/api/context`
+- `/api/packet`
 - `/api/eval`
 - `/api/feedback`
 - `/api/outcomes`
@@ -163,10 +171,13 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/projects.json`: DevSpace project catalog with risk, production, and sensitivity flags.
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
+- `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context pack, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
+
+Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.

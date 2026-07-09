@@ -46,6 +46,23 @@ Public official content such as Local Budget Book and Transparency Portal requir
 
 When files are not listed, the builder recommends patterns/categories instead of exact paths. When many files are listed, it recommends summarizing large or generated files rather than sending all content.
 
+## Run Packets
+
+The DevSpace Run Packet Generator wraps a route result and context pack into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, and context pack.
+
+Each packet includes:
+
+- execution prompt
+- context checklist
+- safety checklist
+- validation checklist
+- stop conditions
+- escalation plan
+
+Validation playbooks live in `data/validation_playbooks.json` and cover static UI/docs, normal web apps, Forge bots, live-prod Forge bots, Laserfiche, TeamDynamix, Microsoft Graph/cybersecurity, public official budget content, sensitive intake/claims, and infrastructure/network security.
+
+Generated prompts explicitly forbid secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, and production log content. Sensitive projects require sanitized context only. Live-prod projects explicitly prohibit broad refactors and require human review before deployment.
+
 ## Outcome Feedback
 
 Every route result includes a `route_id`. The route ID encodes only non-sensitive routing metadata needed for later feedback: project name, broad task category, recommended tier/model, and escalation reason names. It does not encode task text, files touched, context, secrets, records, or user data.
