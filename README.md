@@ -24,6 +24,12 @@ Text output:
 python -m agentic_router.cli route --project "Diana Test Project" --task "Make the hello world page background prettier"
 ```
 
+Golden evaluation:
+
+```bash
+python -m agentic_router.cli eval
+```
+
 Installed console script:
 
 ```bash
@@ -75,10 +81,33 @@ python -m agentic_router.cli route --project "Local Budget Book" --task "Update 
 python -m unittest discover -s tests
 ```
 
+Run the golden routing evaluation:
+
+```bash
+python -m agentic_router.cli eval
+```
+
+## Adding Examples
+
+To add a project, update `data/projects.json` with its default tier, risk, production status, sensitivity flag, and routing keywords.
+
+To add a golden task, update `data/golden_tasks.json` with:
+
+- `project_name`
+- `task_description`
+- `files_touched`
+- `previous_failure_count`
+- `expected_tier`
+- `expected_risk`
+- `expected_human_review_required`
+- `expected_reason_keywords`
+
+Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and real case records.
+
 ## Data Files
 
 - `data/models.json`: DevSpace models and default model per tier.
 - `data/projects.json`: DevSpace project catalog with risk, production, and sensitivity flags.
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
 - `data/examples.json`: Example routing inputs.
-
+- `data/golden_tasks.json`: Regression examples for the evaluator.

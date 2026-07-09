@@ -4,6 +4,7 @@ import argparse
 import json
 from typing import Any
 
+from .evaluator import evaluate_tasks, format_summary
 from .router import route
 
 
@@ -20,6 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     route_parser.add_argument("--sensitive", action="store_true")
     route_parser.add_argument("--format", choices=["text", "json"], default="text")
     route_parser.add_argument("--json", action="store_true", dest="json_output")
+    subparsers.add_parser("eval", help="run golden routing evaluation")
 
     args = parser.parse_args(argv)
     if args.command == "route":
@@ -34,6 +36,10 @@ def main(argv: list[str] | None = None) -> int:
             output_format=output_format,
         )
         print(json.dumps(result, indent=2) if output_format == "json" else _format_text(result))
+    elif args.command == "eval":
+        summary = evaluate_tasks()
+        print(format_summary(summary))
+        return 1 if summary["failed"] else 0
     return 0
 
 
@@ -58,4 +64,3 @@ def _format_text(result: dict[str, Any]) -> str:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
