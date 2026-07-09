@@ -116,6 +116,14 @@ python -m agentic_router.cli export-devspace-contract
 python -m agentic_router.cli integration-test
 ```
 
+Shadow mode analytics:
+
+```bash
+python -m agentic_router.cli shadow-add-demo-data
+python -m agentic_router.cli shadow-summary
+python -m agentic_router.cli export-shadow-report
+```
+
 Local web UI:
 
 ```bash
@@ -264,6 +272,8 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/v1/packet`
 - `/api/v1/shadow`
 - `/api/v1/strict-check`
+- `/api/shadow/summary`
+- `/api/shadow/report`
 
 Record CLI feedback after a route:
 
@@ -309,13 +319,14 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/config_schemas.json`: Lightweight schema notes for config validation.
 - `data/simulation_scenarios.json`: Named hypothetical task batches for the simulator.
 - `data/api_contracts.json`: Stable v1 DevSpace request/response contract metadata.
+- `data/shadow_runs.jsonl`: Local sanitized shadow-mode comparison records.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, and shows the local DevSpace Integration contract status. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, and summarizes Shadow Analytics for rollout pilots. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 
@@ -343,3 +354,24 @@ python -m agentic_router.cli export-devspace-contract
 ```
 
 This writes `exports/devspace/agentic_router_api_contract.json` and `exports/devspace/example_requests.json`. Example stdlib clients live in `examples/devspace_client.py` and `examples/devspace_client.js`.
+
+## Shadow Mode Analytics
+
+`/api/v1/shadow` is advisory. It logs a sanitized local comparison between the actual model DevSpace used and the model AgenticRouter recommended. It does not change DevSpace model selection.
+
+Shadow summaries include agreement rates, overkill count, too-weak/safety-risk count, strict-mode would-block count, abstract cost units for actual vs router usage, and top mismatch projects.
+
+Reports are local files only:
+
+```bash
+python -m agentic_router.cli shadow-summary
+python -m agentic_router.cli export-shadow-report
+```
+
+For local testing:
+
+```bash
+python -m agentic_router.cli shadow-add-demo-data
+```
+
+Before committing, keep `data/shadow_runs.jsonl` empty unless you intentionally want sanitized runtime logs in version control. Exported reports under `exports/reports/` may be kept when they contain only sanitized demo data.

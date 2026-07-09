@@ -70,7 +70,8 @@ form.panel {
 .observability-panel,
 .config-panel,
 .simulator-panel,
-.integration-panel {
+.integration-panel,
+.shadow-panel {
   grid-column: 1;
   padding: 18px;
 }
@@ -79,7 +80,8 @@ form.panel {
 .observability-panel h2,
 .config-panel h2,
 .simulator-panel h2,
-.integration-panel h2 {
+.integration-panel h2,
+.shadow-panel h2 {
   margin-bottom: 8px;
   font-size: 1.2rem;
 }
@@ -88,7 +90,8 @@ form.panel {
 .observability-panel p,
 .config-panel p,
 .simulator-panel p,
-.integration-panel p {
+.integration-panel p,
+.shadow-panel p {
   color: #aeb9c5;
   font-size: 0.92rem;
 }

@@ -9,6 +9,7 @@ from .models import DATA_DIR
 from .observability import sanitize_text
 from .packets import packet_from_route
 from .router import route
+from .shadow import write_shadow_run
 
 CONTRACT_VERSION = "v1"
 APP_VERSION = "0.1.0"
@@ -69,9 +70,22 @@ def handle_request(payload: dict[str, Any], forced_mode: str | None = None) -> d
         if include_packet
         else {}
     )
-    block = request["mode"] == "strict" and (result["human_review_required"] or forbidden_context)
+    router_would_block_in_strict = result["human_review_required"] or forbidden_context
+    block = request["mode"] == "strict" and router_would_block_in_strict
     warnings = _warnings(request, forbidden_context)
-    return {
+    shadow = (
+        write_shadow_run(
+            request["project_name"],
+            request["task_description"],
+            request["files_touched"],
+            result,
+            request.get("actual_model_used"),
+            router_would_block_in_strict,
+        )
+        if request["mode"] == "shadow"
+        else None
+    )
+    response = {
         "contract_version": CONTRACT_VERSION,
         "mode": request["mode"],
         "route_id": result["route_id"],
@@ -98,6 +112,20 @@ def handle_request(payload: dict[str, Any], forced_mode: str | None = None) -> d
         "warnings": warnings,
         "recommended_next_action": _next_action(request["mode"], block, result),
     }
+    if shadow:
+        comparison = shadow["comparison"]
+        response.update(
+            {
+                "shadow_id": shadow["record"]["shadow_id"],
+                "comparison_to_actual": comparison,
+                "actual_tier": comparison["actual_tier"],
+                "recommended_tier": comparison["recommended_tier"],
+                "overkill_or_underpowered": comparison["overkill_or_underpowered"],
+                "abstract_cost_delta": comparison["abstract_cost_delta"],
+                "router_would_block_in_strict": router_would_block_in_strict,
+            }
+        )
+    return response
 
 
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:

@@ -18,6 +18,7 @@ from .packets import generate_packet, packet_from_route
 from .projects import load_projects
 from .router import route
 from .sessions import summarize_sessions
+from .shadow import export_shadow_report, summarize_shadow_runs
 from .simulator import list_scenarios, run_scenario
 
 HOST = "127.0.0.1"
@@ -62,6 +63,10 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(evaluate_tasks())
         elif self.path == "/api/scenarios":
             self._json({"scenarios": list_scenarios()})
+        elif self.path == "/api/shadow/summary":
+            self._json(summarize_shadow_runs())
+        elif self.path == "/api/shadow/report":
+            self._json(export_shadow_report())
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:

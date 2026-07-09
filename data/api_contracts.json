@@ -56,6 +56,15 @@
     "warnings": ["string"],
     "recommended_next_action": "string"
   },
+  "shadow_response_fields": {
+    "shadow_id": "string",
+    "comparison_to_actual": "object",
+    "actual_tier": "cheap|mid|advanced|unknown",
+    "recommended_tier": "cheap|mid|advanced",
+    "overkill_or_underpowered": "agreement|human_stronger|human_weaker|safety_risk|unknown",
+    "abstract_cost_delta": "integer|null",
+    "router_would_block_in_strict": "boolean"
+  },
   "endpoints": {
     "GET /api/health": "Local health check.",
     "GET /api/version": "Version and contract metadata.",
@@ -63,7 +72,9 @@
     "POST /api/v1/route": "Run advise or requested mode.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
-    "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases."
+    "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases.",
+    "GET /api/shadow/summary": "Summarize local shadow mode analytics.",
+    "GET /api/shadow/report": "Write local shadow mode report files."
   },
   "privacy": [
     "No secrets",

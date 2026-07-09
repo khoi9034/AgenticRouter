@@ -92,6 +92,23 @@ Modes:
 
 The integration contract is local-only. It does not call a model, cloud service, LangSmith API, or remote tracing endpoint. Requests must not contain secrets, real records, emails, tenant IDs, USB serials, private Windows paths, production logs, or PII/PHI. If forbidden-looking content is detected, strict mode blocks and packet generation is suppressed.
 
+## Shadow Mode Analytics
+
+Shadow mode lets DevSpace pilot AgenticRouter without changing model selection. A `/api/v1/shadow` request runs the normal route, accepts the caller's `actual_model_used`, and appends a sanitized comparison record to `data/shadow_runs.jsonl`.
+
+Shadow records store route ID, project, broad task class, risk, recommended model/tier/alias, actual model/tier, profile, context size, human-review flag, strict-mode would-block flag, matched rule names, and comparison labels. High-risk or sensitive tasks do not store raw task text; they store only a task-description hash and sanitized category with `prompt_body_logged=false`.
+
+Analytics compare actual usage to router recommendations:
+
+- exact model and tier agreement
+- human used stronger than router
+- human used weaker than router
+- safety-risk mismatches, such as human cheap while router recommended advanced
+- abstract cost units using cheap = 1, mid = 3, advanced = 8
+- top projects with overkill or too-weak/safety mismatches
+
+Shadow analytics are local-only and advisory. They do not enforce routing, call a model, use a cloud service, or send remote traces.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

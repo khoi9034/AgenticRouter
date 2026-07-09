@@ -21,6 +21,8 @@ python -m agentic_router.web
 - `POST /api/v1/packet`: forced `packet` mode.
 - `POST /api/v1/shadow`: forced `shadow` mode.
 - `POST /api/v1/strict-check`: forced `strict` mode.
+- `GET /api/shadow/summary`: local shadow analytics summary.
+- `GET /api/shadow/report`: write local shadow report files and return paths.
 
 Existing endpoints such as `/api/route`, `/api/context`, `/api/packet`, and `/api/eval` remain available for backward compatibility.
 
@@ -90,6 +92,20 @@ Successful v1 responses include:
 `packet` mode or `include_packet=true` adds a populated `devspace_run_packet` unless forbidden context is detected.
 
 Risk levels may be `low`, `medium`, `medium-high`, `high`, or `critical`.
+
+Shadow responses also include:
+
+```json
+{
+  "shadow_id": "sh_...",
+  "comparison_to_actual": {},
+  "actual_tier": "advanced",
+  "recommended_tier": "cheap",
+  "overkill_or_underpowered": "human_stronger",
+  "abstract_cost_delta": 7,
+  "router_would_block_in_strict": false
+}
+```
 
 ## Error Format
 

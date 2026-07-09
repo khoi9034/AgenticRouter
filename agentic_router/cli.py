@@ -22,6 +22,7 @@ from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .router import route
 from .sessions import format_session_summary, summarize_sessions
+from .shadow import add_demo_data, export_shadow_report, format_shadow_summary, summarize_shadow_runs
 from .simulator import format_simulation, list_scenarios, run_scenario
 
 
@@ -81,6 +82,9 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("api-contract", help="print DevSpace integration contract summary")
     subparsers.add_parser("export-devspace-contract", help="write DevSpace integration contract files")
     subparsers.add_parser("integration-test", help="run built-in integration contract checks")
+    subparsers.add_parser("shadow-summary", help="summarize shadow mode analytics")
+    subparsers.add_parser("export-shadow-report", help="write shadow mode rollout report")
+    subparsers.add_parser("shadow-add-demo-data", help="add sanitized demo shadow records")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -184,6 +188,16 @@ def main(argv: list[str] | None = None) -> int:
         if result["failures"]:
             print(json.dumps(result["failures"], indent=2))
         return 0 if result["ok"] else 1
+    elif args.command == "shadow-summary":
+        print(format_shadow_summary(summarize_shadow_runs()))
+    elif args.command == "export-shadow-report":
+        result = export_shadow_report()
+        print(f"Exported shadow mode report to {result['export_folder']}")
+        for path in result["files"].values():
+            print(f"- {path}")
+    elif args.command == "shadow-add-demo-data":
+        records = add_demo_data()
+        print(f"Added {len(records)} sanitized demo shadow records.")
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

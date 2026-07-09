@@ -5,6 +5,7 @@ const observability = document.querySelector("#observability");
 const configStudio = document.querySelector("#config-studio");
 const scenarioSimulator = document.querySelector("#scenario-simulator");
 const integrationContract = document.querySelector("#integration-contract");
+const shadowAnalytics = document.querySelector("#shadow-analytics");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -127,6 +128,36 @@ async function loadIntegrationContract() {
   `;
   document.querySelector("#run-v1-advise").addEventListener("click", testIntegrationAdvise);
   document.querySelector("#run-v1-strict").addEventListener("click", testIntegrationStrict);
+}
+
+async function loadShadowAnalytics() {
+  const summary = await getJson("/api/shadow/summary");
+  const topProjects = summary.top_mismatch_projects.length
+    ? summary.top_mismatch_projects.map((item) => `${item[0]} (${item[1]})`).join(", ")
+    : "none";
+  shadowAnalytics.innerHTML = `
+    <h2>Shadow Analytics</h2>
+    <p>Compare actual model usage against router recommendations.</p>
+    <div class="warning">Shadow mode is advisory. It does not change DevSpace model selection.</div>
+    <div class="metrics">
+      <div><span>Shadow runs</span><strong>${escapeHtml(summary.total_shadow_runs)}</strong></div>
+      <div><span>Tier agreement</span><strong>${escapeHtml(percent(summary.tier_agreement_rate))}</strong></div>
+      <div><span>Overkill</span><strong>${escapeHtml(summary.estimated_overkill_count)}</strong></div>
+      <div><span>Too weak</span><strong>${escapeHtml(summary.estimated_too_weak_safety_risk_count)}</strong></div>
+      <div><span>Units saved</span><strong>${escapeHtml(summary.estimated_units_saved_lost)}</strong></div>
+      <div><span>Would block</span><strong>${escapeHtml(summary.strict_mode_would_block_count)}</strong></div>
+    </div>
+    <dl>
+      <dt>Top mismatch projects</dt><dd>${escapeHtml(topProjects)}</dd>
+      <dt>Reports</dt><dd class="export-links">
+        <a href="/exports/reports/shadow_mode_report.md" target="_blank">Markdown report</a>
+        <a href="/exports/reports/shadow_mode_report.json" target="_blank">JSON report</a>
+      </dd>
+    </dl>
+    <button type="button" id="export-shadow-report">Export report</button>
+    <div id="shadow-status" class="status"></div>
+  `;
+  document.querySelector("#export-shadow-report").addEventListener("click", exportShadowReport);
 }
 
 function filesFromInput(value) {
@@ -287,6 +318,10 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function percent(value) {
+  return `${((Number(value) || 0) * 100).toFixed(1)}%`;
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const payload = {
@@ -423,6 +458,13 @@ async function testIntegrationStrict() {
   setIntegrationStatus(`v1 strict block=${data.block} (${data.block_reason || "not blocked"})`, data.block);
 }
 
+async function exportShadowReport() {
+  const data = await getJson("/api/shadow/report");
+  const status = document.querySelector("#shadow-status");
+  status.textContent = `Report exported: ${data.files.markdown}`;
+  status.className = "status ok";
+}
+
 function showSimulation(data) {
   const summary = data.summary;
   const savings = summary.savings;
@@ -493,3 +535,4 @@ loadObservability().catch(() => {});
 loadConfigStudio().catch(() => {});
 loadScenarioSimulator().catch(() => {});
 loadIntegrationContract().catch(() => {});
+loadShadowAnalytics().catch(() => {});

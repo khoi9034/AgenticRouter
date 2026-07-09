@@ -15,13 +15,19 @@ class IntegrationContractTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.old_traces = os.environ.get("AGENTIC_ROUTER_TRACES")
+        self.old_shadow = os.environ.get("AGENTIC_ROUTER_SHADOW_RUNS")
         os.environ["AGENTIC_ROUTER_TRACES"] = str(Path(self.tmp.name) / "traces.jsonl")
+        os.environ["AGENTIC_ROUTER_SHADOW_RUNS"] = str(Path(self.tmp.name) / "shadow_runs.jsonl")
 
     def tearDown(self):
         if self.old_traces is None:
             os.environ.pop("AGENTIC_ROUTER_TRACES", None)
         else:
             os.environ["AGENTIC_ROUTER_TRACES"] = self.old_traces
+        if self.old_shadow is None:
+            os.environ.pop("AGENTIC_ROUTER_SHADOW_RUNS", None)
+        else:
+            os.environ["AGENTIC_ROUTER_SHADOW_RUNS"] = self.old_shadow
         self.tmp.cleanup()
 
     def test_health_version_and_v1_endpoint_fields(self):
@@ -80,6 +86,8 @@ class IntegrationContractTests(unittest.TestCase):
         trace = json.loads(Path(os.environ["AGENTIC_ROUTER_TRACES"]).read_text(encoding="utf-8").strip())
 
         self.assertEqual(result["mode"], "shadow")
+        self.assertIn("shadow_id", result)
+        self.assertIn("comparison_to_actual", result)
         self.assertEqual(result["observability"]["actual_model_used"], "Sonnet 4.6")
         self.assertEqual(trace["route_id"], result["route_id"])
 

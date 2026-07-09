@@ -3,6 +3,8 @@
   "endpoints": {
     "GET /api/contracts": "Stable request/response contract.",
     "GET /api/health": "Local health check.",
+    "GET /api/shadow/report": "Write local shadow mode report files.",
+    "GET /api/shadow/summary": "Summarize local shadow mode analytics.",
     "GET /api/version": "Version and contract metadata.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
     "POST /api/v1/route": "Run advise or requested mode.",
@@ -93,5 +95,14 @@
     "warnings": [
       "string"
     ]
+  },
+  "shadow_response_fields": {
+    "abstract_cost_delta": "integer|null",
+    "actual_tier": "cheap|mid|advanced|unknown",
+    "comparison_to_actual": "object",
+    "overkill_or_underpowered": "agreement|human_stronger|human_weaker|safety_risk|unknown",
+    "recommended_tier": "cheap|mid|advanced",
+    "router_would_block_in_strict": "boolean",
+    "shadow_id": "string"
   }
 }
