@@ -2,6 +2,39 @@
 
 AgenticRouter is a local, rule-based MVP that recommends the safest cheapest DevSpace model for a task. It does not call an AI model.
 
+## Quickstart
+
+AgenticRouter runs fully local/offline. The router is rule-based and makes no AI, cloud, API-key, or remote tracing calls.
+
+Run the local web UI:
+
+```bash
+python scripts/run_web.py
+```
+
+The script uses `http://127.0.0.1:8765` when available, then tries `8766` through `8769`.
+
+Run the release smoke test:
+
+```bash
+python scripts/smoke_test.py
+```
+
+Run the core checks directly:
+
+```bash
+python -m unittest discover -s tests
+python -m agentic_router.cli eval
+python -m agentic_router.cli validate-config
+```
+
+Demo walkthrough docs:
+
+- `docs/quickstart_demo.md`
+- `docs/architecture_overview.md`
+- `docs/demo_script.md`
+- `docs/rollout_plan.md`
+
 ## Install
 
 ```bash
@@ -136,15 +169,15 @@ python -m agentic_router.cli pilot-scorecard
 Local web UI:
 
 ```bash
-python -m agentic_router.web
+python scripts/run_web.py
 ```
 
-Then open http://127.0.0.1:8765.
+Then open the URL printed by the script.
 
 If that port is already in use:
 
 ```bash
-$env:AGENTIC_ROUTER_PORT=8766; python -m agentic_router.web
+python scripts/run_web.py
 ```
 
 Installed console script:
