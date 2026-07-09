@@ -30,6 +30,14 @@ Golden evaluation:
 python -m agentic_router.cli eval
 ```
 
+Local web UI:
+
+```bash
+python -m agentic_router.web
+```
+
+Then open http://127.0.0.1:8765.
+
 Installed console script:
 
 ```bash
@@ -87,6 +95,18 @@ Run the golden routing evaluation:
 python -m agentic_router.cli eval
 ```
 
+Run the local web UI:
+
+```bash
+python -m agentic_router.web
+```
+
+The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
+
+- `/api/projects`
+- `/api/route`
+- `/api/eval`
+
 ## Adding Examples
 
 To add a project, update `data/projects.json` with its default tier, risk, production status, sensitivity flag, and routing keywords.
@@ -111,3 +131,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
+
+## Web UI
+
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, risk, human-review flag, context policy, escalation policy, and matched rules. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.

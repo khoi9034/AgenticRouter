@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DevSpace Smart Router</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro">
+        <p class="eyebrow">AgenticRouter</p>
+        <h1>DevSpace Smart Router</h1>
+        <p>Router uses rules only. No AI call is made.</p>
+      </section>
+
+      <section class="grid">
+        <form id="route-form" class="panel">
+          <label>
+            Project
+            <select id="project" name="project_name" required></select>
+          </label>
+
+          <label>
+            Task description
+            <textarea id="task" name="task_description" rows="5" required placeholder="Describe the task to route"></textarea>
+          </label>
+
+          <label>
+            Files touched
+            <textarea id="files" name="files_touched" rows="3" placeholder="One per line or comma-separated"></textarea>
+          </label>
+
+          <div class="split">
+            <label>
+              Previous failures
+              <input id="failures" name="previous_failure_count" type="number" min="0" value="0">
+            </label>
+
+            <label class="check">
+              <input id="live-prod" name="live_prod" type="checkbox">
+              Live/prod task
+            </label>
+          </div>
+
+          <button type="submit">Route task</button>
+        </form>
+
+        <section id="result" class="panel result empty">
+          <div class="placeholder">Run a task to see the recommendation.</div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
