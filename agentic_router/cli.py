@@ -4,6 +4,7 @@ import argparse
 import json
 from typing import Any
 
+from .context import format_context_pack
 from .evaluator import evaluate_tasks, format_summary
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .router import route
@@ -22,6 +23,11 @@ def main(argv: list[str] | None = None) -> int:
     route_parser.add_argument("--sensitive", action="store_true")
     route_parser.add_argument("--format", choices=["text", "json"], default="text")
     route_parser.add_argument("--json", action="store_true", dest="json_output")
+    context_parser = subparsers.add_parser("context", help="recommend a context pack")
+    context_parser.add_argument("--project", required=True)
+    context_parser.add_argument("--task", required=True)
+    context_parser.add_argument("--files", nargs="*", default=[])
+    context_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -45,6 +51,14 @@ def main(argv: list[str] | None = None) -> int:
             output_format=output_format,
         )
         print(json.dumps(result, indent=2) if output_format == "json" else _format_text(result))
+    elif args.command == "context":
+        result = route(
+            project_name=args.project,
+            task_description=args.task,
+            files_touched=args.files,
+        )
+        pack = result["context_pack"]
+        print(json.dumps(pack, indent=2) if args.json_output else format_context_pack(pack))
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))
@@ -77,6 +91,8 @@ def _format_text(result: dict[str, Any]) -> str:
             f"Human review required: {review}",
             f"Reason: {result['reason']}",
             f"Context policy: {result['context_policy']}",
+            "Context pack:",
+            _indent(format_context_pack(result["context_pack"])),
             f"Escalation policy: {result['escalation_policy']}",
             "Matched rules:",
             rules,
@@ -96,6 +112,10 @@ def _unknown_bool_arg(value: str) -> bool | None:
     if value.casefold() == "unknown":
         return None
     return _bool_arg(value)
+
+
+def _indent(text: str) -> str:
+    return "\n".join(f"  {line}" for line in text.splitlines())
 
 
 if __name__ == "__main__":

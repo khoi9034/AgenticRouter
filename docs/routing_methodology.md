@@ -30,6 +30,22 @@ Human review is required when a project is marked sensitive or when task/project
 
 The router prefers the smallest useful context: listed files, direct callers, tests, and config. It avoids whole-repo context by default. Sensitive tasks add an explicit exclusion for secrets, tokens, credentials, bearer tokens, PII, PHI, and real case records.
 
+The Context Pack Builder adds structured guidance beside that plain-language policy:
+
+- `context_size`: tiny, small, medium, or large
+- include patterns and file types
+- notes for what to include
+- exclude patterns
+- forbidden context
+- booleans for repo map, recent errors, and summarizing large files
+- redaction warning and reason
+
+Rules stay conservative. Docs/static work only gets touched docs/static files. UI work gets nearby UI/CSS and API contracts only if needed. Backend/report/bot work gets the script or endpoint, config example, project rules, and tests. Sensitive/security/live-prod work gets direct auth/API/SQL/config/test context and a strong warning against real PII, tokens, emails, tenant IDs, serials, records, private logs, or production secrets.
+
+Public official content such as Local Budget Book and Transparency Portal requires source verification and forbids invented numbers or unverified claims. Live Forge bot work includes bot scripts, CLAUDE.md, implementation notes, manifests, and env-var docs without real values, with extra caution around email delivery, SQL, delete/archive behavior, naming conventions, and deployment.
+
+When files are not listed, the builder recommends patterns/categories instead of exact paths. When many files are listed, it recommends summarizing large or generated files rather than sending all content.
+
 ## Outcome Feedback
 
 Every route result includes a `route_id`. The route ID encodes only non-sensitive routing metadata needed for later feedback: project name, broad task category, recommended tier/model, and escalation reason names. It does not encode task text, files touched, context, secrets, records, or user data.

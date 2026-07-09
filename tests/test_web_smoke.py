@@ -50,6 +50,18 @@ class WebSmokeTests(unittest.TestCase):
         )
         self.assertEqual(result["model_tier"], "cheap")
         self.assertTrue(result["route_id"].startswith("ar_"))
+        self.assertIn("context_pack", result)
+
+        context = self._post_json(
+            "/api/context",
+            {
+                "project_name": "Diana Test Project",
+                "task_description": "Make the hello world page background prettier",
+                "files_touched": ["index.html", "style.css"],
+                "previous_failure_count": 0,
+            },
+        )
+        self.assertIn(context["context_size"], {"tiny", "small"})
 
         feedback = self._post_json(
             "/api/feedback",

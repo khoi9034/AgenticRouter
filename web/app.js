@@ -26,6 +26,7 @@ function badgeClass(risk) {
 
 function showResult(data) {
   const rules = data.matched_rules.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("");
+  const pack = data.context_pack;
   currentRouteId = data.route_id;
   result.className = "panel result";
   result.innerHTML = `
@@ -49,6 +50,28 @@ function showResult(data) {
       <dt>Escalation policy</dt><dd>${escapeHtml(data.escalation_policy)}</dd>
       <dt>Matched rules</dt><dd><ul>${rules}</ul></dd>
     </dl>
+    <section class="context-pack">
+      <div class="context-head">
+        <h3>Recommended Context Pack</h3>
+        <span class="size-badge">${escapeHtml(pack.context_size)}</span>
+      </div>
+      <div class="context-grid">
+        <div>
+          <h4>Include</h4>
+          <ul>${listItems(pack.include_patterns)}</ul>
+        </div>
+        <div>
+          <h4>Exclude</h4>
+          <ul>${listItems(pack.exclude_patterns)}</ul>
+        </div>
+      </div>
+      <div class="forbidden">
+        <strong>Forbidden context</strong>
+        <ul>${listItems(pack.forbidden_context)}</ul>
+      </div>
+      <p class="context-warning">${escapeHtml(pack.redaction_warning)}</p>
+      <p>${escapeHtml(pack.context_reason)}</p>
+    </section>
     <form id="feedback-form" class="feedback">
       <h3>Feedback</h3>
       <p>Notes should be sanitized. Do not include secrets, PII, records, emails, tokens, or serial numbers.</p>
@@ -97,6 +120,10 @@ function showResult(data) {
 function showError(message) {
   result.className = "panel result";
   result.innerHTML = `<div class="warning">${escapeHtml(message)}</div>`;
+}
+
+function listItems(items) {
+  return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
 function escapeHtml(value) {

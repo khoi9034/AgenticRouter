@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .context import build_context_pack
 from .models import default_model_for_tier
 from .outcomes import make_route_id
 from .projects import find_project
@@ -81,6 +82,7 @@ def route(
         "escalation_policy": _escalation_policy(tier, previous_failure_count, needs_human),
         "matched_rules": matched_rules,
     }
+    result["context_pack"] = build_context_pack(project_name, task_description, files, risk, tier, matched_rules)
     result["route_id"] = make_route_id(project_name, task_description, files, result)
     return result
 

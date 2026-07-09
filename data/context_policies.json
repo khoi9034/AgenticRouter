@@ -1,0 +1,69 @@
+{
+  "base_forbidden_context": [
+    "real secrets",
+    "credentials",
+    "passwords",
+    "bearer tokens",
+    "PII",
+    "PHI",
+    "private logs",
+    "production secrets"
+  ],
+  "categories": {
+    "docs_static": {
+      "include_file_types": [".md", ".txt", ".html", ".css"],
+      "include_notes": ["Include only touched docs/static files and nearby style assets."],
+      "exclude_patterns": ["**/api/**", "**/auth/**", "**/sql/**", "**/database/**", "**/deploy/**", "**/logs/**"],
+      "forbidden_context": ["backend code", "auth flows", "database dumps", "deployment secrets", "logs"],
+      "context_reason": "Docs/static work only needs the edited content and immediate style context."
+    },
+    "ui": {
+      "include_file_types": [".html", ".css", ".js", ".jsx", ".ts", ".tsx", ".py"],
+      "include_notes": ["Include touched UI files, related CSS, and API contract stubs only if the UI depends on them."],
+      "exclude_patterns": ["**/secrets/**", "**/.env*", "**/prod/**", "**/archive/**"],
+      "forbidden_context": ["secrets", "unrelated project folders"],
+      "context_reason": "UI work needs screen/component context plus the smallest API contract needed to avoid guessing."
+    },
+    "backend": {
+      "include_file_types": [".py", ".php", ".js", ".ts", ".sql", ".json", ".md"],
+      "include_notes": ["Include the relevant script or endpoint, config example, README or CLAUDE rules, and tests if present."],
+      "exclude_patterns": ["**/.env*", "**/logs/**", "**/generated/**", "**/exports/**", "**/archive/**"],
+      "forbidden_context": ["real credentials", "production logs", "unrelated generated files"],
+      "context_reason": "Backend/report/bot work needs the entry point, config shape, nearby tests, and project rules."
+    },
+    "sensitive": {
+      "include_file_types": [".py", ".php", ".sql", ".json", ".md", ".yml", ".yaml", ".ps1"],
+      "include_notes": ["Include only directly relevant auth, API, SQL, config docs, and tests."],
+      "exclude_patterns": ["**/.env*", "**/prod*.json", "**/logs/**", "**/exports/**", "**/records/**", "**/backups/**"],
+      "forbidden_context": [
+        "real PII",
+        "tokens",
+        "passwords",
+        "emails",
+        "USB serials",
+        "legal records",
+        "veteran records",
+        "claim details",
+        "tenant IDs",
+        "private logs",
+        "production secrets"
+      ],
+      "context_reason": "Sensitive/security/live-prod work needs enough direct implementation context to be safe, with strict redaction."
+    },
+    "public_official": {
+      "include_file_types": [".md", ".txt", ".csv", ".json", ".html", ".pdf"],
+      "include_notes": ["Include source docs, page references, extracted text, and affected generated files."],
+      "exclude_patterns": ["**/.env*", "**/drafts/private/**", "**/logs/**"],
+      "forbidden_context": ["invented numbers", "unverified public claims", "private draft notes"],
+      "context_reason": "Official public content needs source verification and affected output files, not broad repo context."
+    },
+    "live_forge": {
+      "include_file_types": [".py", ".json", ".md", ".yml", ".yaml"],
+      "include_notes": ["Include bot script, CLAUDE.md, implementation notes, manifest if present, and relevant env-var docs."],
+      "exclude_patterns": ["**/.env*", "**/secrets/**", "**/prod_logs/**", "**/exports/**"],
+      "forbidden_context": ["real env values", "secrets", "tokens", "production logs"],
+      "context_reason": "Live Forge bot work needs the bot entry point and operational notes while excluding real environment values."
+    }
+  }
+}
+

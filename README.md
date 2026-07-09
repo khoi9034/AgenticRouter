@@ -30,6 +30,12 @@ Golden evaluation:
 python -m agentic_router.cli eval
 ```
 
+Context pack recommendation:
+
+```bash
+python -m agentic_router.cli context --project "Veteran's Intake Application" --task "Fix auth ping redirect bug" --files Auth/ping.php api/list_intakes.php
+```
+
 Save sanitized outcome feedback:
 
 ```bash
@@ -77,6 +83,7 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `escalation_policy`
 - `matched_rules`
 - `route_id`
+- `context_pack`
 
 ## Routing Rules
 
@@ -118,6 +125,7 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 
 - `/api/projects`
 - `/api/route`
+- `/api/context`
 - `/api/eval`
 - `/api/feedback`
 - `/api/outcomes`
@@ -154,10 +162,11 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/models.json`: DevSpace models and default model per tier.
 - `data/projects.json`: DevSpace project catalog with risk, production, and sensitivity flags.
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
+- `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context pack, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
