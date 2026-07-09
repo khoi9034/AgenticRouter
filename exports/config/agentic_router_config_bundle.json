@@ -1,0 +1,1579 @@
+{
+  "bundle_version": 1,
+  "context_policies": {
+    "base_forbidden_context": [
+      "real secrets",
+      "credentials",
+      "passwords",
+      "bearer tokens",
+      "PII",
+      "PHI",
+      "private logs",
+      "production secrets"
+    ],
+    "categories": {
+      "backend": {
+        "context_reason": "Backend/report/bot work needs the entry point, config shape, nearby tests, and project rules.",
+        "exclude_patterns": [
+          "**/.env*",
+          "**/logs/**",
+          "**/generated/**",
+          "**/exports/**",
+          "**/archive/**"
+        ],
+        "forbidden_context": [
+          "real credentials",
+          "production logs",
+          "unrelated generated files"
+        ],
+        "include_file_types": [
+          ".py",
+          ".php",
+          ".js",
+          ".ts",
+          ".sql",
+          ".json",
+          ".md"
+        ],
+        "include_notes": [
+          "Include the relevant script or endpoint, config example, README or CLAUDE rules, and tests if present."
+        ]
+      },
+      "docs_static": {
+        "context_reason": "Docs/static work only needs the edited content and immediate style context.",
+        "exclude_patterns": [
+          "**/api/**",
+          "**/auth/**",
+          "**/sql/**",
+          "**/database/**",
+          "**/deploy/**",
+          "**/logs/**"
+        ],
+        "forbidden_context": [
+          "backend code",
+          "auth flows",
+          "database dumps",
+          "deployment secrets",
+          "logs"
+        ],
+        "include_file_types": [
+          ".md",
+          ".txt",
+          ".html",
+          ".css"
+        ],
+        "include_notes": [
+          "Include only touched docs/static files and nearby style assets."
+        ]
+      },
+      "live_forge": {
+        "context_reason": "Live Forge bot work needs the bot entry point and operational notes while excluding real environment values.",
+        "exclude_patterns": [
+          "**/.env*",
+          "**/secrets/**",
+          "**/prod_logs/**",
+          "**/exports/**"
+        ],
+        "forbidden_context": [
+          "real env values",
+          "secrets",
+          "tokens",
+          "production logs"
+        ],
+        "include_file_types": [
+          ".py",
+          ".json",
+          ".md",
+          ".yml",
+          ".yaml"
+        ],
+        "include_notes": [
+          "Include bot script, CLAUDE.md, implementation notes, manifest if present, and relevant env-var docs."
+        ]
+      },
+      "public_official": {
+        "context_reason": "Official public content needs source verification and affected output files, not broad repo context.",
+        "exclude_patterns": [
+          "**/.env*",
+          "**/drafts/private/**",
+          "**/logs/**"
+        ],
+        "forbidden_context": [
+          "invented numbers",
+          "unverified public claims",
+          "private draft notes"
+        ],
+        "include_file_types": [
+          ".md",
+          ".txt",
+          ".csv",
+          ".json",
+          ".html",
+          ".pdf"
+        ],
+        "include_notes": [
+          "Include source docs, page references, extracted text, and affected generated files."
+        ]
+      },
+      "sensitive": {
+        "context_reason": "Sensitive/security/live-prod work needs enough direct implementation context to be safe, with strict redaction.",
+        "exclude_patterns": [
+          "**/.env*",
+          "**/prod*.json",
+          "**/logs/**",
+          "**/exports/**",
+          "**/records/**",
+          "**/backups/**"
+        ],
+        "forbidden_context": [
+          "real PII",
+          "tokens",
+          "passwords",
+          "emails",
+          "USB serials",
+          "legal records",
+          "veteran records",
+          "claim details",
+          "tenant IDs",
+          "private logs",
+          "production secrets"
+        ],
+        "include_file_types": [
+          ".py",
+          ".php",
+          ".sql",
+          ".json",
+          ".md",
+          ".yml",
+          ".yaml",
+          ".ps1"
+        ],
+        "include_notes": [
+          "Include only directly relevant auth, API, SQL, config docs, and tests."
+        ]
+      },
+      "ui": {
+        "context_reason": "UI work needs screen/component context plus the smallest API contract needed to avoid guessing.",
+        "exclude_patterns": [
+          "**/secrets/**",
+          "**/.env*",
+          "**/prod/**",
+          "**/archive/**"
+        ],
+        "forbidden_context": [
+          "secrets",
+          "unrelated project folders"
+        ],
+        "include_file_types": [
+          ".html",
+          ".css",
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx",
+          ".py"
+        ],
+        "include_notes": [
+          "Include touched UI files, related CSS, and API contract stubs only if the UI depends on them."
+        ]
+      }
+    }
+  },
+  "created_at": "2026-07-09T15:29:13",
+  "enterprise_template_metadata": {
+    "available": true,
+    "budget_group_count": 6,
+    "guardrail_count": 12,
+    "routing_policy_count": 6
+  },
+  "fallback_policies": {
+    "advanced": [
+      "GPT-5.5",
+      "Opus 4.8",
+      "Opus 4.7"
+    ],
+    "cheap": [
+      "Haiku 4.5",
+      "GPT-5.4 mini",
+      "Sonnet 4.6"
+    ],
+    "live_prod": [
+      "GPT-5.5",
+      "Opus 4.8"
+    ],
+    "mid": [
+      "Sonnet 4.6",
+      "GPT-5.4",
+      "Opus 4.7"
+    ],
+    "public_official_content": [
+      "GPT-5.5",
+      "Opus 4.8"
+    ],
+    "security": [
+      "GPT-5.5",
+      "Opus 4.8"
+    ]
+  },
+  "golden_tasks": {
+    "tasks": [
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "cheap_content"
+        ],
+        "expected_risk": "low",
+        "expected_tier": "cheap",
+        "files_touched": [
+          "index.html",
+          "style.css"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Diana Test Project",
+        "task_description": "Make the hello world page background prettier"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "cheap_content"
+        ],
+        "expected_risk": "low",
+        "expected_tier": "cheap",
+        "files_touched": [
+          "README.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Mark's Test Project",
+        "task_description": "Update README copy for the demo"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "cheap_content"
+        ],
+        "expected_risk": "low",
+        "expected_tier": "cheap",
+        "files_touched": [
+          "public/index.html",
+          "public/site.css"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Scott's Test Project",
+        "task_description": "Add placeholder static HTML and CSS for a test page"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "cheap_content"
+        ],
+        "expected_risk": "low",
+        "expected_tier": "cheap",
+        "files_touched": [
+          "docs/summary.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Diana Test Project",
+        "task_description": "Write a simple summary for the sample page"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "cheap_content"
+        ],
+        "expected_risk": "low",
+        "expected_tier": "cheap",
+        "files_touched": [
+          "docs/notes.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Scott's Test Project",
+        "task_description": "Clean up docs wording for the test app"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "reports/quarterly.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Grant Quarter Reporting",
+        "task_description": "Create a dashboard report for quarter totals"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "reports/grants.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Grant Quarter Reporting",
+        "task_description": "Adjust report logic for Munis grant categories"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "project_default:mid"
+        ],
+        "expected_risk": "medium-high",
+        "expected_tier": "mid",
+        "files_touched": [
+          "coi/extract.py",
+          "tests/test_extract.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "COI project",
+        "task_description": "Improve PDF extraction compliance checks"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "project_default:mid"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "docs/debrief.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Student TRACK Debrief Documentation",
+        "task_description": "Add a debrief documentation summary section"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "src/form.py",
+          "templates/form.html"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Diana Test Project",
+        "task_description": "Add a normal UI form for collecting sample preferences"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "docs/workflow.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Mark's Test Project",
+        "task_description": "Sketch workflow design for a non-production demo"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "analysis/bot_notes.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Scott's Test Project",
+        "task_description": "Do non-production bot analysis for a prototype run"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium-high",
+        "expected_tier": "mid",
+        "files_touched": [
+          "coi/dashboard.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "COI project",
+        "task_description": "Add a compliance dashboard for extracted PDF results"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "mid_complexity"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "reports/review.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Grant Quarter Reporting",
+        "task_description": "Add a workflow review screen before report export"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "advanced_risk",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "Auth/ping.php",
+          "api/list_intakes.php"
+        ],
+        "previous_failure_count": 1,
+        "project_name": "Veteran's Intake Application",
+        "task_description": "Fix auth ping endpoint redirect bug"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "advanced_risk",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "api/search_intakes.php",
+          "sql/intakes.sql"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Veteran's Intake Application",
+        "task_description": "Tune SQL query for intake search results"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "laserfiche",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "api/download.php"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Veteran's Intake Application",
+        "task_description": "Repair Laserfiche file download handling"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "advanced_risk",
+          "security_controls"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "graph/hunting.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "USB Device Approval Application",
+        "task_description": "Update Microsoft Graph Advanced Hunting query for USB approvals"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "intune",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "intune/usb_devices.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "USB Device Approval Application",
+        "task_description": "Change Intune USB serial matching logic"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "laserfiche",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "migration/metadata.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "CLIO Data Extraction",
+        "task_description": "Map Clio document metadata into Laserfiche fields"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "legal records",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "migration/retry.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "CLIO Data Extraction",
+        "task_description": "Retry legal records migration batches safely"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "laserfiche",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "dssi/laserfiche_api.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "DSSI Intake API Conversion",
+        "task_description": "Convert Laserfiche SDK upload to API calls"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "active directory",
+          "security_controls"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "ad/hardening.ps1"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "2024 CIT AD Hardening",
+        "task_description": "Review Active Directory hardening script for cybersecurity controls"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "infrastructure",
+          "security_controls"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "network/switch.yml"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Network Switch/IAP Config",
+        "task_description": "Update network switch infrastructure configuration"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "infrastructure",
+          "security_controls"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "syslog/parser.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "NACS - Syslog Server",
+        "task_description": "Tune infrastructure syslog forwarding and security logs parsing"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "project_default:advanced"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "services/arcgis.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Map Cabarrus 2.0",
+        "task_description": "Adjust ArcGIS service dependency fallback behavior"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "public safety",
+          "sensitive_data"
+        ],
+        "expected_risk": "critical",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "tracking/radio_status.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "911, Radio, and Real-Time Project Tracking",
+        "task_description": "Change public safety radio status dashboard logic"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "live_prod_project",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/refresh_users.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "TD Refresh Users Bot Conversion",
+        "task_description": "Change live Forge bot code that writes TeamDynamix users"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "live_prod_project",
+          "advanced_risk"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/ecos_pipeline.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "ECOs Bot Conversion",
+        "task_description": "Modify live Forge document pipeline email routing"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "laserfiche",
+          "live_prod_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "forge/gap_bills.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Gap Bills Forge Conversion",
+        "task_description": "Fix PDF-to-JPG handling for the Laserfiche feed"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "sql",
+          "live_prod_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "valt/reports.sql"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "VALT Reporting Bots Conversion",
+        "task_description": "Change SQL report query before live email routing"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "bearer token",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/auth.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "TD Refresh Users Bot Conversion",
+        "task_description": "Rotate bearer token handling without storing the token value"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "live_prod_project",
+          "advanced_risk"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/email_report.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "ECOs Bot Conversion",
+        "task_description": "Adjust reporting email summary for live Forge prod"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "official public budget",
+          "advanced_risk"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "data/budget.json",
+          "site/budget.html"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Local Budget Book",
+        "task_description": "Update official public budget figures in the static site"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "project_default:advanced"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "site/budget.css"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Local Budget Book",
+        "task_description": "Change budget book CSS for public budget tables"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "official public budget",
+          "advanced_risk"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "content/transparency.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Transparency Portal",
+        "task_description": "Revise public official content copy on transparency page"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "project_default:advanced"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "portal/table.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Transparency Portal",
+        "task_description": "Update transparency portal data table labels"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "workers comp",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "claims/form.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Workers Comp V2",
+        "task_description": "Fix workers comp claim form validation"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "medical",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "claims/export.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Workers Compensation",
+        "task_description": "Review medical claim data export wording"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "payroll",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "payroll/shift_premium.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Shift Premium",
+        "task_description": "Adjust UKG payroll calculation for shift premium"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "project_default:advanced",
+          "sensitive_project"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/ncfast.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "NCFast Bot Conversion",
+        "task_description": "Convert public benefits automation step to the new bot"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "pii",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "api/summary.php"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Veteran's Intake Application",
+        "task_description": "Redact PII before showing veteran intake summary"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "cybersecurity",
+          "security_controls"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "security/review.md"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "USB Device Approval Application",
+        "task_description": "Review cybersecurity controls for USB approval workflow"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "public safety",
+          "sensitive_data"
+        ],
+        "expected_risk": "critical",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "tracking/status.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "911, Radio, and Real-Time Project Tracking",
+        "task_description": "Fix real-time public safety incident status rollup"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "previous_failures_escalate"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "README.md"
+        ],
+        "previous_failure_count": 2,
+        "project_name": "Diana Test Project",
+        "task_description": "Update README copy after repeated misses"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "previous_failures_escalate"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "reports/quarterly.py"
+        ],
+        "previous_failure_count": 2,
+        "project_name": "Grant Quarter Reporting",
+        "task_description": "Fix report totals after two failed attempts"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "previous_failures_escalate"
+        ],
+        "expected_risk": "medium-high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "coi/extract.py"
+        ],
+        "previous_failure_count": 2,
+        "project_name": "COI project",
+        "task_description": "Repair PDF extraction after repeated failures"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "previous_failures_escalate"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "docs/notes.md"
+        ],
+        "previous_failure_count": 2,
+        "project_name": "Scott's Test Project",
+        "task_description": "Update docs after repeated failures"
+      },
+      {
+        "expected_human_review_required": false,
+        "expected_reason_keywords": [
+          "previous_failures_escalate"
+        ],
+        "expected_risk": "medium",
+        "expected_tier": "mid",
+        "files_touched": [
+          "public/index.html"
+        ],
+        "previous_failure_count": 2,
+        "project_name": "Mark's Test Project",
+        "task_description": "Fix static HTML summary after repeated misses"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "exclude secrets",
+          "pii"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "Auth/ping.php"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "Veteran's Intake Application",
+        "task_description": "Fix auth bug without exposing credentials or PII"
+      },
+      {
+        "expected_human_review_required": true,
+        "expected_reason_keywords": [
+          "bearer tokens",
+          "exclude secrets"
+        ],
+        "expected_risk": "high",
+        "expected_tier": "advanced",
+        "files_touched": [
+          "bots/auth.py"
+        ],
+        "previous_failure_count": 0,
+        "project_name": "TD Refresh Users Bot Conversion",
+        "task_description": "Review bearer token handling and exclude real secrets from context"
+      }
+    ]
+  },
+  "model_aliases": {
+    "aliases": {
+      "devspace-advanced": {
+        "fallback": "Opus 4.8",
+        "primary": "GPT-5.5",
+        "tier": "advanced"
+      },
+      "devspace-cheap": {
+        "fallback": "GPT-5.4 mini",
+        "primary": "Haiku 4.5",
+        "tier": "cheap"
+      },
+      "devspace-docs": {
+        "fallback": "Sonnet 4.6",
+        "primary": "Haiku 4.5",
+        "tier": "cheap"
+      },
+      "devspace-live-prod": {
+        "fallback": "Opus 4.8",
+        "primary": "GPT-5.5",
+        "tier": "advanced"
+      },
+      "devspace-mid": {
+        "fallback": "GPT-5.4",
+        "primary": "Sonnet 4.6",
+        "tier": "mid"
+      },
+      "devspace-public-official-content": {
+        "fallback": "Opus 4.8",
+        "primary": "GPT-5.5",
+        "tier": "advanced"
+      },
+      "devspace-security": {
+        "fallback": "Opus 4.8",
+        "primary": "GPT-5.5",
+        "tier": "advanced"
+      }
+    }
+  },
+  "models": {
+    "default_by_tier": {
+      "advanced": "Opus 4.7",
+      "cheap": "Haiku 4.5",
+      "mid": "Sonnet 4.6"
+    },
+    "models": [
+      {
+        "name": "Opus 4.8",
+        "tier": "advanced",
+        "vendor": "Claude"
+      },
+      {
+        "name": "Opus 4.7",
+        "tier": "advanced",
+        "vendor": "Claude"
+      },
+      {
+        "name": "Sonnet 4.6",
+        "tier": "mid",
+        "vendor": "Claude"
+      },
+      {
+        "name": "Haiku 4.5",
+        "tier": "cheap",
+        "vendor": "Claude"
+      },
+      {
+        "name": "GPT-5.5",
+        "tier": "advanced",
+        "vendor": "Codex"
+      },
+      {
+        "name": "GPT-5.4",
+        "tier": "mid",
+        "vendor": "Codex"
+      },
+      {
+        "name": "GPT-5.4 mini",
+        "tier": "cheap",
+        "vendor": "Codex"
+      }
+    ]
+  },
+  "projects": {
+    "projects": [
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "veteran",
+          "laserfiche",
+          "sql",
+          "auth",
+          "file upload",
+          "file download",
+          "live workflow"
+        ],
+        "live_prod": true,
+        "name": "Veteran's Intake Application",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "microsoft graph",
+          "advanced hunting",
+          "intune",
+          "cybersecurity",
+          "teamdynamix",
+          "tdx",
+          "usb serials"
+        ],
+        "live_prod": true,
+        "name": "USB Device Approval Application",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "clio",
+          "laserfiche",
+          "document migration",
+          "metadata migration",
+          "legal records"
+        ],
+        "live_prod": false,
+        "name": "CLIO Data Extraction",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "public benefits",
+          "social services",
+          "automation",
+          "bot conversion"
+        ],
+        "live_prod": true,
+        "name": "NCFast Bot Conversion",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "live forge",
+          "forge prod",
+          "teamdynamix",
+          "tdx",
+          "bearer token",
+          "database",
+          "db merge"
+        ],
+        "live_prod": true,
+        "name": "TD Refresh Users Bot Conversion",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "live forge",
+          "forge prod",
+          "document pipeline",
+          "reporting email"
+        ],
+        "live_prod": true,
+        "name": "ECOs Bot Conversion",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "live forge",
+          "forge prod",
+          "pdf",
+          "jpg",
+          "laserfiche feed"
+        ],
+        "live_prod": true,
+        "name": "Gap Bills Forge Conversion",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "sql",
+          "forge",
+          "cart",
+          "reports",
+          "live email routing"
+        ],
+        "live_prod": true,
+        "name": "VALT Reporting Bots Conversion",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "static site",
+          "official public budget",
+          "public budget figures"
+        ],
+        "live_prod": true,
+        "name": "Local Budget Book",
+        "risk_level": "medium-high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "public official content",
+          "official public budget",
+          "transparency"
+        ],
+        "live_prod": true,
+        "name": "Transparency Portal",
+        "risk_level": "medium-high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "public gis",
+          "arcgis",
+          "service dependencies",
+          "resilience"
+        ],
+        "live_prod": true,
+        "name": "Map Cabarrus 2.0",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "aliases": [
+          "Workers Compensation"
+        ],
+        "default_tier": "advanced",
+        "keywords": [
+          "workers comp",
+          "hr",
+          "medical",
+          "legal records",
+          "claim data"
+        ],
+        "live_prod": true,
+        "name": "Workers Comp V2",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "911",
+          "radio",
+          "real-time",
+          "public safety",
+          "project tracking"
+        ],
+        "live_prod": true,
+        "name": "911, Radio, and Real-Time Project Tracking",
+        "risk_level": "critical",
+        "sensitive": true
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "cybersecurity",
+          "active directory",
+          "ad hardening"
+        ],
+        "live_prod": true,
+        "name": "2024 CIT AD Hardening",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "network",
+          "switch",
+          "iap",
+          "infrastructure"
+        ],
+        "live_prod": true,
+        "name": "Network Switch/IAP Config",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "syslog",
+          "server",
+          "infrastructure",
+          "security logs"
+        ],
+        "live_prod": true,
+        "name": "NACS - Syslog Server",
+        "risk_level": "high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "laserfiche",
+          "sdk",
+          "api migration",
+          "intake"
+        ],
+        "live_prod": true,
+        "name": "DSSI Intake API Conversion",
+        "risk_level": "high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "mid",
+        "keywords": [
+          "pdf extraction",
+          "compliance checks"
+        ],
+        "live_prod": false,
+        "name": "COI project",
+        "risk_level": "medium-high",
+        "sensitive": false
+      },
+      {
+        "default_tier": "mid",
+        "keywords": [
+          "finance",
+          "reporting",
+          "munis"
+        ],
+        "live_prod": false,
+        "name": "Grant Quarter Reporting",
+        "risk_level": "medium",
+        "sensitive": false
+      },
+      {
+        "default_tier": "advanced",
+        "keywords": [
+          "hr",
+          "payroll",
+          "ukg",
+          "munis"
+        ],
+        "live_prod": true,
+        "name": "Shift Premium",
+        "risk_level": "medium-high",
+        "sensitive": true
+      },
+      {
+        "default_tier": "mid",
+        "keywords": [
+          "student feedback",
+          "documentation"
+        ],
+        "live_prod": false,
+        "name": "Student TRACK Debrief Documentation",
+        "risk_level": "medium",
+        "sensitive": false
+      },
+      {
+        "default_tier": "cheap",
+        "keywords": [
+          "test project"
+        ],
+        "live_prod": false,
+        "name": "Mark's Test Project",
+        "risk_level": "low",
+        "sensitive": false
+      },
+      {
+        "default_tier": "cheap",
+        "keywords": [
+          "test project"
+        ],
+        "live_prod": false,
+        "name": "Scott's Test Project",
+        "risk_level": "low",
+        "sensitive": false
+      },
+      {
+        "default_tier": "cheap",
+        "keywords": [
+          "test project",
+          "hello world"
+        ],
+        "live_prod": false,
+        "name": "Diana Test Project",
+        "risk_level": "low",
+        "sensitive": false
+      }
+    ]
+  },
+  "routing_profiles": {
+    "profiles": {
+      "balanced": {
+        "allowed_model_aliases": [
+          "devspace-cheap",
+          "devspace-docs",
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 5,
+        "human_review_default": false,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      },
+      "claude_only": {
+        "allowed_model_aliases": [
+          "devspace-cheap",
+          "devspace-docs",
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 5,
+        "human_review_default": false,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced",
+        "model_family": "claude"
+      },
+      "codex_only": {
+        "allowed_model_aliases": [
+          "devspace-cheap",
+          "devspace-docs",
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 5,
+        "human_review_default": false,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced",
+        "model_family": "codex"
+      },
+      "cost_saver": {
+        "allowed_model_aliases": [
+          "devspace-cheap",
+          "devspace-docs",
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 7,
+        "human_review_default": false,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      },
+      "max_quality": {
+        "allowed_model_aliases": [
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 0,
+        "human_review_default": true,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      },
+      "max_savings": {
+        "allowed_model_aliases": [
+          "devspace-cheap",
+          "devspace-docs",
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 10,
+        "human_review_default": false,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      },
+      "quality_first": {
+        "allowed_model_aliases": [
+          "devspace-mid",
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 3,
+        "human_review_default": true,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      },
+      "safe_prod": {
+        "allowed_model_aliases": [
+          "devspace-advanced",
+          "devspace-live-prod",
+          "devspace-security",
+          "devspace-public-official-content"
+        ],
+        "cost_quality_tradeoff": 3,
+        "human_review_default": true,
+        "minimum_tier_for_live_prod": "advanced",
+        "minimum_tier_for_sensitive_tasks": "advanced"
+      }
+    }
+  },
+  "routing_rules": {
+    "advanced_keywords": [
+      "auth",
+      "authentication",
+      "sql",
+      "database",
+      "laserfiche",
+      "teamdynamix",
+      "tdx",
+      "microsoft graph",
+      "advanced hunting",
+      "intune",
+      "cybersecurity",
+      "active directory",
+      "infrastructure",
+      "production deployment",
+      "prod deployment",
+      "credentials",
+      "secrets",
+      "pii",
+      "hr",
+      "payroll",
+      "veteran",
+      "legal records",
+      "public safety",
+      "workers comp",
+      "official public budget",
+      "live forge",
+      "forge prod",
+      "bearer token"
+    ],
+    "cheap_keywords": [
+      "docs",
+      "documentation",
+      "copy",
+      "readme",
+      "placeholder",
+      "simple summary",
+      "summary",
+      "static html",
+      "html",
+      "css",
+      "hello world",
+      "background",
+      "prettier"
+    ],
+    "mid_keywords": [
+      "ui",
+      "form",
+      "forms",
+      "dashboard",
+      "report",
+      "reports",
+      "reporting",
+      "workflow",
+      "workflow design",
+      "bot analysis",
+      "analysis"
+    ],
+    "security_keywords": [
+      "auth",
+      "authentication",
+      "authorization",
+      "cybersecurity",
+      "active directory",
+      "intune",
+      "microsoft graph",
+      "advanced hunting",
+      "firewall",
+      "network",
+      "infrastructure",
+      "security controls"
+    ],
+    "sensitive_keywords": [
+      "credentials",
+      "secrets",
+      "token",
+      "bearer token",
+      "pii",
+      "phi",
+      "veteran",
+      "hr",
+      "payroll",
+      "medical",
+      "legal records",
+      "workers comp",
+      "public safety"
+    ]
+  }
+}

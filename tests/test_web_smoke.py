@@ -108,6 +108,10 @@ class WebSmokeTests(unittest.TestCase):
         self.assertFalse(observability["status"]["remote_tracing_enabled"])
         self.assertGreaterEqual(observability["summary"]["total_traces"], 1)
 
+        config = self._get_json("/api/config/summary")
+        self.assertEqual(config["validation_status"], "pass")
+        self.assertGreater(config["total_projects"], 0)
+
     def _get_json(self, path):
         return json.loads(urlopen(f"{self.base_url}{path}", timeout=5).read())
 

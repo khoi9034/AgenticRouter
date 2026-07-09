@@ -67,19 +67,22 @@ form.panel {
 }
 
 .exports-panel,
-.observability-panel {
+.observability-panel,
+.config-panel {
   grid-column: 1;
   padding: 18px;
 }
 
 .exports-panel h2,
-.observability-panel h2 {
+.observability-panel h2,
+.config-panel h2 {
   margin-bottom: 8px;
   font-size: 1.2rem;
 }
 
 .exports-panel p,
-.observability-panel p {
+.observability-panel p,
+.config-panel p {
   color: #aeb9c5;
   font-size: 0.92rem;
 }
@@ -107,6 +110,23 @@ form.panel {
 
 .muted {
   color: #aeb9c5;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.inline-form {
+  border-top: 1px solid #27313d;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.inline-form h3 {
+  margin: 0 0 10px;
 }
 
 label {
@@ -381,7 +401,8 @@ ul {
   .grid,
   .split,
   .metrics,
-  .context-grid {
+  .context-grid,
+  .action-row {
     grid-template-columns: 1fr;
   }
 }

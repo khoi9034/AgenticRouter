@@ -65,6 +65,12 @@ The sanitizer removes emails, token/API-key/password/secret patterns, tenant-ID-
 
 `exports/langsmith/` contains manual JSONL/CSV exports for inspection or later UI import. They are not API uploads.
 
+## Config Validation
+
+Config Studio validates local JSON policy before export/import. It checks required project/model/rule/profile fields, model aliases against known models, routing profiles against known aliases, fallback candidates against known aliases/models, golden-task project names, and secret-looking values or private Windows paths.
+
+Imports are dry-run by default. Applying an import requires `--apply` and writes a timestamped local backup first.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

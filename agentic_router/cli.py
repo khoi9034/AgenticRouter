@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 from typing import Any
 
+from .config_studio import export_config, import_config
+from .config_validation import config_summary, format_config_summary, format_validation, validate_config
 from .context import format_context_pack
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
@@ -61,6 +64,14 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("traces", help="summarize local router traces")
     subparsers.add_parser("export-langsmith-files", help="write local LangSmith-app-compatible files")
     subparsers.add_parser("observability-status", help="show local observability status")
+    subparsers.add_parser("validate-config", help="validate local routing configuration")
+    config_export_parser = subparsers.add_parser("export-config", help="export local config bundle")
+    config_export_parser.add_argument("--output", required=True)
+    config_import_parser = subparsers.add_parser("import-config", help="validate or apply local config bundle")
+    config_import_parser.add_argument("--input", required=True)
+    config_import_parser.add_argument("--dry-run", action="store_true")
+    config_import_parser.add_argument("--apply", action="store_true")
+    subparsers.add_parser("config-summary", help="summarize local routing configuration")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -133,6 +144,18 @@ def main(argv: list[str] | None = None) -> int:
             print(f"- {path}")
     elif args.command == "observability-status":
         print(format_observability_status(observability_status()))
+    elif args.command == "validate-config":
+        result = validate_config()
+        print(format_validation(result))
+        return 0 if result["ok"] else 1
+    elif args.command == "config-summary":
+        print(format_config_summary(config_summary()))
+    elif args.command == "export-config":
+        result = export_config(Path(args.output))
+        print(f"Exported config bundle to {result['output']}")
+    elif args.command == "import-config":
+        result = import_config(Path(args.input), dry_run=not args.apply, apply=args.apply)
+        print("Import dry run passed." if not result["applied"] else f"Imported config. Backup: {result['backup']}")
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

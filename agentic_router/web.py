@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote
 
+from .config_studio import EXPORT_CONFIG_DEFAULT, add_project, export_config
+from .config_validation import config_summary, validate_config
 from .evaluator import evaluate_tasks
 from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
@@ -41,6 +43,14 @@ class RouterHandler(SimpleHTTPRequestHandler):
                     "export_files": export_file_list(),
                 }
             )
+        elif self.path == "/api/config/summary":
+            self._json(config_summary())
+        elif self.path == "/api/config/validate":
+            self._json(validate_config())
+        elif self.path == "/api/config/export":
+            self._json(export_config(EXPORT_CONFIG_DEFAULT))
+        elif self.path == "/api/config/eval":
+            self._json(evaluate_tasks())
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:
@@ -57,6 +67,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_packet()
         elif self.path == "/api/feedback":
             self._handle_feedback()
+        elif self.path == "/api/config/add-project":
+            self._handle_add_project()
         else:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
@@ -138,6 +150,15 @@ class RouterHandler(SimpleHTTPRequestHandler):
 
         self._json({"saved": True, "record": record})
 
+    def _handle_add_project(self) -> None:
+        try:
+            record = add_project(self._read_json())
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+
+        self._json(record)
+
     def _serve_export(self) -> None:
         root = WEB_DIR.parent / "exports"
         requested = (WEB_DIR.parent / unquote(self.path.lstrip("/"))).resolve()
@@ -178,6 +199,7 @@ def _files(value: Any) -> list[str]:
 def _content_type(suffix: str) -> str:
     return {
         ".csv": "text/csv; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
         ".jsonl": "application/jsonl; charset=utf-8",
         ".md": "text/markdown; charset=utf-8",
         ".yaml": "text/yaml; charset=utf-8",

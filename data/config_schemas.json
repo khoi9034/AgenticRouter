@@ -1,0 +1,24 @@
+{
+  "projects": {
+    "required_fields": ["name", "risk_level", "default_tier", "live_prod", "sensitive", "keywords"],
+    "risk_levels": ["low", "medium", "medium-high", "high", "critical"],
+    "tiers": ["cheap", "mid", "advanced"]
+  },
+  "models": {
+    "required_model_fields": ["vendor", "name", "tier"],
+    "tiers": ["cheap", "mid", "advanced"]
+  },
+  "routing_profiles": {
+    "required_fields": [
+      "cost_quality_tradeoff",
+      "allowed_model_aliases",
+      "minimum_tier_for_sensitive_tasks",
+      "minimum_tier_for_live_prod",
+      "human_review_default"
+    ]
+  },
+  "add_project_form": {
+    "required_fields": ["project_name", "department", "status", "risk_level", "live_prod", "sensitive_domains", "routing_notes"],
+    "risk_levels": ["low", "medium", "high"]
+  }
+}

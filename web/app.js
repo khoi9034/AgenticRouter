@@ -2,6 +2,7 @@ const project = document.querySelector("#project");
 const form = document.querySelector("#route-form");
 const result = document.querySelector("#result");
 const observability = document.querySelector("#observability");
+const configStudio = document.querySelector("#config-studio");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -35,6 +36,52 @@ async function loadObservability() {
       <dt>Export files</dt><dd class="export-links">${files}</dd>
     </dl>
   `;
+}
+
+async function loadConfigStudio() {
+  const response = await fetch("/api/config/summary");
+  const summary = await response.json();
+  configStudio.innerHTML = `
+    <h2>Config Studio</h2>
+    <p>Local policy validation, read-only summary, safe bundle export, and one guarded add-project form.</p>
+    <div class="metrics observability-metrics">
+      <div><span>Projects</span><strong>${escapeHtml(summary.total_projects)}</strong></div>
+      <div><span>Golden tasks</span><strong>${escapeHtml(summary.golden_task_count)}</strong></div>
+      <div><span>Status</span><strong>${escapeHtml(summary.validation_status)}</strong></div>
+    </div>
+    <dl>
+      <dt>Projects by risk</dt><dd>${escapeHtml(JSON.stringify(summary.projects_by_risk))}</dd>
+      <dt>Model aliases</dt><dd>${escapeHtml(summary.aliases.join(", "))}</dd>
+      <dt>Routing profiles</dt><dd>${escapeHtml(summary.profiles.join(", "))}</dd>
+    </dl>
+    <div class="action-row">
+      <button type="button" id="validate-config">Validate config</button>
+      <button type="button" id="export-config">Download config bundle</button>
+      <button type="button" id="refresh-config">View config summary</button>
+      <button type="button" id="config-eval">Run golden eval</button>
+    </div>
+    <div id="config-status" class="status"></div>
+    <form id="add-project-form" class="inline-form">
+      <h3>Add Project</h3>
+      <label>Project name<input id="new-project-name" required></label>
+      <div class="split">
+        <label>Department<input id="new-project-department"></label>
+        <label>Status<input id="new-project-status" placeholder="planning"></label>
+      </div>
+      <div class="split">
+        <label>Risk level<select id="new-project-risk"><option>low</option><option>medium</option><option>high</option></select></label>
+        <label class="check"><input id="new-project-live" type="checkbox"> Live/prod</label>
+      </div>
+      <label>Sensitive domains<textarea id="new-project-domains" rows="2" placeholder="comma-separated"></textarea></label>
+      <label>Routing notes<textarea id="new-project-notes" rows="2"></textarea></label>
+      <button type="submit">Save project locally</button>
+    </form>
+  `;
+  document.querySelector("#validate-config").addEventListener("click", validateConfig);
+  document.querySelector("#export-config").addEventListener("click", exportConfig);
+  document.querySelector("#refresh-config").addEventListener("click", loadConfigStudio);
+  document.querySelector("#config-eval").addEventListener("click", runConfigEval);
+  document.querySelector("#add-project-form").addEventListener("submit", addProject);
 }
 
 function filesFromInput(value) {
@@ -249,9 +296,64 @@ async function saveFeedback(event) {
   }
 }
 
+async function validateConfig() {
+  const data = await getJson("/api/config/validate");
+  setConfigStatus(data.ok ? "Config validation passed." : `Config validation failed: ${data.errors.join("; ")}`, data.ok);
+}
+
+async function exportConfig() {
+  const data = await getJson("/api/config/export");
+  setConfigStatus(`Config bundle ready: ${data.output}`, true);
+}
+
+async function runConfigEval() {
+  const data = await getJson("/api/config/eval");
+  setConfigStatus(`Golden eval: ${data.passed}/${data.total} passed`, data.failed === 0);
+}
+
+async function addProject(event) {
+  event.preventDefault();
+  const payload = {
+    project_name: document.querySelector("#new-project-name").value,
+    department: document.querySelector("#new-project-department").value,
+    status: document.querySelector("#new-project-status").value,
+    risk_level: document.querySelector("#new-project-risk").value,
+    live_prod: document.querySelector("#new-project-live").checked,
+    sensitive_domains: document.querySelector("#new-project-domains").value,
+    routing_notes: document.querySelector("#new-project-notes").value,
+  };
+  const response = await fetch("/api/config/add-project", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  setConfigStatus(response.ok ? `Saved ${data.project.name}.` : data.error || "Save failed.", response.ok);
+  if (response.ok) {
+    event.target.reset();
+    await loadProjects();
+    await loadConfigStudio();
+    setConfigStatus(`Saved ${data.project.name}.`, true);
+  }
+}
+
+async function getJson(path) {
+  const response = await fetch(path);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
+function setConfigStatus(message, ok) {
+  const status = document.querySelector("#config-status");
+  status.textContent = message;
+  status.className = ok ? "status ok" : "status bad";
+}
+
 tradeoff.addEventListener("input", () => {
   tradeoffValue.textContent = tradeoff.value;
 });
 
 loadProjects().catch((error) => showError(error.message));
 loadObservability().catch(() => {});
+loadConfigStudio().catch(() => {});

@@ -91,6 +91,15 @@ Check local observability status:
 python -m agentic_router.cli observability-status
 ```
 
+Validate and bundle local config:
+
+```bash
+python -m agentic_router.cli validate-config
+python -m agentic_router.cli config-summary
+python -m agentic_router.cli export-config --output exports/config/agentic_router_config_bundle.json
+python -m agentic_router.cli import-config --input exports/config/agentic_router_config_bundle.json --dry-run
+```
+
 Local web UI:
 
 ```bash
@@ -170,6 +179,12 @@ Routes append sanitized trace records to `data/traces.jsonl`. High-risk routes d
 
 `python -m agentic_router.cli export-langsmith-files` writes manual JSONL/CSV files under `exports/langsmith/` for inspection or later UI import. These are files only, not API uploads.
 
+## Config Studio
+
+Config Studio validates and summarizes local routing policy without cloud calls or dependencies. It checks project/model/rule/profile/fallback/golden-task JSON, cross-file alias/model references, unknown golden projects, high-risk sensitive defaults, and secret-looking values or private Windows paths.
+
+The web UI includes a mostly read-only Config Studio panel plus one safe Add Project form. Imports are dry-run by default and only overwrite config files with `--apply`, after writing a timestamped local backup.
+
 ## Examples
 
 ```bash
@@ -207,6 +222,11 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/outcomes`
 - `/api/sessions`
 - `/api/observability`
+- `/api/config/summary`
+- `/api/config/validate`
+- `/api/config/export`
+- `/api/config/add-project`
+- `/api/config/eval`
 
 Record CLI feedback after a route:
 
@@ -249,13 +269,14 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/fallback_policies.json`: Fallback candidates by route type.
 - `data/session_cache.jsonl`: Local sanitized session stickiness records.
 - `data/traces.jsonl`: Local sanitized route trace records.
+- `data/config_schemas.json`: Lightweight schema notes for config validation.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback and shows a local observability panel with trace counts and export links. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, and includes Config Studio for local validation, summary, bundle export, golden eval, and guarded project creation. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 
