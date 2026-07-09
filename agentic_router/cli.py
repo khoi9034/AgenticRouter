@@ -7,6 +7,13 @@ from typing import Any
 from .context import format_context_pack
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
+from .observability import (
+    export_langsmith_files,
+    format_observability_status,
+    format_traces_summary,
+    observability_status,
+    summarize_traces,
+)
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .router import route
@@ -51,6 +58,9 @@ def main(argv: list[str] | None = None) -> int:
     feedback_parser.add_argument("--notes", default="")
     subparsers.add_parser("outcomes", help="summarize routing feedback outcomes")
     subparsers.add_parser("sessions", help="summarize routing session cache")
+    subparsers.add_parser("traces", help="summarize local router traces")
+    subparsers.add_parser("export-langsmith-files", help="write local LangSmith-app-compatible files")
+    subparsers.add_parser("observability-status", help="show local observability status")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -114,6 +124,15 @@ def main(argv: list[str] | None = None) -> int:
         print(format_outcomes_summary(summarize_outcomes()))
     elif args.command == "sessions":
         print(format_session_summary(summarize_sessions()))
+    elif args.command == "traces":
+        print(format_traces_summary(summarize_traces()))
+    elif args.command == "export-langsmith-files":
+        result = export_langsmith_files()
+        print(f"Exported LangSmith app files to {result['export_folder']}")
+        for path in result["files"].values():
+            print(f"- {path}")
+    elif args.command == "observability-status":
+        print(format_observability_status(observability_status()))
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

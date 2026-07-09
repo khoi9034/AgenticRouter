@@ -53,6 +53,18 @@ Repeated failures ignore stickiness and let the normal escalation rule run. If r
 
 Session records are sanitized JSON lines. Low-risk tasks keep only a short summary. High-risk or sensitive tasks keep a hash and the placeholder `[redacted-sensitive-task]`; they do not store task text, files, secrets, records, tokens, emails, serials, PII, PHI, or production log content.
 
+## Local Observability
+
+Every route appends a sanitized local trace to `data/traces.jsonl`. Tracing is local and offline: no LangSmith API, no API key, no `langsmith` import, no remote tracing, and no billing-dependent functionality.
+
+Trace records include route ID, timestamp, project name, task class, risk, tier, selected alias/model, profile, context size, human-review flag, sticky-route flag, fallback candidates, matched rules, and whether prompt body was logged.
+
+Low-risk routes may include a sanitized task summary capped at 180 characters. High-risk routes set `prompt_body_logged=false`, omit raw task text, and store only `task_description_hash` plus `sanitized_task_category`.
+
+The sanitizer removes emails, token/API-key/password/secret patterns, tenant-ID-like GUIDs, USB serial patterns, and private Windows paths. Traces must not contain secrets, API keys, bearer tokens, passwords, emails, tenant IDs, USB serials, real veteran records, workers comp claims, legal/client records, student raw comments, production logs, or private Windows paths.
+
+`exports/langsmith/` contains manual JSONL/CSV exports for inspection or later UI import. They are not API uploads.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

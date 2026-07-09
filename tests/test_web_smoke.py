@@ -13,7 +13,9 @@ class WebSmokeTests(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.old_outcomes = os.environ.get("AGENTIC_ROUTER_OUTCOMES")
+        cls.old_traces = os.environ.get("AGENTIC_ROUTER_TRACES")
         os.environ["AGENTIC_ROUTER_OUTCOMES"] = os.path.join(cls.tmp.name, "outcomes.jsonl")
+        os.environ["AGENTIC_ROUTER_TRACES"] = os.path.join(cls.tmp.name, "traces.jsonl")
         cls.server = make_server(port=0)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -28,6 +30,10 @@ class WebSmokeTests(unittest.TestCase):
             os.environ.pop("AGENTIC_ROUTER_OUTCOMES", None)
         else:
             os.environ["AGENTIC_ROUTER_OUTCOMES"] = cls.old_outcomes
+        if cls.old_traces is None:
+            os.environ.pop("AGENTIC_ROUTER_TRACES", None)
+        else:
+            os.environ["AGENTIC_ROUTER_TRACES"] = cls.old_traces
         cls.tmp.cleanup()
 
     def test_index_loads(self):
@@ -97,6 +103,10 @@ class WebSmokeTests(unittest.TestCase):
 
         summary = self._get_json("/api/eval")
         self.assertEqual(summary["failed"], 0)
+
+        observability = self._get_json("/api/observability")
+        self.assertFalse(observability["status"]["remote_tracing_enabled"])
+        self.assertGreaterEqual(observability["summary"]["total_traces"], 1)
 
     def _get_json(self, path):
         return json.loads(urlopen(f"{self.base_url}{path}", timeout=5).read())

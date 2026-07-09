@@ -73,6 +73,24 @@ Summarize session stickiness:
 python -m agentic_router.cli sessions
 ```
 
+Summarize local traces:
+
+```bash
+python -m agentic_router.cli traces
+```
+
+Export LangSmith-app-compatible local files:
+
+```bash
+python -m agentic_router.cli export-langsmith-files
+```
+
+Check local observability status:
+
+```bash
+python -m agentic_router.cli observability-status
+```
+
 Local web UI:
 
 ```bash
@@ -122,6 +140,8 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `sticky_route_used`
 - `previous_model`
 
+Every route also writes a sanitized local trace to `data/traces.jsonl`.
+
 ## Routing Rules
 
 1. Docs, copy, simple static HTML/CSS, README, placeholder files, and simple summaries route cheap.
@@ -141,6 +161,14 @@ Routing profiles live in `data/routing_profiles.json`: `max_savings`, `cost_save
 Profiles can steer normal tasks toward cheaper or higher-quality models, but they cannot downgrade live prod, auth, SQL/database, Laserfiche, TeamDynamix, Graph, Intune, cybersecurity, sensitive data, public safety, HR/payroll, legal, veteran, workers comp, or official public budget work below advanced routing.
 
 Session stickiness reuses a previous model alias/model only when the project is the same, risk has not increased, prior failures are below two, and the new task does not newly touch a high-risk domain. Session records are stored in `data/session_cache.jsonl` with sanitized summaries; high-risk task text is redacted and only a hash is kept.
+
+## Local Observability
+
+AgenticRouter observability is fully local and offline. It does not use the LangSmith API, does not require a LangSmith API key, does not import `langsmith`, and does not send remote traces.
+
+Routes append sanitized trace records to `data/traces.jsonl`. High-risk routes do not store raw task text; they keep a task hash and category with `prompt_body_logged=false`. Low-risk routes may keep a sanitized task summary capped at 180 characters.
+
+`python -m agentic_router.cli export-langsmith-files` writes manual JSONL/CSV files under `exports/langsmith/` for inspection or later UI import. These are files only, not API uploads.
 
 ## Examples
 
@@ -178,6 +206,7 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/feedback`
 - `/api/outcomes`
 - `/api/sessions`
+- `/api/observability`
 
 Record CLI feedback after a route:
 
@@ -219,13 +248,14 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/routing_profiles.json`: Cost/quality and family profile settings.
 - `data/fallback_policies.json`: Fallback candidates by route type.
 - `data/session_cache.jsonl`: Local sanitized session stickiness records.
+- `data/traces.jsonl`: Local sanitized route trace records.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback and shows a local observability panel with trace counts and export links. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

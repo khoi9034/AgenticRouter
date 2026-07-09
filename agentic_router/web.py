@@ -8,6 +8,7 @@ from typing import Any
 from urllib.parse import unquote
 
 from .evaluator import evaluate_tasks
+from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
 from .projects import load_projects
@@ -32,6 +33,14 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(summarize_outcomes())
         elif self.path == "/api/sessions":
             self._json(summarize_sessions())
+        elif self.path == "/api/observability":
+            self._json(
+                {
+                    "status": observability_status(),
+                    "summary": summarize_traces(),
+                    "export_files": export_file_list(),
+                }
+            )
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:
@@ -135,7 +144,7 @@ class RouterHandler(SimpleHTTPRequestHandler):
         if root.resolve() not in requested.parents or not requested.is_file():
             self.send_error(HTTPStatus.NOT_FOUND)
             return
-        content_type = "text/markdown; charset=utf-8" if requested.suffix == ".md" else "text/yaml; charset=utf-8"
+        content_type = _content_type(requested.suffix)
         body = requested.read_bytes()
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", content_type)
@@ -164,6 +173,16 @@ def _files(value: Any) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value if str(item).strip()]
     raise ValueError("files_touched must be a list or string")
+
+
+def _content_type(suffix: str) -> str:
+    return {
+        ".csv": "text/csv; charset=utf-8",
+        ".jsonl": "application/jsonl; charset=utf-8",
+        ".md": "text/markdown; charset=utf-8",
+        ".yaml": "text/yaml; charset=utf-8",
+        ".yml": "text/yaml; charset=utf-8",
+    }.get(suffix, "text/plain; charset=utf-8")
 
 
 def _routing_options(payload: dict[str, Any]) -> dict[str, Any]:

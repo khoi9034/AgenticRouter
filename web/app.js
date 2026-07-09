@@ -1,6 +1,7 @@
 const project = document.querySelector("#project");
 const form = document.querySelector("#route-form");
 const result = document.querySelector("#result");
+const observability = document.querySelector("#observability");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -11,6 +12,29 @@ async function loadProjects() {
   project.innerHTML = data.projects
     .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`)
     .join("");
+}
+
+async function loadObservability() {
+  const response = await fetch("/api/observability");
+  const data = await response.json();
+  const summary = data.summary;
+  const files = data.export_files.length
+    ? data.export_files.map((file) => `<a href="/${escapeHtml(file.relative_path)}" target="_blank">${escapeHtml(file.name)}</a>`).join("")
+    : '<span class="muted">Run export-langsmith-files to create export files.</span>';
+  observability.innerHTML = `
+    <h2>Local Observability</h2>
+    <p>All observability is local. No LangSmith API key or remote tracing is used.</p>
+    <div class="metrics observability-metrics">
+      <div><span>Traces</span><strong>${escapeHtml(summary.total_traces)}</strong></div>
+      <div><span>Human review</span><strong>${escapeHtml(summary.human_review_count)}</strong></div>
+      <div><span>Sticky routes</span><strong>${escapeHtml(summary.sticky_route_count)}</strong></div>
+    </div>
+    <dl>
+      <dt>Last route ID</dt><dd class="route-id">${escapeHtml(summary.last_route_id || "none")}</dd>
+      <dt>Traces by risk</dt><dd>${escapeHtml(JSON.stringify(summary.traces_by_risk))}</dd>
+      <dt>Export files</dt><dd class="export-links">${files}</dd>
+    </dl>
+  `;
 }
 
 function filesFromInput(value) {
@@ -186,7 +210,12 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    response.ok ? showResult(data) : showError(data.error || "Routing failed.");
+    if (response.ok) {
+      showResult(data);
+      loadObservability();
+    } else {
+      showError(data.error || "Routing failed.");
+    }
   } catch (error) {
     showError(error.message);
   }
@@ -225,3 +254,4 @@ tradeoff.addEventListener("input", () => {
 });
 
 loadProjects().catch((error) => showError(error.message));
+loadObservability().catch(() => {});

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .context import build_context_pack
+from .observability import write_trace
 from .outcomes import make_route_id
 from .profiles import safety_locked, select_model
 from .projects import find_project
@@ -115,6 +116,7 @@ def route(
     }
     result["context_pack"] = build_context_pack(project_name, task_description, files, risk, tier, matched_rules)
     result["route_id"] = make_route_id(project_name, task_description, files, result)
+    write_trace(project_name, task_description, files, result)
     if session_id:
         save_session_route(session_id, project_name, task_description, files, result, model_choice["safety_locked"])
     return result
