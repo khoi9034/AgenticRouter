@@ -1,0 +1,61 @@
+from __future__ import annotations
+
+import argparse
+import json
+from typing import Any
+
+from .router import route
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="agentic-router")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    route_parser = subparsers.add_parser("route", help="recommend a DevSpace model")
+    route_parser.add_argument("--project", required=True)
+    route_parser.add_argument("--task", required=True)
+    route_parser.add_argument("--files", nargs="*", default=[])
+    route_parser.add_argument("--failures", type=int, default=0)
+    route_parser.add_argument("--live-prod", action="store_true")
+    route_parser.add_argument("--sensitive", action="store_true")
+    route_parser.add_argument("--format", choices=["text", "json"], default="text")
+    route_parser.add_argument("--json", action="store_true", dest="json_output")
+
+    args = parser.parse_args(argv)
+    if args.command == "route":
+        output_format = "json" if args.json_output else args.format
+        result = route(
+            project_name=args.project,
+            task_description=args.task,
+            files_touched=args.files,
+            previous_failure_count=args.failures,
+            live_prod=True if args.live_prod else None,
+            sensitive=True if args.sensitive else None,
+            output_format=output_format,
+        )
+        print(json.dumps(result, indent=2) if output_format == "json" else _format_text(result))
+    return 0
+
+
+def _format_text(result: dict[str, Any]) -> str:
+    review = "yes" if result["human_review_required"] else "no"
+    rules = "\n".join(f"  - {rule}" for rule in result["matched_rules"])
+    return "\n".join(
+        [
+            f"Recommended model: {result['recommended_model']}",
+            f"Tier: {result['model_tier']}",
+            f"Effort: {result['effort_level']}",
+            f"Risk: {result['risk_level']}",
+            f"Human review required: {review}",
+            f"Reason: {result['reason']}",
+            f"Context policy: {result['context_policy']}",
+            f"Escalation policy: {result['escalation_policy']}",
+            "Matched rules:",
+            rules,
+        ]
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

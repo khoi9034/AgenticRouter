@@ -1,0 +1,108 @@
+from __future__ import annotations
+
+from typing import Any
+
+from .models import default_model_for_tier
+from .projects import find_project
+from .rules import escalate_tier, hits, load_routing_rules, max_risk, max_tier, touches_code
+
+EFFORT_BY_TIER = {"cheap": "low", "mid": "medium", "advanced": "high"}
+
+
+def route(
+    project_name: str,
+    task_description: str,
+    files_touched: list[str] | None = None,
+    previous_failure_count: int = 0,
+    live_prod: bool | None = None,
+    sensitive: bool | None = None,
+    output_format: str = "text",
+) -> dict[str, Any]:
+    if output_format not in {"text", "json"}:
+        raise ValueError("output_format must be text or json")
+    if previous_failure_count < 0:
+        raise ValueError("previous_failure_count cannot be negative")
+
+    files = files_touched or []
+    project = find_project(project_name)
+    rules = load_routing_rules()
+    is_live_prod = project.get("live_prod", False) if live_prod is None else live_prod
+    project_sensitive = project.get("sensitive", False) if sensitive is None else sensitive
+    text = " ".join([project_name, task_description, *files, *project.get("keywords", [])])
+
+    tier = project.get("default_tier", "cheap")
+    risk = project.get("risk_level", "low")
+    matched_rules = [f"project_default:{tier}", f"project_risk:{risk}"]
+
+    cheap_hits = hits(text, rules["cheap_keywords"])
+    mid_hits = hits(text, rules["mid_keywords"])
+    advanced_hits = hits(text, rules["advanced_keywords"])
+    sensitive_hits = hits(text, rules["sensitive_keywords"])
+    security_hits = hits(text, rules["security_keywords"])
+
+    if cheap_hits and tier == "cheap":
+        matched_rules.append("cheap_content:" + ", ".join(cheap_hits[:4]))
+    if mid_hits:
+        tier = max_tier(tier, "mid")
+        risk = max_risk(risk, "medium")
+        matched_rules.append("mid_complexity:" + ", ".join(mid_hits[:4]))
+    if advanced_hits:
+        tier = "advanced"
+        risk = max_risk(risk, "high")
+        matched_rules.append("advanced_risk:" + ", ".join(advanced_hits[:4]))
+    if is_live_prod:
+        matched_rules.append("live_prod_project")
+    if is_live_prod and touches_code(files) and tier == "cheap":
+        tier = "mid"
+        risk = max_risk(risk, "medium")
+        matched_rules.append("live_prod_code_never_cheap")
+    if previous_failure_count >= 2:
+        tier = escalate_tier(tier)
+        risk = max_risk(risk, "medium")
+        matched_rules.append("previous_failures_escalate")
+
+    needs_human = bool(project_sensitive or sensitive_hits or security_hits)
+    if project_sensitive:
+        matched_rules.append("sensitive_project")
+    if sensitive_hits:
+        matched_rules.append("sensitive_data:" + ", ".join(sensitive_hits[:4]))
+    if security_hits:
+        matched_rules.append("security_controls:" + ", ".join(security_hits[:4]))
+
+    return {
+        "recommended_model": default_model_for_tier(tier),
+        "model_tier": tier,
+        "effort_level": EFFORT_BY_TIER[tier],
+        "risk_level": risk,
+        "human_review_required": needs_human,
+        "reason": _reason(tier, matched_rules),
+        "context_policy": _context_policy(files, needs_human),
+        "escalation_policy": _escalation_policy(tier, previous_failure_count, needs_human),
+        "matched_rules": matched_rules,
+    }
+
+
+def _reason(tier: str, matched_rules: list[str]) -> str:
+    return f"Routed {tier} from rule matches: " + "; ".join(matched_rules)
+
+
+def _context_policy(files: list[str], sensitive: bool) -> str:
+    scope = (
+        "Include only the listed files plus their direct callers, tests, and config."
+        if files
+        else "Include the project entry, task text, and the smallest directly relevant files."
+    )
+    exclude = " Exclude secrets, tokens, credentials, bearer tokens, PII, PHI, and real case records."
+    return scope + " Do not send whole-repo context." + (exclude if sensitive else "")
+
+
+def _escalation_policy(tier: str, failures: int, human_review: bool) -> str:
+    parts = ["Escalate one tier after 2 failed attempts."]
+    if tier == "advanced":
+        parts.append("Use a senior model and keep a human approval gate before risky writes.")
+    if failures >= 2:
+        parts.append("Already escalated because repeated attempts failed.")
+    if human_review:
+        parts.append("Human review is required before production or sensitive-data changes.")
+    return " ".join(parts)
+

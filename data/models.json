@@ -1,0 +1,17 @@
+{
+  "models": [
+    {"vendor": "Claude", "name": "Opus 4.8", "tier": "advanced"},
+    {"vendor": "Claude", "name": "Opus 4.7", "tier": "advanced"},
+    {"vendor": "Claude", "name": "Sonnet 4.6", "tier": "mid"},
+    {"vendor": "Claude", "name": "Haiku 4.5", "tier": "cheap"},
+    {"vendor": "Codex", "name": "GPT-5.5", "tier": "advanced"},
+    {"vendor": "Codex", "name": "GPT-5.4", "tier": "mid"},
+    {"vendor": "Codex", "name": "GPT-5.4 mini", "tier": "cheap"}
+  ],
+  "default_by_tier": {
+    "cheap": "Haiku 4.5",
+    "mid": "Sonnet 4.6",
+    "advanced": "Opus 4.7"
+  }
+}
+

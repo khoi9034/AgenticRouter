@@ -1,0 +1,198 @@
+{
+  "projects": [
+    {
+      "name": "Veteran's Intake Application",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["veteran", "laserfiche", "sql", "auth", "file upload", "file download", "live workflow"]
+    },
+    {
+      "name": "USB Device Approval Application",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["microsoft graph", "advanced hunting", "intune", "cybersecurity", "teamdynamix", "tdx", "usb serials"]
+    },
+    {
+      "name": "CLIO Data Extraction",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": false,
+      "sensitive": true,
+      "keywords": ["clio", "laserfiche", "document migration", "metadata migration", "legal records"]
+    },
+    {
+      "name": "NCFast Bot Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["public benefits", "social services", "automation", "bot conversion"]
+    },
+    {
+      "name": "TD Refresh Users Bot Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["live forge", "forge prod", "teamdynamix", "tdx", "bearer token", "database", "db merge"]
+    },
+    {
+      "name": "ECOs Bot Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["live forge", "forge prod", "document pipeline", "reporting email"]
+    },
+    {
+      "name": "Gap Bills Forge Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["live forge", "forge prod", "pdf", "jpg", "laserfiche feed"]
+    },
+    {
+      "name": "VALT Reporting Bots Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["sql", "forge", "cart", "reports", "live email routing"]
+    },
+    {
+      "name": "Local Budget Book",
+      "risk_level": "medium-high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["static site", "official public budget", "public budget figures"]
+    },
+    {
+      "name": "Transparency Portal",
+      "risk_level": "medium-high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["public official content", "official public budget", "transparency"]
+    },
+    {
+      "name": "Map Cabarrus 2.0",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["public gis", "arcgis", "service dependencies", "resilience"]
+    },
+    {
+      "name": "Workers Comp V2",
+      "aliases": ["Workers Compensation"],
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["workers comp", "hr", "medical", "legal records", "claim data"]
+    },
+    {
+      "name": "911, Radio, and Real-Time Project Tracking",
+      "risk_level": "critical",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["911", "radio", "real-time", "public safety", "project tracking"]
+    },
+    {
+      "name": "2024 CIT AD Hardening",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["cybersecurity", "active directory", "ad hardening"]
+    },
+    {
+      "name": "Network Switch/IAP Config",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["network", "switch", "iap", "infrastructure"]
+    },
+    {
+      "name": "NACS - Syslog Server",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": false,
+      "keywords": ["syslog", "server", "infrastructure", "security logs"]
+    },
+    {
+      "name": "DSSI Intake API Conversion",
+      "risk_level": "high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["laserfiche", "sdk", "api migration", "intake"]
+    },
+    {
+      "name": "COI project",
+      "risk_level": "medium-high",
+      "default_tier": "mid",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["pdf extraction", "compliance checks"]
+    },
+    {
+      "name": "Grant Quarter Reporting",
+      "risk_level": "medium",
+      "default_tier": "mid",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["finance", "reporting", "munis"]
+    },
+    {
+      "name": "Shift Premium",
+      "risk_level": "medium-high",
+      "default_tier": "advanced",
+      "live_prod": true,
+      "sensitive": true,
+      "keywords": ["hr", "payroll", "ukg", "munis"]
+    },
+    {
+      "name": "Student TRACK Debrief Documentation",
+      "risk_level": "medium",
+      "default_tier": "mid",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["student feedback", "documentation"]
+    },
+    {
+      "name": "Mark's Test Project",
+      "risk_level": "low",
+      "default_tier": "cheap",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["test project"]
+    },
+    {
+      "name": "Scott's Test Project",
+      "risk_level": "low",
+      "default_tier": "cheap",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["test project"]
+    },
+    {
+      "name": "Diana Test Project",
+      "risk_level": "low",
+      "default_tier": "cheap",
+      "live_prod": false,
+      "sensitive": false,
+      "keywords": ["test project", "hello world"]
+    }
+  ]
+}
+

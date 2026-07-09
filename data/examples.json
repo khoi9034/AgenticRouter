@@ -1,0 +1,32 @@
+{
+  "examples": [
+    {
+      "project_name": "Veteran's Intake Application",
+      "task_description": "Fix auth ping endpoint redirect bug",
+      "files_touched": ["Auth/ping.php", "api/list_intakes.php"],
+      "previous_failure_count": 1
+    },
+    {
+      "project_name": "Diana Test Project",
+      "task_description": "Make the hello world page background prettier",
+      "files_touched": ["index.html", "style.css"]
+    },
+    {
+      "project_name": "Grant Quarter Reporting",
+      "task_description": "Add a quarterly dashboard report",
+      "files_touched": ["reports/quarterly.py"]
+    },
+    {
+      "project_name": "TD Refresh Users Bot Conversion",
+      "task_description": "Change Forge bot code that writes TeamDynamix users",
+      "files_touched": ["bots/refresh_users.py"]
+    },
+    {
+      "project_name": "Mark's Test Project",
+      "task_description": "Update README copy after two failed attempts",
+      "files_touched": ["README.md"],
+      "previous_failure_count": 2
+    }
+  ]
+}
+
