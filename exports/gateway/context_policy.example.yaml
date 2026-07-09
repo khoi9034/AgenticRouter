@@ -1,0 +1,15 @@
+context_policy:
+  default: smallest_useful_context
+  include:
+    - route_id
+    - project_name
+    - task_class
+    - touched_files_or_safe_patterns
+    - context_pack
+  exclude:
+    - secrets
+    - PII
+    - production logs
+    - unrelated repositories
+  summarize_large_files: true
+  include_repo_map_when_files_missing: true

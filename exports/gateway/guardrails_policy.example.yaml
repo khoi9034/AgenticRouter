@@ -1,0 +1,13 @@
+guardrails_policy:
+  - no secrets
+  - no PII
+  - no real veteran records
+  - no claim records
+  - no legal records
+  - no student records
+  - no USB serials
+  - no tenant IDs
+  - no production logs
+  - no unverified official budget numbers
+  - source verification required for public official content
+  - human approval for live-prod changes

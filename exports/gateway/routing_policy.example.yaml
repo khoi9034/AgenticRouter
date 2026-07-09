@@ -1,0 +1,93 @@
+routing_policy:
+  - task_class: docs_static_ui
+    risk_level: low
+    default_model_alias: devspace-safe-docs
+    allowed_fallback_aliases:
+      - devspace-cheap
+      - devspace-mid
+    human_review_required: false
+    context_size: tiny
+    forbidden_context:
+      - secrets
+      - PII
+      - production logs
+    escalation_triggers:
+      - two_failed_attempts
+      - auth_or_data_risk_detected
+  - task_class: normal_internal_apps
+    risk_level: medium
+    default_model_alias: devspace-mid
+    allowed_fallback_aliases:
+      - devspace-advanced
+    human_review_required: false
+    context_size: small
+    forbidden_context:
+      - secrets
+      - unrelated project folders
+    escalation_triggers:
+      - two_failed_attempts
+      - production_or_sensitive_scope
+  - task_class: forge_bots
+    risk_level: high
+    default_model_alias: devspace-live-prod
+    allowed_fallback_aliases:
+      - devspace-advanced
+    human_review_required: true
+    context_size: medium
+    forbidden_context:
+      - real env values
+      - tokens
+      - production logs
+    escalation_triggers:
+      - email_delivery
+      - SQL
+      - file_delete_archive
+      - deployment
+  - task_class: sensitive_records
+    risk_level: high
+    default_model_alias: devspace-advanced
+    allowed_fallback_aliases:
+      - devspace-security
+    human_review_required: true
+    context_size: large
+    forbidden_context:
+      - PII
+      - PHI
+      - veteran records
+      - claim details
+      - legal records
+    escalation_triggers:
+      - auth_change
+      - record_export
+      - production_write
+  - task_class: cybersecurity_infra
+    risk_level: high
+    default_model_alias: devspace-security
+    allowed_fallback_aliases:
+      - devspace-advanced
+    human_review_required: true
+    context_size: large
+    forbidden_context:
+      - tokens
+      - tenant IDs
+      - USB serials
+      - private logs
+    escalation_triggers:
+      - network_change
+      - identity_change
+      - security_control_change
+  - task_class: public_official_content
+    risk_level: medium-high
+    default_model_alias: devspace-public-official-content
+    allowed_fallback_aliases:
+      - devspace-advanced
+    human_review_required: true
+    context_size: medium
+    forbidden_context:
+      - invented numbers
+      - unverified claims
+      - private draft notes
+    escalation_triggers:
+      - source_missing
+      - figure_mismatch
+      - publication_ready

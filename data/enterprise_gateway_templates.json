@@ -1,0 +1,142 @@
+{
+  "routing_policies": [
+    {
+      "task_class": "docs_static_ui",
+      "risk_level": "low",
+      "default_model_alias": "devspace-safe-docs",
+      "allowed_fallback_aliases": ["devspace-cheap", "devspace-mid"],
+      "human_review_required": false,
+      "context_size": "tiny",
+      "forbidden_context": ["secrets", "PII", "production logs"],
+      "escalation_triggers": ["two_failed_attempts", "auth_or_data_risk_detected"]
+    },
+    {
+      "task_class": "normal_internal_apps",
+      "risk_level": "medium",
+      "default_model_alias": "devspace-mid",
+      "allowed_fallback_aliases": ["devspace-advanced"],
+      "human_review_required": false,
+      "context_size": "small",
+      "forbidden_context": ["secrets", "unrelated project folders"],
+      "escalation_triggers": ["two_failed_attempts", "production_or_sensitive_scope"]
+    },
+    {
+      "task_class": "forge_bots",
+      "risk_level": "high",
+      "default_model_alias": "devspace-live-prod",
+      "allowed_fallback_aliases": ["devspace-advanced"],
+      "human_review_required": true,
+      "context_size": "medium",
+      "forbidden_context": ["real env values", "tokens", "production logs"],
+      "escalation_triggers": ["email_delivery", "SQL", "file_delete_archive", "deployment"]
+    },
+    {
+      "task_class": "sensitive_records",
+      "risk_level": "high",
+      "default_model_alias": "devspace-advanced",
+      "allowed_fallback_aliases": ["devspace-security"],
+      "human_review_required": true,
+      "context_size": "large",
+      "forbidden_context": ["PII", "PHI", "veteran records", "claim details", "legal records"],
+      "escalation_triggers": ["auth_change", "record_export", "production_write"]
+    },
+    {
+      "task_class": "cybersecurity_infra",
+      "risk_level": "high",
+      "default_model_alias": "devspace-security",
+      "allowed_fallback_aliases": ["devspace-advanced"],
+      "human_review_required": true,
+      "context_size": "large",
+      "forbidden_context": ["tokens", "tenant IDs", "USB serials", "private logs"],
+      "escalation_triggers": ["network_change", "identity_change", "security_control_change"]
+    },
+    {
+      "task_class": "public_official_content",
+      "risk_level": "medium-high",
+      "default_model_alias": "devspace-public-official-content",
+      "allowed_fallback_aliases": ["devspace-advanced"],
+      "human_review_required": true,
+      "context_size": "medium",
+      "forbidden_context": ["invented numbers", "unverified claims", "private draft notes"],
+      "escalation_triggers": ["source_missing", "figure_mismatch", "publication_ready"]
+    }
+  ],
+  "team_budget_groups": {
+    "docs_static_ui": {
+      "allowed_aliases": ["devspace-safe-docs", "devspace-cheap"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "not_required_unless_risk_escalates",
+      "logging_level": "metadata_only"
+    },
+    "normal_internal_apps": {
+      "allowed_aliases": ["devspace-mid", "devspace-advanced"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "required_for_prod_or_sensitive_scope",
+      "logging_level": "metadata_only"
+    },
+    "forge_bots": {
+      "allowed_aliases": ["devspace-live-prod", "devspace-advanced"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "required_before_deployment",
+      "logging_level": "metadata_no_prompt_body"
+    },
+    "sensitive_records": {
+      "allowed_aliases": ["devspace-advanced", "devspace-security"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "always_required",
+      "logging_level": "metadata_no_prompt_body"
+    },
+    "cybersecurity_infra": {
+      "allowed_aliases": ["devspace-security", "devspace-advanced"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "always_required",
+      "logging_level": "metadata_no_prompt_body"
+    },
+    "public_official_content": {
+      "allowed_aliases": ["devspace-public-official-content", "devspace-advanced"],
+      "budget": "CHANGE_ME_MONTHLY_BUDGET",
+      "rpm": "CHANGE_ME_RPM",
+      "tpm": "CHANGE_ME_TPM",
+      "human_review_rule": "required_before_publication",
+      "logging_level": "metadata_only"
+    }
+  },
+  "guardrails": [
+    "no secrets",
+    "no PII",
+    "no real veteran records",
+    "no claim records",
+    "no legal records",
+    "no student records",
+    "no USB serials",
+    "no tenant IDs",
+    "no production logs",
+    "no unverified official budget numbers",
+    "source verification required for public official content",
+    "human approval for live-prod changes"
+  ],
+  "observability_fields": [
+    "route_id",
+    "project_name",
+    "task_class",
+    "recommended_model_alias",
+    "model_tier",
+    "risk_level",
+    "context_size",
+    "human_review_required",
+    "accepted_recommendation",
+    "task_succeeded",
+    "recommendation_fit"
+  ]
+}
+

@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from .context import format_context_pack
+from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
@@ -45,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
     feedback_parser.add_argument("--recommendation-fit", required=True)
     feedback_parser.add_argument("--notes", default="")
     subparsers.add_parser("outcomes", help="summarize routing feedback outcomes")
+    export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
+    export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
     args = parser.parse_args(argv)
     if args.command == "route":
@@ -92,6 +95,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Saved feedback for {record['project_name']} ({record['recommended_tier']}).")
     elif args.command == "outcomes":
         print(format_outcomes_summary(summarize_outcomes()))
+    elif args.command == "export-enterprise":
+        print(format_export_result(export_enterprise(args.target)))
     return 0
 
 

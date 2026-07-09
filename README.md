@@ -42,6 +42,12 @@ DevSpace run packet:
 python -m agentic_router.cli packet --project "Gap Bills Forge Conversion" --task "Change PDF output naming format" --files forge_bot/gap_bills_bot.py --json
 ```
 
+Enterprise gateway templates:
+
+```bash
+python -m agentic_router.cli export-enterprise --target all
+```
+
 Save sanitized outcome feedback:
 
 ```bash
@@ -172,6 +178,8 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
+- `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
+- `data/litellm_model_aliases.json`: DevSpace model aliases for LiteLLM-style exports.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
@@ -181,3 +189,9 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
+
+## Enterprise Gateway Templates
+
+AgenticRouter is the policy brain: it decides tier, effort, risk, context, safety, validation, and human-review flags. A LiteLLM-style or internal gateway is the traffic layer: it handles model aliases, provider credentials, fallbacks, budgets, virtual keys, logging, and enforcement.
+
+The files under `exports/` are safe placeholder templates, not production configs. They include no real secrets, tokens, emails, URLs, tenant IDs, production values, or records. Replace `CHANGE_ME_*` placeholders outside this repo before adapting them to a real gateway.

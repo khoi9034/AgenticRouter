@@ -5,6 +5,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from .evaluator import evaluate_tasks
 from .outcomes import save_feedback, summarize_outcomes
@@ -28,6 +29,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(evaluate_tasks())
         elif self.path == "/api/outcomes":
             self._json(summarize_outcomes())
+        elif self.path.startswith("/exports/"):
+            self._serve_export()
         else:
             if self.path == "/":
                 self.path = "/index.html"
@@ -119,6 +122,20 @@ class RouterHandler(SimpleHTTPRequestHandler):
             return
 
         self._json({"saved": True, "record": record})
+
+    def _serve_export(self) -> None:
+        root = WEB_DIR.parent / "exports"
+        requested = (WEB_DIR.parent / unquote(self.path.lstrip("/"))).resolve()
+        if root.resolve() not in requested.parents or not requested.is_file():
+            self.send_error(HTTPStatus.NOT_FOUND)
+            return
+        content_type = "text/markdown; charset=utf-8" if requested.suffix == ".md" else "text/yaml; charset=utf-8"
+        body = requested.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", 0))

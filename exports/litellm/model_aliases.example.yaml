@@ -1,0 +1,40 @@
+aliases:
+  devspace-cheap:
+    tier: cheap
+    models:
+      - "Haiku 4.5"
+      - "GPT-5.4 mini"
+  devspace-mid:
+    tier: mid
+    models:
+      - "Sonnet 4.6"
+      - "GPT-5.4"
+  devspace-advanced:
+    tier: advanced
+    models:
+      - "Opus 4.7"
+      - "Opus 4.8"
+      - "GPT-5.5"
+  devspace-safe-docs:
+    tier: cheap
+    models:
+      - "Haiku 4.5"
+      - "GPT-5.4 mini"
+  devspace-live-prod:
+    tier: advanced
+    models:
+      - "Opus 4.7"
+      - "Opus 4.8"
+      - "GPT-5.5"
+  devspace-security:
+    tier: advanced
+    models:
+      - "Opus 4.7"
+      - "Opus 4.8"
+      - "GPT-5.5"
+  devspace-public-official-content:
+    tier: advanced
+    models:
+      - "Opus 4.7"
+      - "Opus 4.8"
+      - "GPT-5.5"

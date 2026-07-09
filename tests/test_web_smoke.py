@@ -34,6 +34,12 @@ class WebSmokeTests(unittest.TestCase):
         body = urlopen(f"{self.base_url}/", timeout=5).read().decode("utf-8")
 
         self.assertIn("DevSpace Smart Router", body)
+        self.assertIn("Enterprise Exports", body)
+
+    def test_export_template_link_loads(self):
+        body = urlopen(f"{self.base_url}/exports/gateway/guardrails_policy.example.yaml", timeout=5).read().decode("utf-8")
+
+        self.assertIn("guardrails_policy", body)
 
     def test_projects_route_and_eval_apis(self):
         projects = self._get_json("/api/projects")

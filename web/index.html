@@ -46,6 +46,17 @@
           <button type="submit">Route task</button>
         </form>
 
+        <section class="panel exports-panel">
+          <h2>Enterprise Exports</h2>
+          <p>Safe placeholder templates for LiteLLM-style or internal gateway setup.</p>
+          <div class="export-links">
+            <a href="/exports/litellm/config.example.yaml" target="_blank">LiteLLM config template</a>
+            <a href="/exports/gateway/routing_policy.example.yaml" target="_blank">Gateway routing policy</a>
+            <a href="/exports/gateway/guardrails_policy.example.yaml" target="_blank">Guardrails policy</a>
+            <a href="/exports/gateway/observability_policy.example.yaml" target="_blank">Observability policy</a>
+          </div>
+        </section>
+
         <section id="result" class="panel result empty">
           <div class="placeholder">Run a task to see the recommendation.</div>
         </section>
@@ -55,4 +66,3 @@
     <script src="/app.js"></script>
   </body>
 </html>
-

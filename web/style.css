@@ -66,6 +66,38 @@ form.panel {
   padding: 20px;
 }
 
+.exports-panel {
+  grid-column: 1;
+  padding: 18px;
+}
+
+.exports-panel h2 {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+}
+
+.exports-panel p {
+  color: #aeb9c5;
+  font-size: 0.92rem;
+}
+
+.export-links {
+  display: grid;
+  gap: 8px;
+}
+
+.export-links a {
+  border: 1px solid #334150;
+  border-radius: 6px;
+  color: #bfdbfe;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.export-links a:hover {
+  background: #111820;
+}
+
 label {
   display: grid;
   gap: 8px;

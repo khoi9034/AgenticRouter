@@ -1,0 +1,55 @@
+team_budget_policy:
+  docs_static_ui:
+    allowed_aliases:
+      - devspace-safe-docs
+      - devspace-cheap
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: not_required_unless_risk_escalates
+    logging_level: metadata_only
+  normal_internal_apps:
+    allowed_aliases:
+      - devspace-mid
+      - devspace-advanced
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: required_for_prod_or_sensitive_scope
+    logging_level: metadata_only
+  forge_bots:
+    allowed_aliases:
+      - devspace-live-prod
+      - devspace-advanced
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: required_before_deployment
+    logging_level: metadata_no_prompt_body
+  sensitive_records:
+    allowed_aliases:
+      - devspace-advanced
+      - devspace-security
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: always_required
+    logging_level: metadata_no_prompt_body
+  cybersecurity_infra:
+    allowed_aliases:
+      - devspace-security
+      - devspace-advanced
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: always_required
+    logging_level: metadata_no_prompt_body
+  public_official_content:
+    allowed_aliases:
+      - devspace-public-official-content
+      - devspace-advanced
+    monthly_budget: CHANGE_ME_MONTHLY_BUDGET
+    rpm: CHANGE_ME_RPM
+    tpm: CHANGE_ME_TPM
+    human_review_rule: required_before_publication
+    logging_level: metadata_only
