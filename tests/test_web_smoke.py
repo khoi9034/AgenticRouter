@@ -112,6 +112,11 @@ class WebSmokeTests(unittest.TestCase):
         self.assertEqual(config["validation_status"], "pass")
         self.assertGreater(config["total_projects"], 0)
 
+        scenarios = self._get_json("/api/scenarios")
+        self.assertIn("mixed_devspace_month", scenarios["scenarios"])
+        simulation = self._post_json("/api/simulate", {"scenario": "docs_heavy_week"})
+        self.assertGreater(simulation["summary"]["total_tasks"], 0)
+
     def _get_json(self, path):
         return json.loads(urlopen(f"{self.base_url}{path}", timeout=5).read())
 

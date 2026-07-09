@@ -68,21 +68,24 @@ form.panel {
 
 .exports-panel,
 .observability-panel,
-.config-panel {
+.config-panel,
+.simulator-panel {
   grid-column: 1;
   padding: 18px;
 }
 
 .exports-panel h2,
 .observability-panel h2,
-.config-panel h2 {
+.config-panel h2,
+.simulator-panel h2 {
   margin-bottom: 8px;
   font-size: 1.2rem;
 }
 
 .exports-panel p,
 .observability-panel p,
-.config-panel p {
+.config-panel p,
+.simulator-panel p {
   color: #aeb9c5;
   font-size: 0.92rem;
 }
@@ -127,6 +130,30 @@ form.panel {
 
 .inline-form h3 {
   margin: 0 0 10px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid #27313d;
+  padding: 9px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: #95a3b3;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 
 label {

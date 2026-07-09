@@ -71,6 +71,14 @@ Config Studio validates local JSON policy before export/import. It checks requir
 
 Imports are dry-run by default. Applying an import requires `--apply` and writes a timestamped local backup first.
 
+## Scenario Simulation
+
+Scenario Simulator uses the same `route()` path as normal CLI and web routing. Scenarios in `data/simulation_scenarios.json` are hypothetical batches with project, task, files, failure count, and live-prod flag.
+
+Summaries include tier/model/alias/risk/context distributions, human-review count, live-prod count, sensitive-task count, sticky routes, escalations, top matched rules, top advanced projects, and top human-review projects.
+
+Savings estimates use abstract planning units only. Model units are cheap = 1, mid = 3, advanced = 8, compared against naive all-advanced routing. Context units are tiny = 1, small = 2, medium = 5, large = 10, compared against naive full-repo context.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

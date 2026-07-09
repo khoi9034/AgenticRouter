@@ -16,6 +16,7 @@ from .packets import generate_packet, packet_from_route
 from .projects import load_projects
 from .router import route
 from .sessions import summarize_sessions
+from .simulator import list_scenarios, run_scenario
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -51,6 +52,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(export_config(EXPORT_CONFIG_DEFAULT))
         elif self.path == "/api/config/eval":
             self._json(evaluate_tasks())
+        elif self.path == "/api/scenarios":
+            self._json({"scenarios": list_scenarios()})
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:
@@ -69,6 +72,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_feedback()
         elif self.path == "/api/config/add-project":
             self._handle_add_project()
+        elif self.path == "/api/simulate":
+            self._handle_simulate()
         else:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
@@ -158,6 +163,16 @@ class RouterHandler(SimpleHTTPRequestHandler):
             return
 
         self._json(record)
+
+    def _handle_simulate(self) -> None:
+        try:
+            payload = self._read_json()
+            result = run_scenario(str(payload["scenario"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+
+        self._json(result)
 
     def _serve_export(self) -> None:
         root = WEB_DIR.parent / "exports"

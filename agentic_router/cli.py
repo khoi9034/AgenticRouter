@@ -21,6 +21,7 @@ from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .router import route
 from .sessions import format_session_summary, summarize_sessions
+from .simulator import format_simulation, list_scenarios, run_scenario
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -72,6 +73,10 @@ def main(argv: list[str] | None = None) -> int:
     config_import_parser.add_argument("--dry-run", action="store_true")
     config_import_parser.add_argument("--apply", action="store_true")
     subparsers.add_parser("config-summary", help="summarize local routing configuration")
+    simulate_parser = subparsers.add_parser("simulate", help="run a routing simulation scenario")
+    simulate_parser.add_argument("--scenario", required=True)
+    simulate_parser.add_argument("--json", action="store_true", dest="json_output")
+    subparsers.add_parser("list-scenarios", help="list available simulation scenarios")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -156,6 +161,11 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "import-config":
         result = import_config(Path(args.input), dry_run=not args.apply, apply=args.apply)
         print("Import dry run passed." if not result["applied"] else f"Imported config. Backup: {result['backup']}")
+    elif args.command == "list-scenarios":
+        print("\n".join(list_scenarios()))
+    elif args.command == "simulate":
+        result = run_scenario(args.scenario)
+        print(json.dumps(result, indent=2) if args.json_output else format_simulation(result))
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

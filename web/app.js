@@ -3,6 +3,7 @@ const form = document.querySelector("#route-form");
 const result = document.querySelector("#result");
 const observability = document.querySelector("#observability");
 const configStudio = document.querySelector("#config-studio");
+const scenarioSimulator = document.querySelector("#scenario-simulator");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -84,6 +85,20 @@ async function loadConfigStudio() {
   document.querySelector("#add-project-form").addEventListener("submit", addProject);
 }
 
+async function loadScenarioSimulator() {
+  const data = await getJson("/api/scenarios");
+  scenarioSimulator.innerHTML = `
+    <h2>Scenario Simulator</h2>
+    <p>Run hypothetical DevSpace task batches through the local router.</p>
+    <div class="split">
+      <label>Scenario<select id="scenario-select">${data.scenarios.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}</select></label>
+      <button type="button" id="run-simulation">Run simulation</button>
+    </div>
+    <div id="simulation-result" class="simulation-result"></div>
+  `;
+  document.querySelector("#run-simulation").addEventListener("click", runSimulation);
+}
+
 function filesFromInput(value) {
   return value
     .split(/[\n,]/)
@@ -94,6 +109,12 @@ function filesFromInput(value) {
 function badgeClass(risk) {
   if (risk === "low") return "badge low";
   if (risk === "medium" || risk === "medium-high") return "badge medium";
+  return "badge high";
+}
+
+function tierBadgeClass(tier) {
+  if (tier === "cheap") return "badge low";
+  if (tier === "mid") return "badge medium";
   return "badge high";
 }
 
@@ -337,6 +358,52 @@ async function addProject(event) {
   }
 }
 
+async function runSimulation() {
+  const response = await fetch("/api/simulate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({scenario: document.querySelector("#scenario-select").value}),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    document.querySelector("#simulation-result").innerHTML = `<div class="warning">${escapeHtml(data.error || "Simulation failed.")}</div>`;
+    return;
+  }
+  showSimulation(data);
+  loadObservability();
+}
+
+function showSimulation(data) {
+  const summary = data.summary;
+  const savings = summary.savings;
+  const tierCounts = summary.routes_by_tier;
+  const rows = data.tasks.map((task) => `
+    <tr>
+      <td>${escapeHtml(task.project_name)}</td>
+      <td>${escapeHtml(task.task_description)}</td>
+      <td><span class="${tierBadgeClass(task.model_tier)}">${escapeHtml(task.model_tier)}</span></td>
+      <td><span class="${badgeClass(task.risk_level)}">${escapeHtml(task.risk_level)}</span></td>
+      <td><span class="size-badge">${escapeHtml(task.context_size)}</span></td>
+      <td>${task.human_review_required ? "yes" : "no"}</td>
+    </tr>
+  `).join("");
+  document.querySelector("#simulation-result").innerHTML = `
+    <div class="metrics">
+      <div><span>Total tasks</span><strong>${escapeHtml(summary.total_tasks)}</strong></div>
+      <div><span>Cheap / Mid / Advanced</span><strong>${escapeHtml(tierCounts.cheap || 0)} / ${escapeHtml(tierCounts.mid || 0)} / ${escapeHtml(tierCounts.advanced || 0)}</strong></div>
+      <div><span>Human review</span><strong>${escapeHtml(summary.human_review_required_count)}</strong></div>
+      <div><span>Cost units saved</span><strong>${escapeHtml(savings.estimated_units_saved)}</strong></div>
+      <div><span>Context units saved</span><strong>${escapeHtml(savings.estimated_context_units_saved)}</strong></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Project</th><th>Task</th><th>Tier</th><th>Risk</th><th>Context</th><th>Review</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 async function getJson(path) {
   const response = await fetch(path);
   const data = await response.json();
@@ -357,3 +424,4 @@ tradeoff.addEventListener("input", () => {
 loadProjects().catch((error) => showError(error.message));
 loadObservability().catch(() => {});
 loadConfigStudio().catch(() => {});
+loadScenarioSimulator().catch(() => {});

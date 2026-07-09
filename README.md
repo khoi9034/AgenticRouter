@@ -100,6 +100,14 @@ python -m agentic_router.cli export-config --output exports/config/agentic_route
 python -m agentic_router.cli import-config --input exports/config/agentic_router_config_bundle.json --dry-run
 ```
 
+Run scenario simulations:
+
+```bash
+python -m agentic_router.cli list-scenarios
+python -m agentic_router.cli simulate --scenario mixed_devspace_month
+python -m agentic_router.cli simulate --scenario forge_bot_maintenance_week --json
+```
+
 Local web UI:
 
 ```bash
@@ -185,6 +193,12 @@ Config Studio validates and summarizes local routing policy without cloud calls 
 
 The web UI includes a mostly read-only Config Studio panel plus one safe Add Project form. Imports are dry-run by default and only overwrite config files with `--apply`, after writing a timestamped local backup.
 
+## Scenario Simulator
+
+The Scenario Simulator runs named batches from `data/simulation_scenarios.json` through the local router and summarizes tiers, models, aliases, risk, context sizes, human-review counts, live-prod counts, sensitive-task counts, escalation counts, top rules, and top advanced/review projects.
+
+Savings are abstract planning units, not dollars: cheap = 1, mid = 3, advanced = 8. Context units are tiny = 1, small = 2, medium = 5, large = 10.
+
 ## Examples
 
 ```bash
@@ -227,6 +241,8 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/config/export`
 - `/api/config/add-project`
 - `/api/config/eval`
+- `/api/scenarios`
+- `/api/simulate`
 
 Record CLI feedback after a route:
 
@@ -270,13 +286,14 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/session_cache.jsonl`: Local sanitized session stickiness records.
 - `data/traces.jsonl`: Local sanitized route trace records.
 - `data/config_schemas.json`: Lightweight schema notes for config validation.
+- `data/simulation_scenarios.json`: Named hypothetical task batches for the simulator.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, and includes Config Studio for local validation, summary, bundle export, golden eval, and guarded project creation. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, and provides a Scenario Simulator panel for hypothetical batch routing. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

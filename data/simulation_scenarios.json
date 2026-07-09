@@ -1,0 +1,205 @@
+{
+  "scenarios": {
+    "docs_heavy_week": {
+      "description": "Mostly documentation and static page polish.",
+      "tasks": [
+        {
+          "project_name": "Diana Test Project",
+          "task_description": "Make the hello world page background prettier",
+          "files_touched": ["index.html", "style.css"],
+          "previous_failure_count": 0,
+          "live_prod": false,
+          "expected_notes": "cheap static UI"
+        },
+        {
+          "project_name": "Mark's Test Project",
+          "task_description": "Update README copy for the demo",
+          "files_touched": ["README.md"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Student TRACK Debrief Documentation",
+          "task_description": "Add a debrief documentation summary section",
+          "files_touched": ["docs/debrief.md"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Scott's Test Project",
+          "task_description": "Clean up docs wording for the test app",
+          "files_touched": ["docs/notes.md"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Diana Test Project",
+          "task_description": "Write a simple summary for the sample page",
+          "files_touched": ["docs/summary.md"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        }
+      ]
+    },
+    "normal_dev_week": {
+      "description": "Routine internal app, dashboard, and report work.",
+      "tasks": [
+        {
+          "project_name": "Grant Quarter Reporting",
+          "task_description": "Create a dashboard report for quarter totals",
+          "files_touched": ["reports/quarterly.py"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "COI project",
+          "task_description": "Add a compliance dashboard for extracted PDF results",
+          "files_touched": ["coi/dashboard.py"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Diana Test Project",
+          "task_description": "Add a normal UI form for collecting sample preferences",
+          "files_touched": ["src/form.py", "templates/form.html"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Grant Quarter Reporting",
+          "task_description": "Adjust report logic for Munis grant categories",
+          "files_touched": ["reports/grants.py"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        }
+      ]
+    },
+    "forge_bot_maintenance_week": {
+      "description": "Live Forge bot maintenance and naming/report changes.",
+      "tasks": [
+        {
+          "project_name": "TD Refresh Users Bot Conversion",
+          "task_description": "Change live Forge bot code that writes TeamDynamix users",
+          "files_touched": ["bots/refresh_users.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "Gap Bills Forge Conversion",
+          "task_description": "Change PDF output naming format",
+          "files_touched": ["forge_bot/gap_bills_bot.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "ECOs Bot Conversion",
+          "task_description": "Modify live Forge document pipeline email routing",
+          "files_touched": ["bots/ecos_pipeline.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "VALT Reporting Bots Conversion",
+          "task_description": "Change SQL report query before live email routing",
+          "files_touched": ["valt/reports.sql"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        }
+      ]
+    },
+    "sensitive_systems_week": {
+      "description": "Sensitive data, security, and public safety tasks.",
+      "tasks": [
+        {
+          "project_name": "Veteran's Intake Application",
+          "task_description": "Fix auth ping endpoint redirect bug",
+          "files_touched": ["Auth/ping.php", "api/list_intakes.php"],
+          "previous_failure_count": 1,
+          "live_prod": true
+        },
+        {
+          "project_name": "USB Device Approval Application",
+          "task_description": "Update Microsoft Graph Advanced Hunting query for USB approvals",
+          "files_touched": ["graph/hunting.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "Workers Comp V2",
+          "task_description": "Fix workers comp claim form validation",
+          "files_touched": ["claims/form.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "911, Radio, and Real-Time Project Tracking",
+          "task_description": "Change public safety radio status dashboard logic",
+          "files_touched": ["tracking/radio_status.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        }
+      ]
+    },
+    "mixed_devspace_month": {
+      "description": "A blended month across docs, normal apps, live bots, and sensitive systems.",
+      "tasks": [
+        {
+          "project_name": "Diana Test Project",
+          "task_description": "Make hello world page prettier",
+          "files_touched": ["index.html"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Grant Quarter Reporting",
+          "task_description": "Create a dashboard report for quarter totals",
+          "files_touched": ["reports/quarterly.py"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "Local Budget Book",
+          "task_description": "Update official public budget figures in the static site",
+          "files_touched": ["data/budget.json", "site/budget.html"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "Gap Bills Forge Conversion",
+          "task_description": "Fix PDF-to-JPG handling for the Laserfiche feed",
+          "files_touched": ["forge/gap_bills.py"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "Veteran's Intake Application",
+          "task_description": "Repair Laserfiche file download handling",
+          "files_touched": ["api/download.php"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        },
+        {
+          "project_name": "Scott's Test Project",
+          "task_description": "Update docs after repeated failures",
+          "files_touched": ["docs/notes.md"],
+          "previous_failure_count": 2,
+          "live_prod": false
+        },
+        {
+          "project_name": "COI project",
+          "task_description": "Improve PDF extraction compliance checks",
+          "files_touched": ["coi/extract.py", "tests/test_extract.py"],
+          "previous_failure_count": 0,
+          "live_prod": false
+        },
+        {
+          "project_name": "USB Device Approval Application",
+          "task_description": "Review cybersecurity controls for USB approval workflow",
+          "files_touched": ["security/review.md"],
+          "previous_failure_count": 0,
+          "live_prod": true
+        }
+      ]
+    }
+  }
+}
