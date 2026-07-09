@@ -20,6 +20,7 @@ from .observability import (
 )
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
+from .pilot import demo_script_text, export_pilot_report, format_scorecard, pilot_scorecard, rollout_plan_text
 from .router import route
 from .sessions import format_session_summary, summarize_sessions
 from .shadow import add_demo_data, export_shadow_report, format_shadow_summary, summarize_shadow_runs
@@ -85,6 +86,10 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("shadow-summary", help="summarize shadow mode analytics")
     subparsers.add_parser("export-shadow-report", help="write shadow mode rollout report")
     subparsers.add_parser("shadow-add-demo-data", help="add sanitized demo shadow records")
+    subparsers.add_parser("pilot-report", help="generate pilot readiness report")
+    subparsers.add_parser("demo-script", help="print demo script location and walkthrough")
+    subparsers.add_parser("rollout-plan", help="print rollout plan")
+    subparsers.add_parser("pilot-scorecard", help="print pilot readiness scorecard")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -198,6 +203,18 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "shadow-add-demo-data":
         records = add_demo_data()
         print(f"Added {len(records)} sanitized demo shadow records.")
+    elif args.command == "pilot-report":
+        result = export_pilot_report()
+        print(f"Exported pilot readiness report to {result['export_folder']}")
+        for path in result["files"].values():
+            print(f"- {path}")
+    elif args.command == "demo-script":
+        print("Demo script: docs/demo_script.md")
+        print(demo_script_text())
+    elif args.command == "rollout-plan":
+        print(rollout_plan_text())
+    elif args.command == "pilot-scorecard":
+        print(format_scorecard(pilot_scorecard()))
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0

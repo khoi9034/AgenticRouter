@@ -109,6 +109,22 @@ Analytics compare actual usage to router recommendations:
 
 Shadow analytics are local-only and advisory. They do not enforce routing, call a model, use a cloud service, or send remote traces.
 
+## Pilot Readiness Reporting
+
+The pilot/demo layer does not change routing decisions. It summarizes existing local evidence for a lead developer or leadership audience:
+
+- golden eval count and pass rate
+- project catalog size and risk distribution
+- available model tiers and integration modes
+- scenario simulator savings examples
+- local observability status
+- shadow analytics readiness
+- config validation status
+
+The readiness status is `demo-ready` when golden evals pass, config validation passes, and local observability is enabled. Otherwise it reports `needs-work`.
+
+Pilot reports recommend a staged rollout: local demo, shadow mode, advise mode for low-risk projects, packet mode for normal tasks, strict mode for high-risk/live-prod tasks, and periodic review using golden evals, shadow reports, outcomes, and config validation.
+
 ## Human Review
 
 Human review is required when a project is marked sensitive or when task/project text hits sensitive data or security-control rules. That includes credentials, tokens, PII, PHI, veteran data, HR/payroll, legal records, public safety, workers comp, authentication, cybersecurity, Microsoft Graph, Intune, network, and infrastructure work.

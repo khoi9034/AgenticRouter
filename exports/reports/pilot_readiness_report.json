@@ -1,0 +1,104 @@
+{
+  "current_router_capabilities": [
+    "rule-based model routing",
+    "golden regression evaluation",
+    "local web UI",
+    "context pack builder",
+    "DevSpace run packet generator",
+    "outcome feedback logging",
+    "routing profiles, fallbacks, and session stickiness",
+    "local observability and exports",
+    "config validation and Config Studio",
+    "scenario simulation",
+    "DevSpace v1 integration API",
+    "shadow mode analytics"
+  ],
+  "generated_at": "2026-07-09T21:27:20+00:00",
+  "known_limitations": [
+    "Rules are keyword/catalog based and do not call an AI model.",
+    "Cost savings use abstract units, not real dollars.",
+    "Shadow analytics depend on callers supplying actual_model_used.",
+    "Config Studio has a guarded add-project form, not a full policy editor.",
+    "Human review gates are reported locally; enforcement depends on the caller using strict mode."
+  ],
+  "local_observability_status": {
+    "langsmith_api_disabled_by_design": true,
+    "langsmith_api_enabled": false,
+    "local_tracing_enabled": true,
+    "remote_tracing_enabled": false
+  },
+  "next_engineering_steps": [
+    "Pilot shadow mode against real DevSpace manual choices.",
+    "Review shadow mismatches and adjust routing rules/catalog entries.",
+    "Use advise mode for low-risk projects after agreement is high.",
+    "Add caller-side strict-mode blocking for live-prod and sensitive projects.",
+    "Schedule periodic golden eval, config validation, outcome, and shadow report review."
+  ],
+  "privacy_safety_rules": [
+    "No secrets, API keys, bearer tokens, passwords, or credentials.",
+    "No real PII/PHI, veteran records, workers comp claims, legal/client records, or student raw comments.",
+    "No emails, tenant IDs, USB serials, private Windows paths, production logs, or real records.",
+    "High-risk traces and shadow records store hashes/categories instead of raw task text.",
+    "Everything stays local and offline."
+  ],
+  "recommended_rollout_sequence": [
+    "local demo",
+    "shadow mode",
+    "advise mode for low-risk projects",
+    "packet mode for normal tasks",
+    "strict mode for high-risk/live-prod tasks"
+  ],
+  "scenario_simulator_savings_examples": {
+    "docs_heavy_week": {
+      "estimated_context_percent_saved": 82.0,
+      "estimated_context_units_saved": 41,
+      "estimated_percent_saved": 82.5,
+      "estimated_units_saved": 33
+    },
+    "mixed_devspace_month": {
+      "estimated_context_percent_saved": 42.5,
+      "estimated_context_units_saved": 34,
+      "estimated_percent_saved": 34.4,
+      "estimated_units_saved": 22
+    }
+  },
+  "scorecard": {
+    "config_validation_status": "pass",
+    "generated_at": "2026-07-09T21:27:20+00:00",
+    "golden_eval_count": 51,
+    "golden_eval_pass_rate": 100.0,
+    "golden_eval_passed": 51,
+    "high_risk_project_count": 15,
+    "integration_contract_version": "v1",
+    "integration_modes": [
+      "advise",
+      "packet",
+      "shadow",
+      "strict"
+    ],
+    "local_observability_enabled": true,
+    "model_tiers_available": [
+      "advanced",
+      "cheap",
+      "mid"
+    ],
+    "project_count": 24,
+    "projects_by_risk": {
+      "critical": 1,
+      "high": 14,
+      "low": 3,
+      "medium": 2,
+      "medium-high": 4
+    },
+    "readiness_status": "demo-ready",
+    "remote_tracing_enabled": false,
+    "shadow_analytics_enabled": true,
+    "shadow_run_count": 0,
+    "unit_test_count": 86
+  },
+  "shadow_mode_readiness": {
+    "enabled": true,
+    "report_path": "exports/reports/shadow_mode_report.md",
+    "total_shadow_runs": 0
+  }
+}

@@ -6,6 +6,7 @@ const configStudio = document.querySelector("#config-studio");
 const scenarioSimulator = document.querySelector("#scenario-simulator");
 const integrationContract = document.querySelector("#integration-contract");
 const shadowAnalytics = document.querySelector("#shadow-analytics");
+const pilotReadiness = document.querySelector("#pilot-readiness");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
@@ -158,6 +159,35 @@ async function loadShadowAnalytics() {
     <div id="shadow-status" class="status"></div>
   `;
   document.querySelector("#export-shadow-report").addEventListener("click", exportShadowReport);
+}
+
+async function loadPilotReadiness() {
+  const scorecard = await getJson("/api/pilot/scorecard");
+  pilotReadiness.innerHTML = `
+    <h2>Pilot Readiness</h2>
+    <p>Leadership-friendly demo scorecard and rollout links.</p>
+    <div class="metrics">
+      <div><span>Status</span><strong>${escapeHtml(scorecard.readiness_status)}</strong></div>
+      <div><span>Golden eval</span><strong>${escapeHtml(scorecard.golden_eval_pass_rate)}%</strong></div>
+      <div><span>Projects</span><strong>${escapeHtml(scorecard.project_count)}</strong></div>
+      <div><span>High risk</span><strong>${escapeHtml(scorecard.high_risk_project_count)}</strong></div>
+      <div><span>Modes</span><strong>${escapeHtml(scorecard.integration_modes.length)}</strong></div>
+      <div><span>Tests</span><strong>${escapeHtml(scorecard.unit_test_count)}</strong></div>
+    </div>
+    <dl>
+      <dt>Integration modes</dt><dd>${escapeHtml(scorecard.integration_modes.join(", "))}</dd>
+      <dt>Links</dt><dd class="export-links">
+        <a href="/exports/reports/pilot_readiness_report.md" target="_blank">Pilot readiness report</a>
+        <a href="/api/pilot/demo-script" target="_blank">Demo script</a>
+        <a href="/api/pilot/rollout-plan" target="_blank">Rollout plan</a>
+        <a href="/exports/reports/shadow_mode_report.md" target="_blank">Shadow mode report</a>
+        <a href="/exports/gateway/routing_policy.example.yaml" target="_blank">Enterprise exports</a>
+      </dd>
+    </dl>
+    <button type="button" id="export-pilot-report">Export pilot report</button>
+    <div id="pilot-status" class="status"></div>
+  `;
+  document.querySelector("#export-pilot-report").addEventListener("click", exportPilotReport);
 }
 
 function filesFromInput(value) {
@@ -465,6 +495,13 @@ async function exportShadowReport() {
   status.className = "status ok";
 }
 
+async function exportPilotReport() {
+  const data = await getJson("/api/pilot/report");
+  const status = document.querySelector("#pilot-status");
+  status.textContent = `Report exported: ${data.files.markdown}`;
+  status.className = "status ok";
+}
+
 function showSimulation(data) {
   const summary = data.summary;
   const savings = summary.savings;
@@ -536,3 +573,4 @@ loadConfigStudio().catch(() => {});
 loadScenarioSimulator().catch(() => {});
 loadIntegrationContract().catch(() => {});
 loadShadowAnalytics().catch(() => {});
+loadPilotReadiness().catch(() => {});

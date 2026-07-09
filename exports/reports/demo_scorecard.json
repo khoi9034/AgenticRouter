@@ -1,0 +1,34 @@
+{
+  "config_validation_status": "pass",
+  "generated_at": "2026-07-09T21:27:20+00:00",
+  "golden_eval_count": 51,
+  "golden_eval_pass_rate": 100.0,
+  "golden_eval_passed": 51,
+  "high_risk_project_count": 15,
+  "integration_contract_version": "v1",
+  "integration_modes": [
+    "advise",
+    "packet",
+    "shadow",
+    "strict"
+  ],
+  "local_observability_enabled": true,
+  "model_tiers_available": [
+    "advanced",
+    "cheap",
+    "mid"
+  ],
+  "project_count": 24,
+  "projects_by_risk": {
+    "critical": 1,
+    "high": 14,
+    "low": 3,
+    "medium": 2,
+    "medium-high": 4
+  },
+  "readiness_status": "demo-ready",
+  "remote_tracing_enabled": false,
+  "shadow_analytics_enabled": true,
+  "shadow_run_count": 0,
+  "unit_test_count": 86
+}

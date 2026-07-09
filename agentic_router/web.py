@@ -15,6 +15,7 @@ from .integration import handle_request, health, load_contract, version
 from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
+from .pilot import demo_script_text, export_pilot_report, pilot_scorecard, rollout_plan_text
 from .projects import load_projects
 from .router import route
 from .sessions import summarize_sessions
@@ -67,6 +68,14 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(summarize_shadow_runs())
         elif self.path == "/api/shadow/report":
             self._json(export_shadow_report())
+        elif self.path == "/api/pilot/scorecard":
+            self._json(pilot_scorecard())
+        elif self.path == "/api/pilot/report":
+            self._json(export_pilot_report())
+        elif self.path == "/api/pilot/demo-script":
+            self._json({"path": "docs/demo_script.md", "content": demo_script_text()})
+        elif self.path == "/api/pilot/rollout-plan":
+            self._json({"path": "docs/rollout_plan.md", "content": rollout_plan_text()})
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:
