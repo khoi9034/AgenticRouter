@@ -12,6 +12,7 @@ from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
 from .projects import load_projects
 from .router import route
+from .sessions import summarize_sessions
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -29,6 +30,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(evaluate_tasks())
         elif self.path == "/api/outcomes":
             self._json(summarize_outcomes())
+        elif self.path == "/api/sessions":
+            self._json(summarize_sessions())
         elif self.path.startswith("/exports/"):
             self._serve_export()
         else:
@@ -61,6 +64,7 @@ class RouterHandler(SimpleHTTPRequestHandler):
                 files_touched=_files(payload.get("files_touched", [])),
                 previous_failure_count=int(payload.get("previous_failure_count", 0)),
                 live_prod=True if payload.get("live_prod") is True else None,
+                **_routing_options(payload),
             )
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
@@ -83,6 +87,7 @@ class RouterHandler(SimpleHTTPRequestHandler):
                 files_touched=_files(payload.get("files_touched", [])),
                 previous_failure_count=int(payload.get("previous_failure_count", 0)),
                 live_prod=True if payload.get("live_prod") is True else None,
+                **_routing_options(payload),
             )
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
@@ -99,6 +104,7 @@ class RouterHandler(SimpleHTTPRequestHandler):
                 files_touched=_files(payload.get("files_touched", [])),
                 previous_failure_count=int(payload.get("previous_failure_count", 0)),
                 live_prod=True if payload.get("live_prod") is True else None,
+                **_routing_options(payload),
             )
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
@@ -158,6 +164,30 @@ def _files(value: Any) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value if str(item).strip()]
     raise ValueError("files_touched must be a list or string")
+
+
+def _routing_options(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": _optional_text(payload.get("session_id")),
+        "profile_name": str(payload.get("profile_name") or payload.get("profile") or "balanced"),
+        "cost_quality_tradeoff": _optional_int(payload.get("cost_quality_tradeoff")),
+        "allowed_models": _optional_list(payload.get("allowed_models")),
+    }
+
+
+def _optional_text(value: Any) -> str | None:
+    text = "" if value is None else str(value).strip()
+    return text or None
+
+
+def _optional_int(value: Any) -> int | None:
+    return None if value in (None, "") else int(value)
+
+
+def _optional_list(value: Any) -> list[str] | None:
+    if value in (None, "", []):
+        return None
+    return _files(value)
 
 
 def _bool(value: Any) -> bool:

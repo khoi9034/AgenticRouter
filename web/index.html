@@ -33,6 +33,37 @@
 
           <div class="split">
             <label>
+              Session ID
+              <input id="session-id" name="session_id" placeholder="optional">
+            </label>
+
+            <label>
+              Routing profile
+              <select id="profile" name="profile_name">
+                <option value="balanced">balanced</option>
+                <option value="cost_saver">cost_saver</option>
+                <option value="max_savings">max_savings</option>
+                <option value="quality_first">quality_first</option>
+                <option value="max_quality">max_quality</option>
+                <option value="claude_only">claude_only</option>
+                <option value="codex_only">codex_only</option>
+                <option value="safe_prod">safe_prod</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Cost/quality tradeoff <span id="tradeoff-value">5</span>
+            <input id="tradeoff" name="cost_quality_tradeoff" type="range" min="0" max="10" value="5">
+          </label>
+
+          <label>
+            Allowed model pool
+            <textarea id="allowed-models" name="allowed_models" rows="2" placeholder="Optional aliases or models, one per line"></textarea>
+          </label>
+
+          <div class="split">
+            <label>
               Previous failures
               <input id="failures" name="previous_failure_count" type="number" min="0" value="0">
             </label>

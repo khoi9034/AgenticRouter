@@ -21,6 +21,10 @@ def generate_packet(
     files_touched: list[str] | None = None,
     previous_failure_count: int = 0,
     live_prod: bool | None = None,
+    session_id: str | None = None,
+    profile_name: str = "balanced",
+    cost_quality_tradeoff: int | None = None,
+    allowed_models: list[str] | None = None,
 ) -> dict[str, Any]:
     result = route(
         project_name=project_name,
@@ -28,6 +32,10 @@ def generate_packet(
         files_touched=files_touched or [],
         previous_failure_count=previous_failure_count,
         live_prod=live_prod,
+        session_id=session_id,
+        profile_name=profile_name,
+        cost_quality_tradeoff=cost_quality_tradeoff,
+        allowed_models=allowed_models,
     )
     return packet_from_route(project_name, task_description, files_touched or [], result)
 

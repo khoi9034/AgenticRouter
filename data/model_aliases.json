@@ -1,0 +1,39 @@
+{
+  "aliases": {
+    "devspace-cheap": {
+      "tier": "cheap",
+      "primary": "Haiku 4.5",
+      "fallback": "GPT-5.4 mini"
+    },
+    "devspace-mid": {
+      "tier": "mid",
+      "primary": "Sonnet 4.6",
+      "fallback": "GPT-5.4"
+    },
+    "devspace-advanced": {
+      "tier": "advanced",
+      "primary": "GPT-5.5",
+      "fallback": "Opus 4.8"
+    },
+    "devspace-docs": {
+      "tier": "cheap",
+      "primary": "Haiku 4.5",
+      "fallback": "Sonnet 4.6"
+    },
+    "devspace-live-prod": {
+      "tier": "advanced",
+      "primary": "GPT-5.5",
+      "fallback": "Opus 4.8"
+    },
+    "devspace-security": {
+      "tier": "advanced",
+      "primary": "GPT-5.5",
+      "fallback": "Opus 4.8"
+    },
+    "devspace-public-official-content": {
+      "tier": "advanced",
+      "primary": "GPT-5.5",
+      "fallback": "Opus 4.8"
+    }
+  }
+}

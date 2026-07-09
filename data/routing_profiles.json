@@ -1,0 +1,62 @@
+{
+  "profiles": {
+    "max_savings": {
+      "cost_quality_tradeoff": 10,
+      "allowed_model_aliases": ["devspace-cheap", "devspace-docs", "devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": false
+    },
+    "cost_saver": {
+      "cost_quality_tradeoff": 7,
+      "allowed_model_aliases": ["devspace-cheap", "devspace-docs", "devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": false
+    },
+    "balanced": {
+      "cost_quality_tradeoff": 5,
+      "allowed_model_aliases": ["devspace-cheap", "devspace-docs", "devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": false
+    },
+    "quality_first": {
+      "cost_quality_tradeoff": 3,
+      "allowed_model_aliases": ["devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": true
+    },
+    "max_quality": {
+      "cost_quality_tradeoff": 0,
+      "allowed_model_aliases": ["devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": true
+    },
+    "claude_only": {
+      "cost_quality_tradeoff": 5,
+      "allowed_model_aliases": ["devspace-cheap", "devspace-docs", "devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": false,
+      "model_family": "claude"
+    },
+    "codex_only": {
+      "cost_quality_tradeoff": 5,
+      "allowed_model_aliases": ["devspace-cheap", "devspace-docs", "devspace-mid", "devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": false,
+      "model_family": "codex"
+    },
+    "safe_prod": {
+      "cost_quality_tradeoff": 3,
+      "allowed_model_aliases": ["devspace-advanced", "devspace-live-prod", "devspace-security", "devspace-public-official-content"],
+      "minimum_tier_for_sensitive_tasks": "advanced",
+      "minimum_tier_for_live_prod": "advanced",
+      "human_review_default": true
+    }
+  }
+}

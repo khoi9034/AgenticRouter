@@ -1,6 +1,8 @@
 const project = document.querySelector("#project");
 const form = document.querySelector("#route-form");
 const result = document.querySelector("#result");
+const tradeoff = document.querySelector("#tradeoff");
+const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
 
 async function loadProjects() {
@@ -46,6 +48,11 @@ function showResult(data) {
     ${data.human_review_required ? '<div class="warning">Human review required before sensitive or production changes.</div>' : ""}
     <dl>
       <dt>Route ID</dt><dd class="route-id">${escapeHtml(data.route_id)}</dd>
+      <dt>Selected model alias</dt><dd>${escapeHtml(data.selected_model_alias)}</dd>
+      <dt>Selected model</dt><dd>${escapeHtml(data.selected_model)}</dd>
+      <dt>Routing profile</dt><dd>${escapeHtml(data.profile_name)} (${escapeHtml(data.cost_quality_tradeoff)})</dd>
+      <dt>Sticky route used</dt><dd>${data.sticky_route_used ? "yes" : "no"}</dd>
+      <dt>Fallback candidates</dt><dd><ul>${listItems(data.fallback_candidates)}</ul></dd>
       <dt>Reason</dt><dd>${escapeHtml(data.reason)}</dd>
       <dt>Context policy</dt><dd>${escapeHtml(data.context_policy)}</dd>
       <dt>Escalation policy</dt><dd>${escapeHtml(data.escalation_policy)}</dd>
@@ -166,6 +173,10 @@ form.addEventListener("submit", async (event) => {
     files_touched: filesFromInput(document.querySelector("#files").value),
     previous_failure_count: Number(document.querySelector("#failures").value || 0),
     live_prod: document.querySelector("#live-prod").checked || null,
+    session_id: document.querySelector("#session-id").value.trim() || null,
+    profile_name: document.querySelector("#profile").value,
+    cost_quality_tradeoff: Number(tradeoff.value),
+    allowed_models: filesFromInput(document.querySelector("#allowed-models").value),
   };
 
   try {
@@ -208,5 +219,9 @@ async function saveFeedback(event) {
     status.className = "status bad";
   }
 }
+
+tradeoff.addEventListener("input", () => {
+  tradeoffValue.textContent = tradeoff.value;
+});
 
 loadProjects().catch((error) => showError(error.message));

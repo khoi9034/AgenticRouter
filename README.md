@@ -24,6 +24,13 @@ Text output:
 python -m agentic_router.cli route --project "Diana Test Project" --task "Make the hello world page background prettier"
 ```
 
+Profile/session routing:
+
+```bash
+python -m agentic_router.cli route --project "Diana Test Project" --task "Make page prettier" --profile cost_saver --session-id demo-low
+python -m agentic_router.cli route --project "Veteran's Intake Application" --task "Fix auth redirect" --profile max_savings --session-id vet-auth-1 --json
+```
+
 Golden evaluation:
 
 ```bash
@@ -60,6 +67,12 @@ Summarize outcomes:
 python -m agentic_router.cli outcomes
 ```
 
+Summarize session stickiness:
+
+```bash
+python -m agentic_router.cli sessions
+```
+
 Local web UI:
 
 ```bash
@@ -82,6 +95,10 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `previous_failure_count`, default `0`
 - `live_prod`, optional boolean override
 - `output_format`, `text` or `json`
+- `session_id`, optional sticky-routing key
+- `profile_name`, optional routing profile
+- `cost_quality_tradeoff`, optional integer from `0` max quality to `10` max savings
+- `allowed_models`, optional aliases or exact model names
 
 ## Outputs
 
@@ -97,6 +114,13 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `route_id`
 - `context_pack`
 - `run_packet` in the web route response
+- `selected_model_alias`
+- `selected_model`
+- `fallback_candidates`
+- `profile_name`
+- `cost_quality_tradeoff`
+- `sticky_route_used`
+- `previous_model`
 
 ## Routing Rules
 
@@ -107,6 +131,16 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 5. Live production code changes never route cheap.
 6. Sensitive data or security controls require human review.
 7. Context policy prefers the smallest useful context and excludes secrets, tokens, credentials, PII, PHI, and real case records for sensitive work.
+
+## Profiles, Aliases, and Sessions
+
+Model aliases live in `data/model_aliases.json`; fallback pools live in `data/fallback_policies.json`. The default aliases are `devspace-cheap`, `devspace-mid`, `devspace-advanced`, `devspace-docs`, `devspace-live-prod`, `devspace-security`, and `devspace-public-official-content`.
+
+Routing profiles live in `data/routing_profiles.json`: `max_savings`, `cost_saver`, `balanced`, `quality_first`, `max_quality`, `claude_only`, `codex_only`, and `safe_prod`.
+
+Profiles can steer normal tasks toward cheaper or higher-quality models, but they cannot downgrade live prod, auth, SQL/database, Laserfiche, TeamDynamix, Graph, Intune, cybersecurity, sensitive data, public safety, HR/payroll, legal, veteran, workers comp, or official public budget work below advanced routing.
+
+Session stickiness reuses a previous model alias/model only when the project is the same, risk has not increased, prior failures are below two, and the new task does not newly touch a high-risk domain. Session records are stored in `data/session_cache.jsonl` with sanitized summaries; high-risk task text is redacted and only a hash is kept.
 
 ## Examples
 
@@ -143,6 +177,7 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/eval`
 - `/api/feedback`
 - `/api/outcomes`
+- `/api/sessions`
 
 Record CLI feedback after a route:
 
@@ -180,13 +215,17 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
 - `data/litellm_model_aliases.json`: DevSpace model aliases for LiteLLM-style exports.
+- `data/model_aliases.json`: Local model alias primary/fallback mapping.
+- `data/routing_profiles.json`: Cost/quality and family profile settings.
+- `data/fallback_policies.json`: Fallback candidates by route type.
+- `data/session_cache.jsonl`: Local sanitized session stickiness records.
 - `data/examples.json`: Example routing inputs.
 - `data/golden_tasks.json`: Regression examples for the evaluator.
 - `data/outcomes.jsonl`: Local JSONL feedback records.
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback for the routing outcome. It is local-only and uses Python `http.server`; no Flask, FastAPI, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

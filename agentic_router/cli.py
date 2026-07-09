@@ -10,6 +10,7 @@ from .evaluator import evaluate_tasks, format_summary
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .router import route
+from .sessions import format_session_summary, summarize_sessions
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -25,11 +26,13 @@ def main(argv: list[str] | None = None) -> int:
     route_parser.add_argument("--sensitive", action="store_true")
     route_parser.add_argument("--format", choices=["text", "json"], default="text")
     route_parser.add_argument("--json", action="store_true", dest="json_output")
+    _add_routing_controls(route_parser)
     context_parser = subparsers.add_parser("context", help="recommend a context pack")
     context_parser.add_argument("--project", required=True)
     context_parser.add_argument("--task", required=True)
     context_parser.add_argument("--files", nargs="*", default=[])
     context_parser.add_argument("--json", action="store_true", dest="json_output")
+    _add_routing_controls(context_parser)
     packet_parser = subparsers.add_parser("packet", help="generate a DevSpace run packet")
     packet_parser.add_argument("--project", required=True)
     packet_parser.add_argument("--task", required=True)
@@ -37,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     packet_parser.add_argument("--failures", type=int, default=0)
     packet_parser.add_argument("--live-prod", action="store_true")
     packet_parser.add_argument("--json", action="store_true", dest="json_output")
+    _add_routing_controls(packet_parser)
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -46,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     feedback_parser.add_argument("--recommendation-fit", required=True)
     feedback_parser.add_argument("--notes", default="")
     subparsers.add_parser("outcomes", help="summarize routing feedback outcomes")
+    subparsers.add_parser("sessions", help="summarize routing session cache")
     export_parser = subparsers.add_parser("export-enterprise", help="generate enterprise gateway templates")
     export_parser.add_argument("--target", choices=["litellm", "gateway", "all"], default="all")
 
@@ -60,6 +65,10 @@ def main(argv: list[str] | None = None) -> int:
             live_prod=True if args.live_prod else None,
             sensitive=True if args.sensitive else None,
             output_format=output_format,
+            session_id=args.session_id,
+            profile_name=args.profile,
+            cost_quality_tradeoff=args.cost_quality_tradeoff,
+            allowed_models=args.allowed_models,
         )
         print(json.dumps(result, indent=2) if output_format == "json" else _format_text(result))
     elif args.command == "context":
@@ -67,6 +76,10 @@ def main(argv: list[str] | None = None) -> int:
             project_name=args.project,
             task_description=args.task,
             files_touched=args.files,
+            session_id=args.session_id,
+            profile_name=args.profile,
+            cost_quality_tradeoff=args.cost_quality_tradeoff,
+            allowed_models=args.allowed_models,
         )
         pack = result["context_pack"]
         print(json.dumps(pack, indent=2) if args.json_output else format_context_pack(pack))
@@ -77,6 +90,10 @@ def main(argv: list[str] | None = None) -> int:
             files_touched=args.files,
             previous_failure_count=args.failures,
             live_prod=True if args.live_prod else None,
+            session_id=args.session_id,
+            profile_name=args.profile,
+            cost_quality_tradeoff=args.cost_quality_tradeoff,
+            allowed_models=args.allowed_models,
         )
         print(json.dumps(packet, indent=2) if args.json_output else format_packet(packet))
     elif args.command == "eval":
@@ -95,18 +112,34 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Saved feedback for {record['project_name']} ({record['recommended_tier']}).")
     elif args.command == "outcomes":
         print(format_outcomes_summary(summarize_outcomes()))
+    elif args.command == "sessions":
+        print(format_session_summary(summarize_sessions()))
     elif args.command == "export-enterprise":
         print(format_export_result(export_enterprise(args.target)))
     return 0
 
 
+def _add_routing_controls(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--session-id")
+    parser.add_argument("--profile", default="balanced")
+    parser.add_argument("--cost-quality-tradeoff", type=int)
+    parser.add_argument("--allowed-models", nargs="*")
+
+
 def _format_text(result: dict[str, Any]) -> str:
     review = "yes" if result["human_review_required"] else "no"
+    sticky = "yes" if result["sticky_route_used"] else "no"
     rules = "\n".join(f"  - {rule}" for rule in result["matched_rules"])
     return "\n".join(
         [
             f"Recommended model: {result['recommended_model']}",
             f"Route ID: {result['route_id']}",
+            f"Selected alias: {result['selected_model_alias']}",
+            f"Selected model: {result['selected_model']}",
+            f"Fallback candidates: {', '.join(result['fallback_candidates'])}",
+            f"Profile: {result['profile_name']} (cost/quality {result['cost_quality_tradeoff']})",
+            f"Sticky route used: {sticky}",
+            f"Previous model: {result['previous_model'] or 'none'}",
             f"Tier: {result['model_tier']}",
             f"Effort: {result['effort_level']}",
             f"Risk: {result['risk_level']}",

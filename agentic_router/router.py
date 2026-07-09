@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from .context import build_context_pack
-from .models import default_model_for_tier
 from .outcomes import make_route_id
+from .profiles import safety_locked, select_model
 from .projects import find_project
 from .rules import escalate_tier, hits, load_routing_rules, max_risk, max_tier, touches_code
+from .sessions import can_reuse_session, latest_session, save_session_route
 
 EFFORT_BY_TIER = {"cheap": "low", "mid": "medium", "advanced": "high"}
 
@@ -19,6 +20,10 @@ def route(
     live_prod: bool | None = None,
     sensitive: bool | None = None,
     output_format: str = "text",
+    session_id: str | None = None,
+    profile_name: str = "balanced",
+    cost_quality_tradeoff: int | None = None,
+    allowed_models: list[str] | None = None,
 ) -> dict[str, Any]:
     if output_format not in {"text", "json"}:
         raise ValueError("output_format must be text or json")
@@ -71,8 +76,26 @@ def route(
     if security_hits:
         matched_rules.append("security_controls:" + ", ".join(security_hits[:4]))
 
+    locked = safety_locked(project_name, task_description, files, tier, risk, matched_rules, is_live_prod)
+    previous = latest_session(session_id) if session_id else None
+    sticky = can_reuse_session(previous, project_name, risk, locked, previous_failure_count) if session_id else False
+    model_choice = select_model(
+        project_name=project_name,
+        task_description=task_description,
+        files_touched=files,
+        model_tier=tier,
+        risk_level=risk,
+        matched_rules=matched_rules,
+        live_prod=is_live_prod,
+        profile_name=profile_name,
+        cost_quality_tradeoff=cost_quality_tradeoff,
+        allowed_models=allowed_models,
+        sticky_alias=previous.get("selected_model_alias") if sticky and previous else None,
+        sticky_model=previous.get("selected_model") if sticky and previous else None,
+    )
+    needs_human = needs_human or model_choice["human_review_default"]
     result = {
-        "recommended_model": default_model_for_tier(tier),
+        "recommended_model": model_choice["selected_model"],
         "model_tier": tier,
         "effort_level": EFFORT_BY_TIER[tier],
         "risk_level": risk,
@@ -81,9 +104,19 @@ def route(
         "context_policy": _context_policy(files, needs_human),
         "escalation_policy": _escalation_policy(tier, previous_failure_count, needs_human),
         "matched_rules": matched_rules,
+        "session_id": session_id,
+        "sticky_route_used": sticky,
+        "previous_model": previous.get("selected_model") if previous else None,
+        "selected_model_alias": model_choice["selected_model_alias"],
+        "selected_model": model_choice["selected_model"],
+        "fallback_candidates": model_choice["fallback_candidates"],
+        "profile_name": model_choice["profile_name"],
+        "cost_quality_tradeoff": model_choice["cost_quality_tradeoff"],
     }
     result["context_pack"] = build_context_pack(project_name, task_description, files, risk, tier, matched_rules)
     result["route_id"] = make_route_id(project_name, task_description, files, result)
+    if session_id:
+        save_session_route(session_id, project_name, task_description, files, result, model_choice["safety_locked"])
     return result
 
 

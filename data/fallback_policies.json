@@ -1,0 +1,8 @@
+{
+  "cheap": ["Haiku 4.5", "GPT-5.4 mini", "Sonnet 4.6"],
+  "mid": ["Sonnet 4.6", "GPT-5.4", "Opus 4.7"],
+  "advanced": ["GPT-5.5", "Opus 4.8", "Opus 4.7"],
+  "live_prod": ["GPT-5.5", "Opus 4.8"],
+  "security": ["GPT-5.5", "Opus 4.8"],
+  "public_official_content": ["GPT-5.5", "Opus 4.8"]
+}
