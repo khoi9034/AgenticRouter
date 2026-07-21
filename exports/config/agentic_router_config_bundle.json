@@ -179,7 +179,7 @@
       }
     }
   },
-  "created_at": "2026-07-21T10:31:12",
+  "created_at": "2026-07-21T10:57:52",
   "enterprise_template_metadata": {
     "available": true,
     "budget_group_count": 6,
@@ -1629,7 +1629,10 @@
           "authentication",
           "authorization",
           "auth",
+          "session",
+          "sessions",
           "roles",
+          "rbac",
           "admin",
           "permissions"
         ]
@@ -1649,6 +1652,9 @@
           "sql",
           "schema",
           "migration",
+          "persistence",
+          "persist",
+          "save records",
           "db merge",
           ".sql"
         ]
@@ -1667,7 +1673,12 @@
           "api",
           "backend",
           "endpoint",
-          "webhook"
+          "webhook",
+          "post endpoint",
+          "put endpoint",
+          "delete endpoint",
+          "rest endpoint",
+          "api endpoint"
         ]
       },
       {
@@ -1710,7 +1721,8 @@
           "firewall",
           "syslog",
           "switch",
-          "iap"
+          "iap",
+          "device approval"
         ]
       },
       {
@@ -1744,7 +1756,10 @@
           "laserfiche",
           "teamdynamix write",
           "teamdynamix",
-          "tdx"
+          "tdx",
+          "ticket creation",
+          "create tickets",
+          "create ticket"
         ]
       },
       {
@@ -1759,11 +1774,16 @@
         "task_type": "integration_write",
         "terms": [
           "deployment",
+          "deploy",
           "production",
           "prod",
           "live",
           "live prod",
-          "live-prod"
+          "live-prod",
+          "server",
+          "iis",
+          "environment",
+          "rollback"
         ]
       },
       {
@@ -1780,6 +1800,8 @@
           "email sending",
           "send email",
           "email reports",
+          "automated notifications",
+          "notify",
           "file upload",
           "file download",
           "upload",
@@ -1800,6 +1822,7 @@
           "sensitive records",
           "pii",
           "employee data",
+          "employee records",
           "legal records",
           "veteran records",
           "veteran",
@@ -1808,7 +1831,49 @@
           "hr",
           "public safety",
           "claim data",
-          "medical records"
+          "medical records",
+          "payment",
+          "payments"
+        ]
+      },
+      {
+        "capability": "destructive_bulk_write",
+        "complexity": "high",
+        "data_sensitive": true,
+        "minimum_tier": "advanced",
+        "name": "destructive_bulk_operations",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "backend_api_data",
+        "terms": [
+          "delete",
+          "overwrite",
+          "purge",
+          "bulk update",
+          "sync records",
+          "delete records",
+          "purge records"
+        ]
+      },
+      {
+        "capability": "finance_compliance_audit",
+        "complexity": "high",
+        "data_sensitive": true,
+        "minimum_tier": "advanced",
+        "name": "finance_compliance_audit",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "public_official_content",
+        "terms": [
+          "finance",
+          "payment",
+          "budget",
+          "audit trail",
+          "compliance audit",
+          "official data",
+          "public data"
         ]
       },
       {
@@ -1847,7 +1912,8 @@
           "report",
           "reporting",
           "filtering",
-          "sorting"
+          "sorting",
+          "search"
         ]
       },
       {
@@ -1864,7 +1930,42 @@
           "forms",
           "form",
           "workflow",
-          "workflow design"
+          "workflow design",
+          "validation logic",
+          "form behavior"
+        ]
+      },
+      {
+        "capability": "client_side_logic",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "client_side_logic",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "ui_workflow",
+        "terms": [
+          "client-side javascript",
+          "client side javascript",
+          "javascript logic",
+          "browser logic"
+        ]
+      },
+      {
+        "capability": "moderate_refactor",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "moderate_refactor",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "ui_workflow",
+        "terms": [
+          "moderate refactor",
+          "refactor component",
+          "refactor dashboard"
         ]
       },
       {
@@ -1898,8 +1999,14 @@
         "terms": [
           "api read-only",
           "read-only api",
+          "read only api",
+          "basic api read-only",
+          "existing api contract",
+          "existing backend contract",
           "non-production bot logic",
           "non-production bot analysis",
+          "non-prod bot",
+          "non-production automation",
           "bot analysis"
         ]
       },
@@ -1925,10 +2032,14 @@
           "visual polish",
           "prettier",
           "placeholder",
+          "demo content",
+          "mock ui",
           "simple test page",
           "hello world",
           "comments",
-          "typo"
+          "typo",
+          "button color",
+          "button spacing"
         ]
       }
     ]

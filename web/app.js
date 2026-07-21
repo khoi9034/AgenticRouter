@@ -250,11 +250,14 @@ function showResult(data) {
         <span class="${badgeClass(normalized.intrinsic_risk || data.intrinsic_task_risk || "low")}">${escapeHtml(normalized.intrinsic_risk || data.intrinsic_task_risk || "low")}</span>
       </div>
       <dl>
-        <dt>Summary</dt><dd>${escapeHtml(normalized.normalized_summary || "")}</dd>
+        <dt>User asked for</dt><dd>${escapeHtml(normalized.normalized_summary || "")}</dd>
         <dt>Task type</dt><dd>${escapeHtml(normalized.task_type || "general")}</dd>
+        <dt>Operation</dt><dd>${escapeHtml(normalized.operation_type || data.operation_type || "unknown")}</dd>
         <dt>Detected capabilities</dt><dd><ul>${listItems(capabilities)}</ul></dd>
+        <dt>Why</dt><dd>${escapeHtml(normalized.risk_reason || "")}</dd>
         <dt>Minimum tier</dt><dd>${escapeHtml(normalized.minimum_recommended_tier || data.minimum_recommended_tier || "cheap")}</dd>
         <dt>Ambiguity warnings</dt><dd><ul>${listItems(warnings)}</ul></dd>
+        <dt>False-positive controls</dt><dd><ul>${listItems(normalized.false_positive_controls_triggered || data.false_positive_controls_triggered || [])}</ul></dd>
       </dl>
     </section>
     <section class="context-pack">

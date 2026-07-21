@@ -13,17 +13,30 @@ The router considers:
 - project catalog risk, production, and sensitivity flags
 - intrinsic task risk from the Task Normalizer
 
+The final route risk is the maximum of the project risk floor and intrinsic task risk.
+
 ## Tier Selection
 
-The router first normalizes the task text and touched files. The normalizer returns a sanitized summary, task type, requested capabilities, complexity, intrinsic risk, minimum tier, human-review recommendation, ambiguity warnings, extracted constraints, forbidden-context hints, and matched task signals.
+The router first normalizes the task text and touched files. The normalizer returns a sanitized summary, task type, requested capabilities, operation type, complexity, intrinsic risk, minimum tier, human-review recommendation, ambiguity warnings, extracted constraints, forbidden-context hints, matched task signals, false-positive controls, and a short risk reason.
 
-Then the router starts from the project catalog default tier and applies the higher of project risk and intrinsic task risk:
+Then the router combines six factors:
+
+1. Project risk profile
+2. Intrinsic task risk
+3. Routing profile
+4. Previous failures
+5. Live-prod status
+6. Context requirements
+
+The router starts from the project catalog default tier and applies the higher of project risk and intrinsic task risk:
 
 - cheap: docs, copy, README, placeholder, simple summary, static HTML/CSS
 - mid: UI, forms, dashboards, reports, workflows, non-production bot analysis
 - advanced: sign-in/login/auth, authorization, roles, admin users, SQL/database/schema/migrations, API/backend work, Laserfiche, TeamDynamix, Graph, Intune, cybersecurity, infrastructure, production deployment, credentials, PII, HR/payroll, public safety, workers comp, official public budget, live Forge
 
 The normalizer prevents low-risk projects from staying cheap when the task itself asks for high-risk capabilities. For example, a test project task that asks for login, roles, SQL database work, admin users, or security controls gets an advanced minimum tier. Savings-oriented profiles cannot downgrade high intrinsic-risk tasks.
+
+The normalizer also has false-positive controls for harmless mentions. Documentation about SQL, auth, or APIs can stay cheap/medium when it is clearly docs-only. Visual-only work such as changing a login button color stays low. Static/mock UI with no backend is not treated as auth implementation. Basic read-only API use stays medium unless the task asks to create or modify backend writes.
 
 Two or more previous failures escalate the tier once. Live production code changes are never allowed to remain cheap.
 

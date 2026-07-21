@@ -1,6 +1,6 @@
 # Pilot Readiness Report
 
-Generated: 2026-07-21T14:34:49+00:00
+Generated: 2026-07-21T14:58:09+00:00
 Readiness status: demo-ready
 
 ## Scorecard

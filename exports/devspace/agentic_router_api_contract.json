@@ -76,6 +76,9 @@
     "fallback_candidates": [
       "string"
     ],
+    "false_positive_controls_triggered": [
+      "string"
+    ],
     "human_review_required": "boolean",
     "intrinsic_task_risk": "low|medium|high",
     "matched_rules": [
@@ -86,18 +89,24 @@
     "model_tier": "cheap|mid|advanced",
     "normalized_task": {
       "complexity": "low|medium|high",
+      "false_positive_controls_triggered": [
+        "string"
+      ],
       "intrinsic_risk": "low|medium|high",
       "minimum_recommended_tier": "cheap|mid|advanced",
       "normalized_summary": "string",
+      "operation_type": "documentation|visual_polish|read_only|ui_behavior|implementation|write_operation|deployment|destructive|unknown",
       "requested_capabilities": [
         "string"
       ],
+      "risk_reason": "string",
       "task_type": "string"
     },
     "observability": {
       "prompt_body_logged": "boolean",
       "trace_written": "boolean"
     },
+    "operation_type": "string",
     "reason": "string",
     "recommended_model": "string",
     "recommended_next_action": "string",
@@ -110,6 +119,7 @@
     "task_ambiguity_warnings": [
       "string"
     ],
+    "task_type": "string",
     "warnings": [
       "string"
     ]

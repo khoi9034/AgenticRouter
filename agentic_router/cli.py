@@ -21,6 +21,7 @@ from .observability import (
 from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .pilot import demo_script_text, export_pilot_report, format_scorecard, pilot_scorecard, rollout_plan_text
+from .normalizer import normalize_task
 from .router import route
 from .sessions import format_session_summary, summarize_sessions
 from .shadow import add_demo_data, export_shadow_report, format_shadow_summary, summarize_shadow_runs
@@ -55,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     packet_parser.add_argument("--live-prod", action="store_true")
     packet_parser.add_argument("--json", action="store_true", dest="json_output")
     _add_routing_controls(packet_parser)
+    normalize_parser = subparsers.add_parser("normalize", help="classify intrinsic task risk without routing")
+    normalize_parser.add_argument("--task", required=True)
+    normalize_parser.add_argument("--files", nargs="*", default=[])
+    normalize_parser.add_argument("--failures", type=int, default=0)
+    normalize_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -135,6 +141,9 @@ def main(argv: list[str] | None = None) -> int:
             allowed_models=args.allowed_models,
         )
         print(json.dumps(packet, indent=2) if args.json_output else format_packet(packet))
+    elif args.command == "normalize":
+        normalized = normalize_task(args.task, args.files, previous_failure_count=args.failures)
+        print(json.dumps(normalized, indent=2) if args.json_output else _format_normalized(normalized))
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))
@@ -248,8 +257,10 @@ def _format_text(result: dict[str, Any]) -> str:
             f"Normalized task: {result['normalized_task']['normalized_summary']}",
             f"Intrinsic task risk: {result['intrinsic_task_risk']}",
             f"Detected capabilities: {', '.join(result['requested_capabilities']) or 'none'}",
+            f"Operation type: {result['operation_type']}",
             f"Minimum recommended tier: {result['minimum_recommended_tier']}",
             f"Task ambiguity warnings: {', '.join(result['task_ambiguity_warnings']) or 'none'}",
+            f"False-positive controls: {', '.join(result['false_positive_controls_triggered']) or 'none'}",
             f"Reason: {result['reason']}",
             f"Context policy: {result['context_policy']}",
             "Context pack:",
@@ -257,6 +268,24 @@ def _format_text(result: dict[str, Any]) -> str:
             f"Escalation policy: {result['escalation_policy']}",
             "Matched rules:",
             rules,
+        ]
+    )
+
+
+def _format_normalized(result: dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            f"Task: {result['normalized_summary']}",
+            f"Task type: {result['task_type']}",
+            f"Operation type: {result['operation_type']}",
+            f"Capabilities: {', '.join(result['requested_capabilities']) or 'none'}",
+            f"Intrinsic risk: {result['intrinsic_risk']}",
+            f"Complexity: {result['complexity']}",
+            f"Minimum tier: {result['minimum_recommended_tier']}",
+            f"Human review recommended: {result['human_review_recommended']}",
+            f"Ambiguity warnings: {', '.join(result['ambiguity_warnings']) or 'none'}",
+            f"False-positive controls: {', '.join(result['false_positive_controls_triggered']) or 'none'}",
+            f"Reason: {result['risk_reason']}",
         ]
     )
 

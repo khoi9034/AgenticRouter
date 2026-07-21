@@ -38,13 +38,16 @@ def route(
     is_live_prod = project.get("live_prod", False) if live_prod is None else live_prod
     project_sensitive = project.get("sensitive", False) if sensitive is None else sensitive
     text = " ".join([project_name, task_description, *files, *project.get("keywords", [])])
-    normalized = normalize_task(task_description, files)
+    normalized = normalize_task(task_description, files, previous_failure_count=previous_failure_count)
 
     tier = project.get("default_tier", "cheap")
     risk = project.get("risk_level", "low")
     matched_rules = [f"project_default:{tier}", f"project_risk:{risk}"]
     if normalized["matched_task_signals"]:
         matched_rules.append("task_signals:" + ", ".join(normalized["matched_task_signals"][:4]))
+    if normalized["false_positive_controls_triggered"]:
+        matched_rules.append("task_false_positive_controls:" + ", ".join(normalized["false_positive_controls_triggered"][:4]))
+    matched_rules.append(f"task_operation:{normalized['operation_type']}")
     tier = max_tier(tier, normalized["minimum_recommended_tier"])
     risk = max_risk(risk, normalized["intrinsic_risk"])
     if normalized["minimum_recommended_tier"] != "cheap":
@@ -55,6 +58,10 @@ def route(
     cheap_hits = hits(text, rules["cheap_keywords"])
     mid_hits = hits(text, rules["mid_keywords"])
     advanced_hits = hits(text, rules["advanced_keywords"])
+    if normalized["intrinsic_risk"] != "high" and normalized["false_positive_controls_triggered"]:
+        advanced_hits = []
+        if normalized["intrinsic_risk"] == "low":
+            mid_hits = []
     sensitive_hits = hits(text, rules["sensitive_keywords"])
     security_hits = hits(text, rules["security_keywords"])
 
@@ -134,6 +141,9 @@ def route(
         "requested_capabilities": normalized["requested_capabilities"],
         "minimum_recommended_tier": normalized["minimum_recommended_tier"],
         "task_ambiguity_warnings": normalized["ambiguity_warnings"],
+        "task_type": normalized["task_type"],
+        "operation_type": normalized["operation_type"],
+        "false_positive_controls_triggered": normalized["false_positive_controls_triggered"],
     }
     result["context_pack"] = build_context_pack(project_name, task_description, files, risk, tier, matched_rules)
     result["route_id"] = make_route_id(project_name, task_description, files, result)

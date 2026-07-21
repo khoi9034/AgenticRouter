@@ -48,14 +48,20 @@
       "normalized_summary": "string",
       "task_type": "string",
       "requested_capabilities": ["string"],
+      "operation_type": "documentation|visual_polish|read_only|ui_behavior|implementation|write_operation|deployment|destructive|unknown",
       "complexity": "low|medium|high",
       "intrinsic_risk": "low|medium|high",
-      "minimum_recommended_tier": "cheap|mid|advanced"
+      "minimum_recommended_tier": "cheap|mid|advanced",
+      "false_positive_controls_triggered": ["string"],
+      "risk_reason": "string"
     },
     "intrinsic_task_risk": "low|medium|high",
     "requested_capabilities": ["string"],
     "minimum_recommended_tier": "cheap|mid|advanced",
     "task_ambiguity_warnings": ["string"],
+    "task_type": "string",
+    "operation_type": "string",
+    "false_positive_controls_triggered": ["string"],
     "context_pack": "object",
     "devspace_run_packet": "object",
     "observability": {

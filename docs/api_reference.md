@@ -80,14 +80,20 @@ Successful v1 responses include:
     "normalized_summary": "Make hello world page prettier",
     "task_type": "docs_static",
     "requested_capabilities": ["docs_static"],
+    "operation_type": "visual_polish",
     "complexity": "low",
     "intrinsic_risk": "low",
-    "minimum_recommended_tier": "cheap"
+    "minimum_recommended_tier": "cheap",
+    "false_positive_controls_triggered": [],
+    "risk_reason": "Low intrinsic risk..."
   },
   "intrinsic_task_risk": "low",
   "requested_capabilities": ["docs_static"],
   "minimum_recommended_tier": "cheap",
   "task_ambiguity_warnings": [],
+  "task_type": "docs_static",
+  "operation_type": "visual_polish",
+  "false_positive_controls_triggered": [],
   "context_pack": {},
   "devspace_run_packet": {},
   "observability": {

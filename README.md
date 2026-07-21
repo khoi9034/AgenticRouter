@@ -57,6 +57,12 @@ Text output:
 python -m agentic_router.cli route --project "Diana Test Project" --task "Make the hello world page background prettier"
 ```
 
+Normalize task intent without routing:
+
+```bash
+python -m agentic_router.cli normalize --task "build database with sign in and admin users" --json
+```
+
 Profile/session routing:
 
 ```bash
@@ -227,6 +233,9 @@ The router first normalizes the task itself, so a low-risk project can still rou
 - `requested_capabilities`
 - `minimum_recommended_tier`
 - `task_ambiguity_warnings`
+- `task_type`
+- `operation_type`
+- `false_positive_controls_triggered`
 
 Every route also writes a sanitized local trace to `data/traces.jsonl`.
 
@@ -241,7 +250,7 @@ Every route also writes a sanitized local trace to `data/traces.jsonl`.
 7. Sensitive data or security controls require human review.
 8. Context policy prefers the smallest useful context and excludes secrets, tokens, credentials, PII, PHI, and real case records for sensitive work.
 
-Task normalization outputs a sanitized summary, task type, detected capabilities, intrinsic risk, complexity, minimum tier, ambiguity warnings, and forbidden-context hints. Profiles such as `max_savings` cannot downgrade high intrinsic-risk tasks.
+Task normalization outputs a sanitized summary, task type, detected capabilities, operation type, intrinsic risk, complexity, minimum tier, ambiguity warnings, false-positive controls, and forbidden-context hints. It uses action/object pairs and harmless-context controls so `build login system` escalates, while `change login button color` stays cheap. Profiles such as `max_savings` cannot downgrade high intrinsic-risk tasks.
 
 ## Profiles, Aliases, and Sessions
 
@@ -365,6 +374,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
 - `data/task_taxonomy.json`: Intrinsic task type, complexity, risk, and tier taxonomy.
 - `data/task_risk_signals.json`: Local keyword signals used by the Task Normalizer.
+- `data/normalizer_adversarial_tasks.json`: Adversarial normalizer examples for broad task-risk regression coverage.
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
