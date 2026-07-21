@@ -6,6 +6,7 @@ from typing import Any
 
 from .config_validation import contains_sensitive_value
 from .contracts import check_contract, contract_from_route, generate_contract
+from .diff_review import review_current_diff, review_diff
 from .models import DATA_DIR
 from .observability import sanitize_text
 from .packets import packet_from_route
@@ -173,6 +174,37 @@ def handle_contract_check_request(payload: dict[str, Any]) -> dict[str, Any]:
         added_dependencies=_files(payload.get("added_dependencies", [])),
     )
     return {"contract_version": CONTRACT_VERSION, "scope_guard": result}
+
+
+def handle_diff_review_request(payload: dict[str, Any]) -> dict[str, Any]:
+    if "project_name" not in payload or "task_description" not in payload:
+        raise ValueError("project_name and task_description are required")
+    result = review_diff(
+        project_name=str(payload["project_name"]),
+        task_description=str(payload["task_description"]),
+        run_contract=payload.get("run_contract") or payload.get("contract"),
+        changed_files=_files(payload.get("changed_files", [])),
+        git_diff=str(payload.get("git_diff") or payload.get("patch") or ""),
+        added_dependencies=_files(payload.get("added_dependencies", [])),
+        tests_run=_files(payload.get("tests_run", [])),
+        live_prod=payload.get("live_prod") if isinstance(payload.get("live_prod"), bool) else None,
+    )
+    return {"contract_version": CONTRACT_VERSION, "diff_review": result}
+
+
+def handle_current_diff_review_request(payload: dict[str, Any], cwd: Path | None = None) -> dict[str, Any]:
+    if "project_name" not in payload or "task_description" not in payload:
+        raise ValueError("project_name and task_description are required")
+    result = review_current_diff(
+        project_name=str(payload["project_name"]),
+        task_description=str(payload["task_description"]),
+        run_contract=payload.get("run_contract") or payload.get("contract"),
+        added_dependencies=_files(payload.get("added_dependencies", [])),
+        tests_run=_files(payload.get("tests_run", [])),
+        live_prod=payload.get("live_prod") if isinstance(payload.get("live_prod"), bool) else None,
+        cwd=cwd or DATA_DIR.parent,
+    )
+    return {"contract_version": CONTRACT_VERSION, "diff_review": result}
 
 
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:

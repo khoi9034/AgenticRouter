@@ -101,6 +101,8 @@
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
     "POST /api/v1/contract": "Return a run contract with allowed scope and guardrails.",
     "POST /api/v1/contract/check": "Check changed files or a diff summary against a run contract.",
+    "POST /api/v1/diff-review": "Review a supplied git diff or patch with local quality gate rules.",
+    "POST /api/v1/diff-review/current": "Review the current local git diff for the AgenticRouter repo.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
     "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases.",
     "GET /api/shadow/summary": "Summarize local shadow mode analytics.",

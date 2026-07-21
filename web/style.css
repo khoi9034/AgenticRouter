@@ -354,6 +354,12 @@ dt {
   padding-top: 18px;
 }
 
+.diff-review {
+  border-top: 1px solid #27313d;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
 .context-head {
   display: flex;
   justify-content: space-between;
@@ -367,7 +373,8 @@ dt {
 .run-packet h3,
 .run-packet h4,
 .run-contract h3,
-.run-contract h4 {
+.run-contract h4,
+.diff-review h3 {
   margin: 0 0 8px;
 }
 

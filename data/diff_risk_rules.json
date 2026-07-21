@@ -1,0 +1,180 @@
+{
+  "version": "v1",
+  "rules": [
+    {
+      "name": "secret_credential_added",
+      "label": "Secret or credential-like value added",
+      "scope": "added",
+      "risk_level": "high",
+      "decision": "fail",
+      "patterns": [
+        "\\bapi[-_ ]?key\\s*[:=]",
+        "\\btoken\\s*[:=]",
+        "\\bpassword\\s*[:=]",
+        "\\bsecret\\s*[:=]",
+        "\\bbearer\\s+[a-z0-9._-]+",
+        "private key",
+        "connection string"
+      ],
+      "required_followup_checks": ["Remove secret-like values and use sanitized placeholders or environment variable names."],
+      "rollback_required": false
+    },
+    {
+      "name": "auth_bypass_or_weakening",
+      "label": "Auth/session/access control may be weakened",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "fail",
+      "patterns": [
+        "bypass(ed)? auth",
+        "skip(ped)? auth",
+        "disable(d)? auth",
+        "return true.*(admin|auth|permission)",
+        "(//|#).*require_auth",
+        "remove(d)? .*auth"
+      ],
+      "required_followup_checks": ["Restore access-control checks and test unauthorized access."],
+      "rollback_required": false
+    },
+    {
+      "name": "auth_session_change",
+      "label": "Auth/session/access control changed",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "warn",
+      "patterns": [
+        "login",
+        "logout",
+        "session",
+        "cookie",
+        "jwt",
+        "oauth",
+        "require_auth",
+        "permission",
+        "role",
+        "admin",
+        "access control"
+      ],
+      "required_followup_checks": ["Check login, logout, session expiry, roles, and unauthorized access paths."],
+      "rollback_required": false
+    },
+    {
+      "name": "api_contract_change",
+      "label": "API contract or endpoint behavior changed",
+      "scope": "all",
+      "risk_level": "medium",
+      "decision": "warn",
+      "patterns": [
+        "form action\\s*=",
+        "fetch\\s*\\(",
+        "axios\\.",
+        "/api/",
+        "\\b(post|put|delete)\\b",
+        "status(code)?",
+        "json\\(",
+        "request\\.",
+        "response\\."
+      ],
+      "required_followup_checks": ["Verify endpoint path, HTTP method, request fields, response fields, and status handling."],
+      "rollback_required": false
+    },
+    {
+      "name": "destructive_or_bulk_operation",
+      "label": "Destructive or bulk operation changed",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "fail",
+      "patterns": [
+        "drop table",
+        "truncate",
+        "delete from",
+        "purge",
+        "overwrite",
+        "bulk update",
+        "sync all",
+        "migrate all"
+      ],
+      "required_followup_checks": ["Require backup, rollback plan, and limited sanitized test sample."],
+      "rollback_required": true
+    },
+    {
+      "name": "database_schema_or_persistence",
+      "label": "Database/schema/persistence changed",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "warn",
+      "patterns": [
+        "\\bsql\\b",
+        "migration",
+        "create table",
+        "alter table",
+        "insert into",
+        "update .* set",
+        "stored procedure",
+        "schema"
+      ],
+      "required_followup_checks": ["Review migration safety, rollback notes, and data-impact scope."],
+      "rollback_required": true
+    },
+    {
+      "name": "external_write_or_file_transfer",
+      "label": "External write, email, webhook, or file transfer changed",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "warn",
+      "patterns": [
+        "send(mail|_mail|email)?",
+        "smtp",
+        "email",
+        "teamdynamix",
+        "\\btdx\\b",
+        "laserfiche",
+        "microsoft graph",
+        "webhook",
+        "upload",
+        "download"
+      ],
+      "required_followup_checks": ["Use dry-run/test mode where available and validate outbound payloads."],
+      "rollback_required": false
+    },
+    {
+      "name": "validation_or_error_handling_weakened",
+      "label": "Validation or error handling may be weakened",
+      "scope": "all",
+      "risk_level": "high",
+      "decision": "fail",
+      "patterns": [
+        "required\\s*=\\s*false",
+        "novalidate",
+        "disable(d)? validation",
+        "(//|#).*validate",
+        "(//|#).*try",
+        "(//|#).*catch",
+        "todo.*(validate|auth|error)",
+        "pass\\s*#.*(validate|auth|error)"
+      ],
+      "required_followup_checks": ["Restore validation/error handling and test failure paths."],
+      "rollback_required": false
+    },
+    {
+      "name": "dependency_config_deploy_file",
+      "label": "Dependency, config, or deployment file changed",
+      "scope": "files",
+      "risk_level": "medium",
+      "decision": "warn",
+      "patterns": [
+        "requirements\\.txt$",
+        "pyproject\\.toml$",
+        "package(-lock)?\\.json$",
+        "(^|/)\\.env$",
+        "(^|/)config",
+        "(^|/)deploy",
+        "(^|/)deployment",
+        "^dockerfile$",
+        "^\\.github/workflows/"
+      ],
+      "required_followup_checks": ["Verify config/deploy/dependency impact and rollback plan if production-facing."],
+      "rollback_required": false
+    }
+  ]
+}

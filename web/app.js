@@ -348,6 +348,23 @@ function showResult(data) {
         <div id="scope-result" class="status"></div>
       </div>
     </section>
+    <section class="diff-review">
+      <h3>Diff Review / Quality Gate</h3>
+      <label>
+        Changed files
+        <textarea id="diff-files" rows="3" placeholder="One changed file per line"></textarea>
+      </label>
+      <label>
+        Git diff or patch
+        <textarea id="diff-text" rows="8" placeholder="Paste sanitized diff here"></textarea>
+      </label>
+      <label>
+        Optional contract JSON
+        <textarea id="diff-contract" rows="5" placeholder="Defaults to the current run contract"></textarea>
+      </label>
+      <button type="button" id="review-diff">Review diff</button>
+      <div id="diff-review-result" class="status"></div>
+    </section>
     <form id="feedback-form" class="feedback">
       <h3>Feedback</h3>
       <p>Notes should be sanitized. Do not include secrets, PII, records, emails, tokens, or serial numbers.</p>
@@ -392,6 +409,7 @@ function showResult(data) {
   `;
   document.querySelector("#feedback-form").addEventListener("submit", saveFeedback);
   document.querySelector("#check-scope").addEventListener("click", checkScopeGuard);
+  document.querySelector("#review-diff").addEventListener("click", reviewDiffGate);
 }
 
 function showError(message) {
@@ -489,6 +507,43 @@ async function checkScopeGuard() {
     const guard = data.scope_guard;
     status.textContent = `${guard.decision.toUpperCase()}: ${guard.explanation} ${guard.violations.join(" ")}`;
     status.className = guard.decision === "pass" ? "status ok" : "status bad";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function reviewDiffGate() {
+  const status = document.querySelector("#diff-review-result");
+  let contract = currentRunContract;
+  const contractText = document.querySelector("#diff-contract").value.trim();
+  if (contractText) {
+    try {
+      contract = JSON.parse(contractText);
+    } catch (error) {
+      status.textContent = "Contract JSON is invalid.";
+      status.className = "status bad";
+      return;
+    }
+  }
+  const payload = {
+    project_name: project.value,
+    task_description: document.querySelector("#task").value,
+    run_contract: contract,
+    changed_files: filesFromInput(document.querySelector("#diff-files").value),
+    git_diff: document.querySelector("#diff-text").value,
+    live_prod: document.querySelector("#live-prod").checked || null,
+  };
+  try {
+    const data = await postJson("/api/v1/diff-review", payload);
+    const review = data.diff_review;
+    status.innerHTML = `
+      <strong>${escapeHtml(review.decision.toUpperCase())}</strong> ${escapeHtml(review.summary)}
+      <br>Detected: ${escapeHtml(review.detected_change_types.join(", ") || "none")}
+      <br>Violations: ${escapeHtml(review.violations.join(" ") || "none")}
+      <br>Follow-up: ${escapeHtml(review.required_followup_checks.join(" ") || "none")}
+    `;
+    status.className = review.decision === "pass" ? "status ok" : "status bad";
   } catch (error) {
     status.textContent = error.message;
     status.className = "status bad";

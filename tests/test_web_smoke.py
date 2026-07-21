@@ -103,6 +103,15 @@ class WebSmokeTests(unittest.TestCase):
             {"contract": contract["run_contract"], "changed_files": ["index.html", "style.css"]},
         )
         self.assertEqual(guard["scope_guard"]["decision"], "pass")
+        diff_review = self._post_json(
+            "/api/v1/diff-review",
+            {
+                "project_name": "Diana Test Project",
+                "task_description": "Make page prettier",
+                "git_diff": "diff --git a/style.css b/style.css\n--- a/style.css\n+++ b/style.css\n@@ -1 +1 @@\n-.x{color:blue}\n+.x{color:green}\n",
+            },
+        )
+        self.assertEqual(diff_review["diff_review"]["decision"], "pass")
 
         feedback = self._post_json(
             "/api/feedback",

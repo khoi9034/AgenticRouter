@@ -132,6 +132,7 @@ def _context_checklist(context_pack: dict[str, Any]) -> list[str]:
         "Use file types: " + ", ".join(context_pack["include_file_types"]),
         "Exclude: " + ", ".join(context_pack["exclude_patterns"]),
         "Forbidden: " + ", ".join(context_pack["forbidden_context"]),
+        "Before approval, compare changed files and diff against the run contract with Scope Guard/Diff Review.",
         context_pack["redaction_warning"],
     ]
 

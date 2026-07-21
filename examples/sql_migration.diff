@@ -1,0 +1,8 @@
+diff --git a/database/001_create_users.sql b/database/001_create_users.sql
+--- /dev/null
++++ b/database/001_create_users.sql
+@@ -0,0 +1,4 @@
++CREATE TABLE users (
++  id INTEGER PRIMARY KEY,
++  role TEXT NOT NULL
++);

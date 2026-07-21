@@ -1,0 +1,7 @@
+diff --git a/Auth/require_auth.php b/Auth/require_auth.php
+--- a/Auth/require_auth.php
++++ b/Auth/require_auth.php
+@@ -1,4 +1,4 @@
+-require_auth();
++// require_auth();
+ render_login_button();

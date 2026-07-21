@@ -96,6 +96,13 @@ python -m agentic_router.cli contract --project "Random Test App" --task "Build 
 python -m agentic_router.cli check-contract --contract-file exports/example_contract.json --changed-files index.html style.css --json
 ```
 
+Diff Review / Quality Gate:
+
+```bash
+python -m agentic_router.cli review-diff --project "Random Test App" --task "Change login button color" --diff-file examples/css_only.diff --json
+python -m agentic_router.cli review-current-diff --project "Random Test App" --task "Change login button color" --json
+```
+
 Enterprise gateway templates:
 
 ```bash
@@ -263,6 +270,8 @@ Task normalization outputs a sanitized summary, task type, detected capabilities
 
 Run contracts convert the route and normalized task into allowed file patterns, forbidden file patterns, allowed actions, forbidden actions, validation checks, stop conditions, production cautions, sensitive-data cautions, and human-review requirements. Scope Guard checks changed files and a sanitized diff summary against that contract, so a visual-only task can pass for `index.html` and `style.css` but fail for `Auth/*`, `api/*`, config, secrets, database, or deployment edits.
 
+Diff Review inspects the actual patch content after Scope Guard. It flags secret-like values, auth/session changes, API contract changes, SQL/schema changes, destructive/bulk operations, external writes, dependency/config/deploy changes, and weakened validation/error handling. UI/docs-only diffs usually pass unless the project or contract requires review.
+
 ## Profiles, Aliases, and Sessions
 
 Model aliases live in `data/model_aliases.json`; fallback pools live in `data/fallback_policies.json`. The default aliases are `devspace-cheap`, `devspace-mid`, `devspace-advanced`, `devspace-docs`, `devspace-live-prod`, `devspace-security`, and `devspace-public-official-content`.
@@ -344,6 +353,8 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/v1/packet`
 - `/api/v1/contract`
 - `/api/v1/contract/check`
+- `/api/v1/diff-review`
+- `/api/v1/diff-review/current`
 - `/api/v1/shadow`
 - `/api/v1/strict-check`
 - `/api/shadow/summary`
@@ -391,6 +402,8 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
 - `data/contract_policies.json`: Run Contract and Scope Guard policy guidance.
 - `data/run_contract_examples.json`: Sanitized run contract examples.
+- `data/diff_risk_rules.json`: Local Diff Review risk rules.
+- `data/diff_review_examples.json`: Sanitized Diff Review example metadata.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
 - `data/litellm_model_aliases.json`: DevSpace model aliases for LiteLLM-style exports.
@@ -409,7 +422,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, Diff Review quality gate, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, run contract scope, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

@@ -1,0 +1,7 @@
+{
+  "examples": [
+    {"name": "css_only_pass", "project_name": "Random Test App", "task_description": "Change login button color", "diff_file": "examples/css_only.diff", "expected_decision": "pass"},
+    {"name": "auth_change_fail", "project_name": "Random Test App", "task_description": "Change login button color", "diff_file": "examples/auth_change.diff", "expected_decision": "fail"},
+    {"name": "sql_migration_warn", "project_name": "Random Test App", "task_description": "Build login and database", "diff_file": "examples/sql_migration.diff", "expected_risk": "high"}
+  ]
+}

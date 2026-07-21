@@ -21,6 +21,8 @@ python -m agentic_router.web
 - `POST /api/v1/packet`: forced `packet` mode.
 - `POST /api/v1/contract`: return a run contract for the request.
 - `POST /api/v1/contract/check`: check changed files and a sanitized diff summary against a run contract.
+- `POST /api/v1/diff-review`: review a supplied git diff or patch with local quality gate rules.
+- `POST /api/v1/diff-review/current`: review the current local git diff.
 - `POST /api/v1/shadow`: forced `shadow` mode.
 - `POST /api/v1/strict-check`: forced `strict` mode.
 - `GET /api/shadow/summary`: local shadow analytics summary.
@@ -147,6 +149,42 @@ It returns:
     "human_review_required": false,
     "risk_level": "low",
     "explanation": "Changed files fit the allowed contract scope."
+  }
+}
+```
+
+`POST /api/v1/diff-review` accepts:
+
+```json
+{
+  "project_name": "Random Test App",
+  "task_description": "Change login button color",
+  "run_contract": {},
+  "changed_files": ["login.html"],
+  "git_diff": "diff --git ...",
+  "added_dependencies": [],
+  "tests_run": [],
+  "live_prod": false
+}
+```
+
+It returns:
+
+```json
+{
+  "contract_version": "v1",
+  "diff_review": {
+    "decision": "warn",
+    "risk_level": "medium",
+    "human_review_required": false,
+    "summary": "Diff review warn with medium risk.",
+    "detected_change_types": ["api_contract_change"],
+    "violations": [],
+    "warnings": ["API contract or endpoint behavior changed"],
+    "required_followup_checks": ["Verify endpoint path, HTTP method, request fields, response fields, and status handling."],
+    "rollback_required": false,
+    "approval_recommendation": "approve_only_after_followup_checks",
+    "reasoning": "Decision uses max severity across scope and diff rules."
   }
 }
 ```

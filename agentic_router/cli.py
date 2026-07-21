@@ -9,6 +9,7 @@ from .config_studio import export_config, import_config
 from .config_validation import config_summary, format_config_summary, format_validation, validate_config
 from .contracts import check_contract, format_contract, format_scope_check, generate_contract, load_contract_file
 from .context import format_context_pack
+from .diff_review import format_diff_review, review_current_diff, review_diff
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
 from .integration import export_devspace_contract, format_contract_summary, integration_self_test
@@ -77,6 +78,24 @@ def main(argv: list[str] | None = None) -> int:
     check_parser.add_argument("--diff-summary", default="")
     check_parser.add_argument("--added-dependencies", nargs="*", default=[])
     check_parser.add_argument("--json", action="store_true", dest="json_output")
+    review_parser = subparsers.add_parser("review-diff", help="review a patch/diff against local quality rules")
+    review_parser.add_argument("--project", required=True)
+    review_parser.add_argument("--task", required=True)
+    review_parser.add_argument("--diff-file", required=True)
+    review_parser.add_argument("--changed-files", nargs="*", default=[])
+    review_parser.add_argument("--contract-file")
+    review_parser.add_argument("--added-dependencies", nargs="*", default=[])
+    review_parser.add_argument("--tests-run", nargs="*", default=[])
+    review_parser.add_argument("--live-prod", action="store_true")
+    review_parser.add_argument("--json", action="store_true", dest="json_output")
+    current_review_parser = subparsers.add_parser("review-current-diff", help="review the current local git diff")
+    current_review_parser.add_argument("--project", required=True)
+    current_review_parser.add_argument("--task", required=True)
+    current_review_parser.add_argument("--contract-file")
+    current_review_parser.add_argument("--added-dependencies", nargs="*", default=[])
+    current_review_parser.add_argument("--tests-run", nargs="*", default=[])
+    current_review_parser.add_argument("--live-prod", action="store_true")
+    current_review_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -183,6 +202,29 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(json.dumps(result, indent=2) if args.json_output else format_scope_check(result))
         return 1 if result["decision"] == "fail" else 0
+    elif args.command == "review-diff":
+        result = review_diff(
+            project_name=args.project,
+            task_description=args.task,
+            run_contract=load_contract_file(args.contract_file) if args.contract_file else None,
+            changed_files=args.changed_files,
+            git_diff=Path(args.diff_file).read_text(encoding="utf-8"),
+            added_dependencies=args.added_dependencies,
+            tests_run=args.tests_run,
+            live_prod=True if args.live_prod else None,
+        )
+        print(json.dumps(result, indent=2) if args.json_output else format_diff_review(result))
+    elif args.command == "review-current-diff":
+        result = review_current_diff(
+            project_name=args.project,
+            task_description=args.task,
+            run_contract=load_contract_file(args.contract_file) if args.contract_file else None,
+            added_dependencies=args.added_dependencies,
+            tests_run=args.tests_run,
+            live_prod=True if args.live_prod else None,
+            cwd=Path.cwd(),
+        )
+        print(json.dumps(result, indent=2) if args.json_output else format_diff_review(result))
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))

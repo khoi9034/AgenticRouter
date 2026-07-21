@@ -175,6 +175,14 @@ Policy is intentionally pattern-based and local. Docs and visual/static UI work 
 
 Scope Guard checks changed files, an optional sanitized diff summary, and optional added dependencies against the contract. Forbidden file matches or files outside the allowed scope fail. Unexpected dependencies warn. High-risk compliant changes still warn when human review or rollback notes are required.
 
+## Diff Review and Quality Gate
+
+Diff Review runs after Scope Guard when patch content is available. It accepts a supplied diff or the current local `git diff`, reuses Scope Guard when a run contract is provided, and then applies local regex rules from `data/diff_risk_rules.json`.
+
+The review flags secret-like additions, auth/session/access-control changes, API endpoint or request/response changes, SQL/schema/persistence changes, destructive or bulk operations, external writes, dependency/config/deploy file changes, and weakened validation or error handling. CSS, docs, copy, comments, and static layout-only changes usually pass unless the contract, project risk, or live-prod flag requires review.
+
+The quality gate never downgrades Scope Guard. If file scope fails, the final decision remains `fail`. If file scope passes but the diff adds risky behavior, the decision escalates to `warn` or `fail`, with required follow-up checks and human-review flags.
+
 ## Run Packets
 
 The DevSpace Run Packet Generator wraps a route result, context pack, and run contract into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, context pack, and scope guardrails.

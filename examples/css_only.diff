@@ -1,0 +1,7 @@
+diff --git a/style.css b/style.css
+--- a/style.css
++++ b/style.css
+@@ -1,3 +1,3 @@
+-.login-button { color: blue; }
++.login-button { color: green; }
+ .page { padding: 1rem; }

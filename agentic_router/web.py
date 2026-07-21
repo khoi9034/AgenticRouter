@@ -11,7 +11,16 @@ from urllib.parse import unquote
 from .config_studio import EXPORT_CONFIG_DEFAULT, add_project, export_config
 from .config_validation import config_summary, validate_config
 from .evaluator import evaluate_tasks
-from .integration import handle_contract_check_request, handle_contract_request, handle_request, health, load_contract, version
+from .integration import (
+    handle_contract_check_request,
+    handle_contract_request,
+    handle_current_diff_review_request,
+    handle_diff_review_request,
+    handle_request,
+    health,
+    load_contract,
+    version,
+)
 from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
@@ -94,6 +103,10 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_integration_contract()
         elif self.path == "/api/v1/contract/check":
             self._handle_integration_contract_check()
+        elif self.path == "/api/v1/diff-review":
+            self._handle_diff_review()
+        elif self.path == "/api/v1/diff-review/current":
+            self._handle_current_diff_review()
         elif self.path == "/api/v1/shadow":
             self._handle_integration("shadow")
         elif self.path == "/api/v1/strict-check":
@@ -188,6 +201,18 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def _handle_integration_contract_check(self) -> None:
         try:
             self._json(handle_contract_check_request(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_diff_review(self) -> None:
+        try:
+            self._json(handle_diff_review_request(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_current_diff_review(self) -> None:
+        try:
+            self._json(handle_current_diff_review_request(self._read_json(), cwd=WEB_DIR.parent))
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 
