@@ -2,7 +2,7 @@
 
 AgenticRouter is the local policy brain. DevSpace, Codex, or another app is the caller.
 
-The caller sends a small task description, project name, touched files, optional session/profile controls, and no secrets or real records. AgenticRouter returns a stable v1 recommendation with model, tier, risk, context pack, optional run packet, warnings, and whether the caller should stop.
+The caller sends a small task description, project name, touched files, optional session/profile controls, and no secrets or real records. AgenticRouter returns a stable v1 recommendation with model, tier, project-plus-intrinsic task risk, normalized task brief, context pack, optional run packet, warnings, and whether the caller should stop.
 
 ## Modes
 

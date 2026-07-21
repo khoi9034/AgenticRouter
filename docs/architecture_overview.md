@@ -6,11 +6,11 @@ It is rule-based and offline. The router does not call an AI model, cloud servic
 
 ## Policy Brain
 
-The central routing path is `agentic_router.router.route()`. It combines the project catalog, task text, touched files, failure count, live-prod flag, sensitivity rules, routing profiles, fallback policies, and session stickiness.
+The central routing path is `agentic_router.router.route()`. It combines the project catalog, normalized intrinsic task risk, touched files, failure count, live-prod flag, sensitivity rules, routing profiles, fallback policies, and session stickiness.
 
 ## Model Routing
 
-Model tiers are `cheap`, `mid`, and `advanced`. Rules route docs/static work cheap, normal app/report work mid, and sensitive/security/live-prod/integration work advanced. Profiles and allowed-model pools can steer normal tasks but cannot downgrade safety-locked work.
+Model tiers are `cheap`, `mid`, and `advanced`. The Task Normalizer first detects task-level capabilities such as auth, SQL/database, admin users, APIs, security, deployment, docs/static work, reports, and CSV imports. Rules then route docs/static work cheap, normal app/report work mid, and sensitive/security/live-prod/integration work advanced. Profiles and allowed-model pools can steer normal tasks but cannot downgrade safety-locked or high intrinsic-risk work.
 
 ## Context Routing
 

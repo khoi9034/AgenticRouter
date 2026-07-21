@@ -64,6 +64,7 @@ class WebSmokeTests(unittest.TestCase):
         self.assertTrue(result["route_id"].startswith("ar_"))
         self.assertIn("context_pack", result)
         self.assertIn("run_packet", result)
+        self.assertIn("normalized_task", result)
         self.assertEqual(result["run_packet"]["route_id"], result["route_id"])
 
         context = self._post_json(

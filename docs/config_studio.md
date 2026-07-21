@@ -4,6 +4,8 @@ Config Studio is a local-only maintenance surface for AgenticRouter routing poli
 
 It does not use cloud services, API keys, remote calls, or external dependencies.
 
+The exported bundle includes projects, models, routing rules, context policies, model aliases, profiles, fallback policies, task taxonomy, task risk signals, golden tasks, and enterprise template metadata.
+
 ## CLI
 
 ```bash

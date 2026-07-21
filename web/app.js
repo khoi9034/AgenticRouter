@@ -213,6 +213,9 @@ function showResult(data) {
   const rules = data.matched_rules.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("");
   const pack = data.context_pack;
   const packet = data.run_packet;
+  const normalized = data.normalized_task || {};
+  const capabilities = normalized.requested_capabilities || data.requested_capabilities || [];
+  const warnings = normalized.ambiguity_warnings || data.task_ambiguity_warnings || [];
   currentRouteId = data.route_id;
   result.className = "panel result";
   result.innerHTML = `
@@ -241,6 +244,19 @@ function showResult(data) {
       <dt>Escalation policy</dt><dd>${escapeHtml(data.escalation_policy)}</dd>
       <dt>Matched rules</dt><dd><ul>${rules}</ul></dd>
     </dl>
+    <section class="normalized-task">
+      <div class="context-head">
+        <h3>Normalized Task Brief</h3>
+        <span class="${badgeClass(normalized.intrinsic_risk || data.intrinsic_task_risk || "low")}">${escapeHtml(normalized.intrinsic_risk || data.intrinsic_task_risk || "low")}</span>
+      </div>
+      <dl>
+        <dt>Summary</dt><dd>${escapeHtml(normalized.normalized_summary || "")}</dd>
+        <dt>Task type</dt><dd>${escapeHtml(normalized.task_type || "general")}</dd>
+        <dt>Detected capabilities</dt><dd><ul>${listItems(capabilities)}</ul></dd>
+        <dt>Minimum tier</dt><dd>${escapeHtml(normalized.minimum_recommended_tier || data.minimum_recommended_tier || "cheap")}</dd>
+        <dt>Ambiguity warnings</dt><dd><ul>${listItems(warnings)}</ul></dd>
+      </dl>
+    </section>
     <section class="context-pack">
       <div class="context-head">
         <h3>Recommended Context Pack</h3>

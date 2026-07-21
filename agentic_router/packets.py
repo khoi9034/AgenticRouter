@@ -5,6 +5,7 @@ from functools import lru_cache
 from typing import Any
 
 from .models import DATA_DIR
+from .observability import sanitize_text
 from .projects import find_project
 from .router import route
 
@@ -59,6 +60,7 @@ def packet_from_route(
         "effort_level": route_result["effort_level"],
         "risk_level": route_result["risk_level"],
         "human_review_required": route_result["human_review_required"],
+        "normalized_task": route_result.get("normalized_task", {}),
         "context_pack": context_pack,
         "execution_prompt": "",
         "context_checklist": _context_checklist(context_pack),
@@ -136,6 +138,8 @@ def _safety_checklist(result: dict[str, Any], context_pack: dict[str, Any], proj
     ]
     if result["human_review_required"] or project.get("sensitive"):
         items.append("Require human review before sensitive-data or security-control changes.")
+    if result.get("intrinsic_task_risk") == "high":
+        items.append("Intrinsic task risk is high; keep context sanitized and avoid broad changes.")
     if "live_prod_project" in result["matched_rules"]:
         items.append("Live-prod project: do not make broad refactors; require human review before deployment.")
     if "naming" in " ".join(context_pack["redaction_warning"].split()).casefold():
@@ -177,10 +181,13 @@ def _execution_prompt(
 ) -> str:
     context = result["context_pack"]
     files = ", ".join(files_touched) if files_touched else "No exact files were listed; use the context patterns below"
+    safe_task = result.get("normalized_task", {}).get("normalized_summary") or sanitize_text(task_description, 180)
     return "\n".join(
         [
             f"Project: {project_name}",
-            f"Task: {task_description}",
+            f"Task: {safe_task}",
+            f"Normalized task brief: {safe_task}",
+            f"Detected capabilities: {', '.join(result.get('requested_capabilities', [])) or 'none'}. Minimum tier: {result.get('minimum_recommended_tier', result['model_tier'])}.",
             f"Use model/effort: {result['recommended_model']} / {result['effort_level']}.",
             f"Risk notes: project risk={project.get('risk_level', result['risk_level'])}; route risk={result['risk_level']}; human review required={result['human_review_required']}.",
             f"Inspect these files/context: {files}. Also use: {', '.join(context['include_patterns'])}.",

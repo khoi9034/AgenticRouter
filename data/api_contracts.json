@@ -44,6 +44,18 @@
     "reason": "string",
     "matched_rules": ["string"],
     "fallback_candidates": ["string"],
+    "normalized_task": {
+      "normalized_summary": "string",
+      "task_type": "string",
+      "requested_capabilities": ["string"],
+      "complexity": "low|medium|high",
+      "intrinsic_risk": "low|medium|high",
+      "minimum_recommended_tier": "cheap|mid|advanced"
+    },
+    "intrinsic_task_risk": "low|medium|high",
+    "requested_capabilities": ["string"],
+    "minimum_recommended_tier": "cheap|mid|advanced",
+    "task_ambiguity_warnings": ["string"],
     "context_pack": "object",
     "devspace_run_packet": "object",
     "observability": {

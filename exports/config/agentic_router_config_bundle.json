@@ -179,7 +179,7 @@
       }
     }
   },
-  "created_at": "2026-07-09T15:29:13",
+  "created_at": "2026-07-21T10:31:12",
   "enterprise_template_metadata": {
     "available": true,
     "budget_group_count": 6,
@@ -1574,6 +1574,424 @@
       "legal records",
       "workers comp",
       "public safety"
+    ]
+  },
+  "task_risk_signals": {
+    "ambiguous_terms": [
+      "fix it",
+      "make it work",
+      "stuff",
+      "things",
+      "unclear",
+      "maybe"
+    ],
+    "forbidden_context_hints": {
+      "data": [
+        "PII",
+        "real records",
+        "emails",
+        "USB serials",
+        "veteran records",
+        "workers comp claims",
+        "legal/client records",
+        "student raw comments"
+      ],
+      "production": [
+        "production secrets",
+        "real env values",
+        "production logs",
+        "private Windows paths"
+      ],
+      "security": [
+        "tokens",
+        "passwords",
+        "credentials",
+        "API keys",
+        "tenant IDs",
+        "private security logs"
+      ]
+    },
+    "signals": [
+      {
+        "capability": "authentication_admin",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "auth_admin",
+        "production_sensitive": false,
+        "risk": "high",
+        "security_sensitive": true,
+        "task_type": "auth_security_admin",
+        "terms": [
+          "sign in",
+          "signin",
+          "login",
+          "authentication",
+          "authorization",
+          "auth",
+          "roles",
+          "admin",
+          "permissions"
+        ]
+      },
+      {
+        "capability": "database_sql",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "database_sql",
+        "production_sensitive": false,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "backend_api_data",
+        "terms": [
+          "database",
+          "sql",
+          "schema",
+          "migration",
+          "db merge",
+          ".sql"
+        ]
+      },
+      {
+        "capability": "backend_api",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "backend_api",
+        "production_sensitive": false,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "backend_api_data",
+        "terms": [
+          "api",
+          "backend",
+          "endpoint",
+          "webhook"
+        ]
+      },
+      {
+        "capability": "secrets_credentials",
+        "complexity": "high",
+        "data_sensitive": true,
+        "minimum_tier": "advanced",
+        "name": "secrets_credentials",
+        "production_sensitive": false,
+        "risk": "high",
+        "security_sensitive": true,
+        "task_type": "auth_security_admin",
+        "terms": [
+          "token",
+          "bearer token",
+          "secret",
+          "secrets",
+          "password",
+          "credentials",
+          "api key"
+        ]
+      },
+      {
+        "capability": "security_infrastructure",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "security_infrastructure",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": true,
+        "task_type": "auth_security_admin",
+        "terms": [
+          "cybersecurity",
+          "security controls",
+          "network config",
+          "network",
+          "infrastructure",
+          "active directory",
+          "firewall",
+          "syslog",
+          "switch",
+          "iap"
+        ]
+      },
+      {
+        "capability": "microsoft_graph_intune",
+        "complexity": "high",
+        "data_sensitive": true,
+        "minimum_tier": "advanced",
+        "name": "microsoft_graph_intune",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": true,
+        "task_type": "integration_write",
+        "terms": [
+          "microsoft graph",
+          "advanced hunting",
+          "intune"
+        ]
+      },
+      {
+        "capability": "enterprise_system_write",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "laserfiche_tdx_write",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "integration_write",
+        "terms": [
+          "laserfiche write",
+          "laserfiche",
+          "teamdynamix write",
+          "teamdynamix",
+          "tdx"
+        ]
+      },
+      {
+        "capability": "production_deployment",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "production_deployment",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "integration_write",
+        "terms": [
+          "deployment",
+          "production",
+          "prod",
+          "live",
+          "live prod",
+          "live-prod"
+        ]
+      },
+      {
+        "capability": "email_file_transfer",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "email_file_transfer",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "integration_write",
+        "terms": [
+          "email sending",
+          "send email",
+          "email reports",
+          "file upload",
+          "file download",
+          "upload",
+          "download"
+        ]
+      },
+      {
+        "capability": "sensitive_records",
+        "complexity": "high",
+        "data_sensitive": true,
+        "minimum_tier": "advanced",
+        "name": "sensitive_records",
+        "production_sensitive": false,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "sensitive_records",
+        "terms": [
+          "sensitive records",
+          "pii",
+          "employee data",
+          "legal records",
+          "veteran records",
+          "veteran",
+          "workers comp",
+          "payroll",
+          "hr",
+          "public safety",
+          "claim data",
+          "medical records"
+        ]
+      },
+      {
+        "capability": "public_official_content",
+        "complexity": "high",
+        "data_sensitive": false,
+        "minimum_tier": "advanced",
+        "name": "public_official_content",
+        "production_sensitive": true,
+        "risk": "high",
+        "security_sensitive": false,
+        "task_type": "public_official_content",
+        "terms": [
+          "official public budget",
+          "public budget",
+          "budget figures",
+          "transparency portal",
+          "public official content",
+          "official fund"
+        ]
+      },
+      {
+        "capability": "dashboard_reporting",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "dashboard_reports",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "ui_workflow",
+        "terms": [
+          "dashboard logic",
+          "dashboard",
+          "reports",
+          "report",
+          "reporting",
+          "filtering",
+          "sorting"
+        ]
+      },
+      {
+        "capability": "forms_workflow",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "forms_workflow",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "ui_workflow",
+        "terms": [
+          "forms",
+          "form",
+          "workflow",
+          "workflow design"
+        ]
+      },
+      {
+        "capability": "data_transformation",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "csv_transform",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "backend_api_data",
+        "terms": [
+          "csv import",
+          "csv",
+          "duplicate handling",
+          "data transformation",
+          "transform"
+        ]
+      },
+      {
+        "capability": "readonly_analysis",
+        "complexity": "medium",
+        "data_sensitive": false,
+        "minimum_tier": "mid",
+        "name": "readonly_bot_analysis",
+        "production_sensitive": false,
+        "risk": "medium",
+        "security_sensitive": false,
+        "task_type": "backend_api_data",
+        "terms": [
+          "api read-only",
+          "read-only api",
+          "non-production bot logic",
+          "non-production bot analysis",
+          "bot analysis"
+        ]
+      },
+      {
+        "capability": "docs_static",
+        "complexity": "low",
+        "data_sensitive": false,
+        "minimum_tier": "cheap",
+        "name": "docs_static",
+        "production_sensitive": false,
+        "risk": "low",
+        "security_sensitive": false,
+        "task_type": "docs_static",
+        "terms": [
+          "docs",
+          "documentation",
+          "readme",
+          "copy",
+          "wording",
+          "static html",
+          "html",
+          "css",
+          "visual polish",
+          "prettier",
+          "placeholder",
+          "simple test page",
+          "hello world",
+          "comments",
+          "typo"
+        ]
+      }
+    ]
+  },
+  "task_taxonomy": {
+    "complexity_order": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "risk_order": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "task_types": {
+      "auth_security_admin": {
+        "default_complexity": "high",
+        "default_intrinsic_risk": "high",
+        "description": "Authentication, authorization, roles, admin users, permissions, security controls, credentials, and secrets.",
+        "minimum_recommended_tier": "advanced"
+      },
+      "backend_api_data": {
+        "default_complexity": "medium",
+        "default_intrinsic_risk": "medium",
+        "description": "Backend, API, SQL, schema, migration, data transformation, report, import, and bot logic.",
+        "minimum_recommended_tier": "mid"
+      },
+      "docs_static": {
+        "default_complexity": "low",
+        "default_intrinsic_risk": "low",
+        "description": "Documentation, copy, simple static HTML/CSS, placeholders, comments, and visual polish.",
+        "minimum_recommended_tier": "cheap"
+      },
+      "integration_write": {
+        "default_complexity": "high",
+        "default_intrinsic_risk": "high",
+        "description": "External-system writes and high-risk integrations such as Laserfiche, TeamDynamix, Graph, Intune, email sending, file transfer, and deployment.",
+        "minimum_recommended_tier": "advanced"
+      },
+      "public_official_content": {
+        "default_complexity": "high",
+        "default_intrinsic_risk": "high",
+        "description": "Official public budget, transparency, and other public-facing civic content where figures and claims need source verification.",
+        "minimum_recommended_tier": "advanced"
+      },
+      "sensitive_records": {
+        "default_complexity": "high",
+        "default_intrinsic_risk": "high",
+        "description": "PII, veteran, worker comp, HR/payroll, public safety, legal, employee, student raw comment, and other sensitive record work.",
+        "minimum_recommended_tier": "advanced"
+      },
+      "ui_workflow": {
+        "default_complexity": "medium",
+        "default_intrinsic_risk": "medium",
+        "description": "Normal UI, forms, dashboard logic, filtering, reports, workflow design, and routine app behavior.",
+        "minimum_recommended_tier": "mid"
+      }
+    },
+    "tier_order": [
+      "cheap",
+      "mid",
+      "advanced"
     ]
   }
 }

@@ -17,6 +17,8 @@ CONFIG_FILES = {
     "model_aliases": "model_aliases.json",
     "routing_profiles": "routing_profiles.json",
     "fallback_policies": "fallback_policies.json",
+    "task_taxonomy": "task_taxonomy.json",
+    "task_risk_signals": "task_risk_signals.json",
     "golden_tasks": "golden_tasks.json",
 }
 SECRET_PATTERNS = [
@@ -58,6 +60,8 @@ def validate_config(config: dict[str, Any] | None = None, data_dir: Path | None 
     _validate_models(cfg.get("models", {}), model_names, errors)
     _validate_rules(cfg.get("routing_rules", {}), errors)
     _validate_context_policies(cfg.get("context_policies", {}), errors)
+    _validate_task_taxonomy(cfg.get("task_taxonomy", {}), errors)
+    _validate_task_risk_signals(cfg.get("task_risk_signals", {}), errors)
     _validate_aliases(aliases, model_names, errors)
     _validate_profiles(profiles, alias_names, errors)
     _validate_fallbacks(fallback_policies, model_names | alias_names, errors)
@@ -164,6 +168,29 @@ def _validate_context_policies(policies: dict[str, Any], errors: list[str]) -> N
         errors.append("context_policies.json base_forbidden_context must be a list")
     if not isinstance(policies.get("categories"), dict):
         errors.append("context_policies.json categories must be an object")
+
+
+def _validate_task_taxonomy(taxonomy: dict[str, Any], errors: list[str]) -> None:
+    if not isinstance(taxonomy.get("task_types"), dict):
+        errors.append("task_taxonomy.json task_types must be an object")
+
+
+def _validate_task_risk_signals(config: dict[str, Any], errors: list[str]) -> None:
+    signals = config.get("signals")
+    if not isinstance(signals, list):
+        errors.append("task_risk_signals.json signals must be a list")
+        return
+    required = {"name", "risk", "complexity", "task_type", "minimum_tier", "capability", "terms"}
+    for signal in signals:
+        missing = required - signal.keys()
+        if missing:
+            errors.append(f"task risk signal {signal.get('name', '<unknown>')} missing fields: {sorted(missing)}")
+        if signal.get("risk") not in {"low", "medium", "high"}:
+            errors.append(f"task risk signal {signal.get('name', '<unknown>')} has invalid risk")
+        if signal.get("minimum_tier") not in TIER_ORDER:
+            errors.append(f"task risk signal {signal.get('name', '<unknown>')} has invalid minimum_tier")
+        if not isinstance(signal.get("terms"), list):
+            errors.append(f"task risk signal {signal.get('name', '<unknown>')} terms must be a list")
 
 
 def _validate_aliases(aliases: dict[str, Any], model_names: set[str], errors: list[str]) -> None:

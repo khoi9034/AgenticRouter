@@ -77,11 +77,23 @@
       "string"
     ],
     "human_review_required": "boolean",
+    "intrinsic_task_risk": "low|medium|high",
     "matched_rules": [
       "string"
     ],
+    "minimum_recommended_tier": "cheap|mid|advanced",
     "mode": "advise|packet|shadow|strict",
     "model_tier": "cheap|mid|advanced",
+    "normalized_task": {
+      "complexity": "low|medium|high",
+      "intrinsic_risk": "low|medium|high",
+      "minimum_recommended_tier": "cheap|mid|advanced",
+      "normalized_summary": "string",
+      "requested_capabilities": [
+        "string"
+      ],
+      "task_type": "string"
+    },
     "observability": {
       "prompt_body_logged": "boolean",
       "trace_written": "boolean"
@@ -89,9 +101,15 @@
     "reason": "string",
     "recommended_model": "string",
     "recommended_next_action": "string",
+    "requested_capabilities": [
+      "string"
+    ],
     "risk_level": "low|medium|medium-high|high|critical",
     "route_id": "string",
     "selected_model_alias": "string",
+    "task_ambiguity_warnings": [
+      "string"
+    ],
     "warnings": [
       "string"
     ]

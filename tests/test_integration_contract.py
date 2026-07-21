@@ -58,6 +58,7 @@ class IntegrationContractTests(unittest.TestCase):
         self.assertEqual(result["contract_version"], "v1")
         self.assertTrue(result["route_id"].startswith("ar_"))
         self.assertIn("context_pack", result)
+        self.assertIn("normalized_task", result)
         self.assertIn("route_id", old)
 
     def test_packet_mode_includes_run_packet(self):

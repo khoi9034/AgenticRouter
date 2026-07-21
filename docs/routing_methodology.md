@@ -11,14 +11,19 @@ The router considers:
 - files touched
 - previous failure count
 - project catalog risk, production, and sensitivity flags
+- intrinsic task risk from the Task Normalizer
 
 ## Tier Selection
 
-The router starts from the project catalog default tier, then applies keyword rules:
+The router first normalizes the task text and touched files. The normalizer returns a sanitized summary, task type, requested capabilities, complexity, intrinsic risk, minimum tier, human-review recommendation, ambiguity warnings, extracted constraints, forbidden-context hints, and matched task signals.
+
+Then the router starts from the project catalog default tier and applies the higher of project risk and intrinsic task risk:
 
 - cheap: docs, copy, README, placeholder, simple summary, static HTML/CSS
 - mid: UI, forms, dashboards, reports, workflows, non-production bot analysis
-- advanced: auth, SQL, database, Laserfiche, TeamDynamix, Graph, Intune, cybersecurity, infrastructure, production deployment, credentials, PII, HR/payroll, public safety, workers comp, official public budget, live Forge
+- advanced: sign-in/login/auth, authorization, roles, admin users, SQL/database/schema/migrations, API/backend work, Laserfiche, TeamDynamix, Graph, Intune, cybersecurity, infrastructure, production deployment, credentials, PII, HR/payroll, public safety, workers comp, official public budget, live Forge
+
+The normalizer prevents low-risk projects from staying cheap when the task itself asks for high-risk capabilities. For example, a test project task that asks for login, roles, SQL database work, admin users, or security controls gets an advanced minimum tier. Savings-oriented profiles cannot downgrade high intrinsic-risk tasks.
 
 Two or more previous failures escalate the tier once. Live production code changes are never allowed to remain cheap.
 

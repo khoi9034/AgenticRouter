@@ -1,0 +1,49 @@
+{
+  "task_types": {
+    "docs_static": {
+      "description": "Documentation, copy, simple static HTML/CSS, placeholders, comments, and visual polish.",
+      "default_complexity": "low",
+      "default_intrinsic_risk": "low",
+      "minimum_recommended_tier": "cheap"
+    },
+    "ui_workflow": {
+      "description": "Normal UI, forms, dashboard logic, filtering, reports, workflow design, and routine app behavior.",
+      "default_complexity": "medium",
+      "default_intrinsic_risk": "medium",
+      "minimum_recommended_tier": "mid"
+    },
+    "backend_api_data": {
+      "description": "Backend, API, SQL, schema, migration, data transformation, report, import, and bot logic.",
+      "default_complexity": "medium",
+      "default_intrinsic_risk": "medium",
+      "minimum_recommended_tier": "mid"
+    },
+    "auth_security_admin": {
+      "description": "Authentication, authorization, roles, admin users, permissions, security controls, credentials, and secrets.",
+      "default_complexity": "high",
+      "default_intrinsic_risk": "high",
+      "minimum_recommended_tier": "advanced"
+    },
+    "integration_write": {
+      "description": "External-system writes and high-risk integrations such as Laserfiche, TeamDynamix, Graph, Intune, email sending, file transfer, and deployment.",
+      "default_complexity": "high",
+      "default_intrinsic_risk": "high",
+      "minimum_recommended_tier": "advanced"
+    },
+    "sensitive_records": {
+      "description": "PII, veteran, worker comp, HR/payroll, public safety, legal, employee, student raw comment, and other sensitive record work.",
+      "default_complexity": "high",
+      "default_intrinsic_risk": "high",
+      "minimum_recommended_tier": "advanced"
+    },
+    "public_official_content": {
+      "description": "Official public budget, transparency, and other public-facing civic content where figures and claims need source verification.",
+      "default_complexity": "high",
+      "default_intrinsic_risk": "high",
+      "minimum_recommended_tier": "advanced"
+    }
+  },
+  "complexity_order": ["low", "medium", "high"],
+  "risk_order": ["low", "medium", "high"],
+  "tier_order": ["cheap", "mid", "advanced"]
+}

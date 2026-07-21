@@ -17,6 +17,17 @@
       "human_review_default"
     ]
   },
+  "task_taxonomy": {
+    "required_fields": ["task_types"],
+    "complexity_levels": ["low", "medium", "high"],
+    "intrinsic_risk_levels": ["low", "medium", "high"],
+    "tiers": ["cheap", "mid", "advanced"]
+  },
+  "task_risk_signals": {
+    "required_signal_fields": ["name", "risk", "complexity", "task_type", "minimum_tier", "capability", "terms"],
+    "risk_levels": ["low", "medium", "high"],
+    "tiers": ["cheap", "mid", "advanced"]
+  },
   "add_project_form": {
     "required_fields": ["project_name", "department", "status", "risk_level", "live_prod", "sensitive_domains", "routing_notes"],
     "risk_levels": ["low", "medium", "high"]

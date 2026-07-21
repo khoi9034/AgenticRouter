@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .context import build_context_pack
+from .normalizer import normalize_task
 from .observability import write_trace
 from .outcomes import make_route_id
 from .profiles import safety_locked, select_model
@@ -37,10 +38,19 @@ def route(
     is_live_prod = project.get("live_prod", False) if live_prod is None else live_prod
     project_sensitive = project.get("sensitive", False) if sensitive is None else sensitive
     text = " ".join([project_name, task_description, *files, *project.get("keywords", [])])
+    normalized = normalize_task(task_description, files)
 
     tier = project.get("default_tier", "cheap")
     risk = project.get("risk_level", "low")
     matched_rules = [f"project_default:{tier}", f"project_risk:{risk}"]
+    if normalized["matched_task_signals"]:
+        matched_rules.append("task_signals:" + ", ".join(normalized["matched_task_signals"][:4]))
+    tier = max_tier(tier, normalized["minimum_recommended_tier"])
+    risk = max_risk(risk, normalized["intrinsic_risk"])
+    if normalized["minimum_recommended_tier"] != "cheap":
+        matched_rules.append(f"task_minimum_tier:{normalized['minimum_recommended_tier']}")
+    if normalized["intrinsic_risk"] != "low":
+        matched_rules.append(f"intrinsic_task_risk:{normalized['intrinsic_risk']}")
 
     cheap_hits = hits(text, rules["cheap_keywords"])
     mid_hits = hits(text, rules["mid_keywords"])
@@ -69,13 +79,19 @@ def route(
         risk = max_risk(risk, "medium")
         matched_rules.append("previous_failures_escalate")
 
-    needs_human = bool(project_sensitive or sensitive_hits or security_hits)
+    needs_human = bool(project_sensitive or sensitive_hits or security_hits or normalized["human_review_recommended"])
     if project_sensitive:
         matched_rules.append("sensitive_project")
     if sensitive_hits:
         matched_rules.append("sensitive_data:" + ", ".join(sensitive_hits[:4]))
     if security_hits:
         matched_rules.append("security_controls:" + ", ".join(security_hits[:4]))
+    if normalized["security_sensitive"]:
+        matched_rules.append("task_security_sensitive")
+    if normalized["data_sensitive"]:
+        matched_rules.append("task_data_sensitive")
+    if normalized["production_sensitive"]:
+        matched_rules.append("task_production_sensitive")
 
     locked = safety_locked(project_name, task_description, files, tier, risk, matched_rules, is_live_prod)
     previous = latest_session(session_id) if session_id else None
@@ -113,6 +129,11 @@ def route(
         "fallback_candidates": model_choice["fallback_candidates"],
         "profile_name": model_choice["profile_name"],
         "cost_quality_tradeoff": model_choice["cost_quality_tradeoff"],
+        "normalized_task": normalized,
+        "intrinsic_task_risk": normalized["intrinsic_risk"],
+        "requested_capabilities": normalized["requested_capabilities"],
+        "minimum_recommended_tier": normalized["minimum_recommended_tier"],
+        "task_ambiguity_warnings": normalized["ambiguity_warnings"],
     }
     result["context_pack"] = build_context_pack(project_name, task_description, files, risk, tier, matched_rules)
     result["route_id"] = make_route_id(project_name, task_description, files, result)

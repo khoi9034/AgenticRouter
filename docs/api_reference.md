@@ -76,6 +76,18 @@ Successful v1 responses include:
   "reason": "Routed cheap from rule matches...",
   "matched_rules": [],
   "fallback_candidates": [],
+  "normalized_task": {
+    "normalized_summary": "Make hello world page prettier",
+    "task_type": "docs_static",
+    "requested_capabilities": ["docs_static"],
+    "complexity": "low",
+    "intrinsic_risk": "low",
+    "minimum_recommended_tier": "cheap"
+  },
+  "intrinsic_task_risk": "low",
+  "requested_capabilities": ["docs_static"],
+  "minimum_recommended_tier": "cheap",
+  "task_ambiguity_warnings": [],
   "context_pack": {},
   "devspace_run_packet": {},
   "observability": {

@@ -199,6 +199,8 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `cost_quality_tradeoff`, optional integer from `0` max quality to `10` max savings
 - `allowed_models`, optional aliases or exact model names
 
+The router first normalizes the task itself, so a low-risk project can still route advanced when the requested work touches auth, SQL/database, admin users, APIs, deployment, or security.
+
 ## Outputs
 
 - `recommended_model`
@@ -220,18 +222,26 @@ agentic-router route --project "Grant Quarter Reporting" --task "Create a quarte
 - `cost_quality_tradeoff`
 - `sticky_route_used`
 - `previous_model`
+- `normalized_task`
+- `intrinsic_task_risk`
+- `requested_capabilities`
+- `minimum_recommended_tier`
+- `task_ambiguity_warnings`
 
 Every route also writes a sanitized local trace to `data/traces.jsonl`.
 
 ## Routing Rules
 
-1. Docs, copy, simple static HTML/CSS, README, placeholder files, and simple summaries route cheap.
-2. Normal UI, forms, dashboards, report logic, workflow design, and non-production bot analysis route mid.
-3. Auth, SQL, database, Laserfiche, TeamDynamix writes, Microsoft Graph, Intune, cybersecurity, infrastructure, production deployment, credentials, secrets, PII, HR/payroll, veteran data, legal records, public safety, workers comp, official public budget content, and live Forge bots route advanced.
-4. `previous_failure_count >= 2` escalates one tier.
-5. Live production code changes never route cheap.
-6. Sensitive data or security controls require human review.
-7. Context policy prefers the smallest useful context and excludes secrets, tokens, credentials, PII, PHI, and real case records for sensitive work.
+1. The Task Normalizer classifies intrinsic task risk from the task text and touched files before project rules run.
+2. Docs, copy, simple static HTML/CSS, README, placeholder files, and simple summaries route cheap.
+3. Normal UI, forms, dashboards, report logic, workflow design, and non-production bot analysis route mid.
+4. Auth, SQL, database, APIs, admin users, Laserfiche, TeamDynamix writes, Microsoft Graph, Intune, cybersecurity, infrastructure, production deployment, credentials, secrets, PII, HR/payroll, veteran data, legal records, public safety, workers comp, official public budget content, and live Forge bots route advanced.
+5. `previous_failure_count >= 2` escalates one tier.
+6. Live production code changes never route cheap.
+7. Sensitive data or security controls require human review.
+8. Context policy prefers the smallest useful context and excludes secrets, tokens, credentials, PII, PHI, and real case records for sensitive work.
+
+Task normalization outputs a sanitized summary, task type, detected capabilities, intrinsic risk, complexity, minimum tier, ambiguity warnings, and forbidden-context hints. Profiles such as `max_savings` cannot downgrade high intrinsic-risk tasks.
 
 ## Profiles, Aliases, and Sessions
 
@@ -353,6 +363,8 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/models.json`: DevSpace models and default model per tier.
 - `data/projects.json`: DevSpace project catalog with risk, production, and sensitivity flags.
 - `data/routing_rules.json`: Keyword rules for cheap, mid, advanced, sensitive, and security matches.
+- `data/task_taxonomy.json`: Intrinsic task type, complexity, risk, and tier taxonomy.
+- `data/task_risk_signals.json`: Local keyword signals used by the Task Normalizer.
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
@@ -372,7 +384,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

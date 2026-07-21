@@ -336,6 +336,12 @@ dt {
   padding-top: 18px;
 }
 
+.normalized-task {
+  border-top: 1px solid #27313d;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
 .run-packet {
   border-top: 1px solid #27313d;
   margin-top: 18px;
@@ -351,6 +357,7 @@ dt {
 
 .context-pack h3,
 .context-pack h4,
+.normalized-task h3,
 .run-packet h3,
 .run-packet h4 {
   margin: 0 0 8px;
