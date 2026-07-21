@@ -1,0 +1,69 @@
+{
+  "version": "v1",
+  "policies": {
+    "docs": {
+      "allowed_file_patterns": ["README.md", "docs/*", "*.md"],
+      "forbidden_file_patterns": ["Auth/*", "api/*", "database/*", "migrations/*"],
+      "allowed_actions": ["Wording changes", "Documentation cleanup", "Simple summaries"],
+      "forbidden_actions": ["Auth changes", "API changes", "Schema changes", "Dependency changes", "Deployment changes"],
+      "required_validation": ["Review rendered Markdown or docs output.", "Confirm no unrelated files changed."],
+      "stop_conditions": ["Stop if task requires code, credentials, records, or production data."]
+    },
+    "static_ui": {
+      "allowed_file_patterns": ["*.html", "*.css", "static/*", "assets/*", "web/*"],
+      "forbidden_file_patterns": ["Auth/*", "api/*", "database/*", "migrations/*"],
+      "allowed_actions": ["Visual/layout/copy changes only", "Static HTML/CSS edits"],
+      "forbidden_actions": ["Auth changes", "API changes", "Schema changes", "Dependency changes", "Deployment changes"],
+      "required_validation": ["Check affected HTML/CSS renders.", "Confirm no broken links or unrelated files."],
+      "stop_conditions": ["Stop if task expands into backend, auth, data, dependency, or deployment work."]
+    },
+    "normal_app": {
+      "allowed_file_patterns": ["*.html", "*.css", "*.js", "*.py", "*.php", "templates/*", "static/*", "tests/*"],
+      "forbidden_file_patterns": ["Auth/*", "database/*", "migrations/*"],
+      "allowed_actions": ["Scoped UI behavior changes", "Form/report/dashboard logic", "Tests for touched behavior"],
+      "forbidden_actions": ["Secret changes", "Production deployment", "Unrelated refactors"],
+      "required_validation": ["Run relevant tests or smoke checks.", "Confirm affected workflow still works."],
+      "stop_conditions": ["Stop if auth, security, SQL, sensitive data, or production deployment appears."]
+    },
+    "backend": {
+      "allowed_file_patterns": ["Auth/*", "auth/*", "api/*", "database/*", "migrations/*", "*.sql", "*.php", "*.py", "tests/*"],
+      "forbidden_file_patterns": ["production_data/*", "logs/*"],
+      "allowed_actions": ["Scoped backend/auth/API/database edits", "Tests and rollback notes"],
+      "forbidden_actions": ["Credential changes", "Unrelated deployment changes", "Broad refactors", "Real data edits"],
+      "required_validation": ["Check auth failure path.", "Check unauthorized access path.", "Preserve API or migration contract.", "Document rollback note when database changes are involved."],
+      "stop_conditions": ["Stop if real credentials, records, production logs, or unclear auth impact are needed."]
+    },
+    "production": {
+      "allowed_file_patterns": ["*.py", "*.php", "*.js", "*.html", "*.css", "deployment/*", "deploy/*", ".github/workflows/*", "tests/*"],
+      "forbidden_file_patterns": ["production_data/*", "logs/*"],
+      "allowed_actions": ["Narrow production-scoped fixes", "Deployment checklist updates", "Rollback planning"],
+      "forbidden_actions": ["Direct live deployment without approval", "Secret changes", "Destructive changes without rollback plan", "Broad refactors"],
+      "required_validation": ["Document backup or rollback note.", "Run relevant tests or smoke checks.", "Require human review before deployment."],
+      "stop_conditions": ["Stop if rollback impact is unclear or deployment approval is missing."]
+    },
+    "external_write": {
+      "allowed_file_patterns": ["api/*", "*.py", "*.php", "integrations/*", "tests/*", "docs/*"],
+      "forbidden_file_patterns": ["production_data/*", "logs/*"],
+      "allowed_actions": ["Scoped integration write logic", "Payload validation", "Dry-run or test-mode validation"],
+      "forbidden_actions": ["Real credential changes", "Unapproved external writes", "Unsanitized payload logging"],
+      "required_validation": ["Use dry-run or test mode if available.", "Validate outgoing payload shape.", "Confirm no real credentials or tokens are included."],
+      "stop_conditions": ["Stop before real external writes until human review is complete."]
+    },
+    "sensitive_file": {
+      "allowed_file_patterns": ["api/*", "uploads/*", "documents/*", "*.py", "*.php", "tests/*"],
+      "forbidden_file_patterns": ["production_data/*", "logs/*"],
+      "allowed_actions": ["Scoped file handling changes", "Validation of sanitized test files", "Access-control checks"],
+      "forbidden_actions": ["Real record handling", "PII in context", "Credential changes", "Unapproved downloads"],
+      "required_validation": ["Use sanitized sample files only.", "Check upload/download authorization.", "Confirm no sensitive records are logged."],
+      "stop_conditions": ["Stop if real records, PII, or production files are required."]
+    },
+    "destructive": {
+      "allowed_file_patterns": ["api/*", "database/*", "migrations/*", "*.sql", "*.py", "*.php", "tests/*", "docs/*"],
+      "forbidden_file_patterns": ["production_data/*", "logs/*"],
+      "allowed_actions": ["Limited test sample", "Backup planning", "Rollback planning"],
+      "forbidden_actions": ["Unbounded delete/purge/overwrite", "Production bulk changes without approval", "Secret changes"],
+      "required_validation": ["Document backup plan.", "Document rollback plan.", "Test on a limited sanitized sample.", "Require human review."],
+      "stop_conditions": ["Stop if scope is unbounded or rollback cannot be proven."]
+    }
+  }
+}

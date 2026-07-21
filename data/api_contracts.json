@@ -63,6 +63,16 @@
     "operation_type": "string",
     "false_positive_controls_triggered": ["string"],
     "context_pack": "object",
+    "run_contract": {
+      "contract_id": "string",
+      "allowed_file_patterns": ["string"],
+      "forbidden_file_patterns": ["string"],
+      "allowed_actions": ["string"],
+      "forbidden_actions": ["string"],
+      "required_validation": ["string"],
+      "stop_conditions": ["string"],
+      "human_review_required": "boolean"
+    },
     "devspace_run_packet": "object",
     "observability": {
       "trace_written": "boolean",
@@ -89,6 +99,8 @@
     "GET /api/contracts": "Stable request/response contract.",
     "POST /api/v1/route": "Run advise or requested mode.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
+    "POST /api/v1/contract": "Return a run contract with allowed scope and guardrails.",
+    "POST /api/v1/contract/check": "Check changed files or a diff summary against a run contract.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
     "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases.",
     "GET /api/shadow/summary": "Summarize local shadow mode analytics.",

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .config_validation import contains_sensitive_value
+from .contracts import check_contract, contract_from_route, generate_contract
 from .models import DATA_DIR
 from .observability import sanitize_text
 from .packets import packet_from_route
@@ -35,6 +36,7 @@ REQUIRED_RESPONSE_FIELDS = {
     "operation_type",
     "false_positive_controls_triggered",
     "context_pack",
+    "run_contract",
     "devspace_run_packet",
     "observability",
     "mode",
@@ -73,6 +75,7 @@ def handle_request(payload: dict[str, Any], forced_mode: str | None = None) -> d
         allowed_models=request["allowed_models"] or None,
     )
     include_packet = (request["mode"] == "packet" or request["include_packet"]) and not forbidden_context
+    run_contract = contract_from_route(request["project_name"], request["task_description"], request["files_touched"], result)
     packet = (
         packet_from_route(request["project_name"], request["task_description"], request["files_touched"], result)
         if include_packet
@@ -115,6 +118,7 @@ def handle_request(payload: dict[str, Any], forced_mode: str | None = None) -> d
         "operation_type": result["operation_type"],
         "false_positive_controls_triggered": result["false_positive_controls_triggered"],
         "context_pack": result["context_pack"],
+        "run_contract": run_contract,
         "devspace_run_packet": packet,
         "observability": {
             "trace_written": True,
@@ -142,6 +146,33 @@ def handle_request(payload: dict[str, Any], forced_mode: str | None = None) -> d
             }
         )
     return response
+
+
+def handle_contract_request(payload: dict[str, Any]) -> dict[str, Any]:
+    request = _normalize_request(payload, "advise")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "run_contract": generate_contract(
+            project_name=request["project_name"],
+            task_description=request["task_description"],
+            files_touched=request["files_touched"],
+            previous_failure_count=request["previous_failure_count"],
+            live_prod=request["live_prod"],
+            profile_name=request["profile"],
+        ),
+    }
+
+
+def handle_contract_check_request(payload: dict[str, Any]) -> dict[str, Any]:
+    if "contract" not in payload:
+        raise ValueError("contract is required")
+    result = check_contract(
+        contract=payload["contract"],
+        changed_files=_files(payload.get("changed_files", [])),
+        diff_summary=str(payload.get("diff_summary", "")),
+        added_dependencies=_files(payload.get("added_dependencies", [])),
+    )
+    return {"contract_version": CONTRACT_VERSION, "scope_guard": result}
 
 
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:

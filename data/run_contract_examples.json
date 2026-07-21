@@ -1,0 +1,25 @@
+{
+  "examples": [
+    {
+      "project_name": "Diana Test Project",
+      "task_description": "Make the hello world page prettier",
+      "expected_policy": "static_ui",
+      "safe_changed_files": ["index.html", "style.css"],
+      "unsafe_changed_files": ["Auth/require_auth.php"]
+    },
+    {
+      "project_name": "Random Test App",
+      "task_description": "Build login, roles, SQL database, and admin dashboard",
+      "expected_policy": "backend",
+      "safe_changed_files": ["Auth/login.php", "database/schema.sql"],
+      "unsafe_changed_files": [".env"]
+    },
+    {
+      "project_name": "Gap Bills Forge Conversion",
+      "task_description": "Change PDF output naming format",
+      "expected_policy": "production",
+      "safe_changed_files": ["forge_bot/gap_bills_bot.py"],
+      "unsafe_changed_files": ["logs/prod.log"]
+    }
+  ]
+}

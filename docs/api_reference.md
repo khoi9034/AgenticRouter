@@ -19,6 +19,8 @@ python -m agentic_router.web
 - `GET /api/contracts`: v1 request/response contract metadata.
 - `POST /api/v1/route`: route using `mode` from the payload, defaulting to `advise`.
 - `POST /api/v1/packet`: forced `packet` mode.
+- `POST /api/v1/contract`: return a run contract for the request.
+- `POST /api/v1/contract/check`: check changed files and a sanitized diff summary against a run contract.
 - `POST /api/v1/shadow`: forced `shadow` mode.
 - `POST /api/v1/strict-check`: forced `strict` mode.
 - `GET /api/shadow/summary`: local shadow analytics summary.
@@ -95,6 +97,16 @@ Successful v1 responses include:
   "operation_type": "visual_polish",
   "false_positive_controls_triggered": [],
   "context_pack": {},
+  "run_contract": {
+    "contract_id": "arc_...",
+    "allowed_file_patterns": ["*.html", "*.css"],
+    "forbidden_file_patterns": ["Auth/*", "api/*", "database/*", "config*", "*.env"],
+    "allowed_actions": ["Visual/layout/copy changes only"],
+    "forbidden_actions": ["Auth changes", "API changes", "Schema changes"],
+    "required_validation": ["Check affected HTML/CSS renders."],
+    "stop_conditions": ["Stop if task expands into backend work."],
+    "human_review_required": false
+  },
   "devspace_run_packet": {},
   "observability": {
     "trace_written": true,
@@ -108,6 +120,36 @@ Successful v1 responses include:
 ```
 
 `packet` mode or `include_packet=true` adds a populated `devspace_run_packet` unless forbidden context is detected.
+
+`POST /api/v1/contract/check` accepts:
+
+```json
+{
+  "contract": {"contract_id": "arc_...", "allowed_file_patterns": ["*.html"], "forbidden_file_patterns": ["Auth/*"]},
+  "changed_files": ["index.html", "style.css"],
+  "diff_summary": "Sanitized summary only",
+  "added_dependencies": []
+}
+```
+
+It returns:
+
+```json
+{
+  "contract_version": "v1",
+  "scope_guard": {
+    "decision": "pass",
+    "violations": [],
+    "warnings": [],
+    "changed_files_reviewed": ["index.html", "style.css"],
+    "forbidden_matches": [],
+    "allowed_matches": ["index.html", "style.css"],
+    "human_review_required": false,
+    "risk_level": "low",
+    "explanation": "Changed files fit the allowed contract scope."
+  }
+}
+```
 
 Risk levels may be `low`, `medium`, `medium-high`, `high`, or `critical`.
 

@@ -6,6 +6,8 @@
     "GET /api/shadow/report": "Write local shadow mode report files.",
     "GET /api/shadow/summary": "Summarize local shadow mode analytics.",
     "GET /api/version": "Version and contract metadata.",
+    "POST /api/v1/contract": "Return a run contract with allowed scope and guardrails.",
+    "POST /api/v1/contract/check": "Check changed files or a diff summary against a run contract.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
     "POST /api/v1/route": "Run advise or requested mode.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
@@ -115,6 +117,28 @@
     ],
     "risk_level": "low|medium|medium-high|high|critical",
     "route_id": "string",
+    "run_contract": {
+      "allowed_actions": [
+        "string"
+      ],
+      "allowed_file_patterns": [
+        "string"
+      ],
+      "contract_id": "string",
+      "forbidden_actions": [
+        "string"
+      ],
+      "forbidden_file_patterns": [
+        "string"
+      ],
+      "human_review_required": "boolean",
+      "required_validation": [
+        "string"
+      ],
+      "stop_conditions": [
+        "string"
+      ]
+    },
     "selected_model_alias": "string",
     "task_ambiguity_warnings": [
       "string"

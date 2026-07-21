@@ -88,6 +88,14 @@ DevSpace run packet:
 python -m agentic_router.cli packet --project "Gap Bills Forge Conversion" --task "Change PDF output naming format" --files forge_bot/gap_bills_bot.py --json
 ```
 
+Run contract and Scope Guard:
+
+```bash
+python -m agentic_router.cli contract --project "Diana Test Project" --task "Make the hello world page prettier" --json
+python -m agentic_router.cli contract --project "Random Test App" --task "Build login, roles, SQL database, and admin dashboard" --output exports/example_contract.json
+python -m agentic_router.cli check-contract --contract-file exports/example_contract.json --changed-files index.html style.css --json
+```
+
 Enterprise gateway templates:
 
 ```bash
@@ -221,6 +229,7 @@ The router first normalizes the task itself, so a low-risk project can still rou
 - `route_id`
 - `context_pack`
 - `run_packet` in the web route response
+- `run_contract` in the web and v1 integration responses
 - `selected_model_alias`
 - `selected_model`
 - `fallback_candidates`
@@ -251,6 +260,8 @@ Every route also writes a sanitized local trace to `data/traces.jsonl`.
 8. Context policy prefers the smallest useful context and excludes secrets, tokens, credentials, PII, PHI, and real case records for sensitive work.
 
 Task normalization outputs a sanitized summary, task type, detected capabilities, operation type, intrinsic risk, complexity, minimum tier, ambiguity warnings, false-positive controls, and forbidden-context hints. It uses action/object pairs and harmless-context controls so `build login system` escalates, while `change login button color` stays cheap. Profiles such as `max_savings` cannot downgrade high intrinsic-risk tasks.
+
+Run contracts convert the route and normalized task into allowed file patterns, forbidden file patterns, allowed actions, forbidden actions, validation checks, stop conditions, production cautions, sensitive-data cautions, and human-review requirements. Scope Guard checks changed files and a sanitized diff summary against that contract, so a visual-only task can pass for `index.html` and `style.css` but fail for `Auth/*`, `api/*`, config, secrets, database, or deployment edits.
 
 ## Profiles, Aliases, and Sessions
 
@@ -331,6 +342,8 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/contracts`
 - `/api/v1/route`
 - `/api/v1/packet`
+- `/api/v1/contract`
+- `/api/v1/contract/check`
 - `/api/v1/shadow`
 - `/api/v1/strict-check`
 - `/api/shadow/summary`
@@ -376,6 +389,8 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/task_risk_signals.json`: Local keyword signals used by the Task Normalizer.
 - `data/normalizer_adversarial_tasks.json`: Adversarial normalizer examples for broad task-risk regression coverage.
 - `data/context_policies.json`: Context pack include/exclude/forbidden guidance.
+- `data/contract_policies.json`: Run Contract and Scope Guard policy guidance.
+- `data/run_contract_examples.json`: Sanitized run contract examples.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
 - `data/litellm_model_aliases.json`: DevSpace model aliases for LiteLLM-style exports.
@@ -394,9 +409,9 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
-Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
+Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, run contract scope, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 
 ## Enterprise Gateway Templates
 

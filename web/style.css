@@ -348,6 +348,12 @@ dt {
   padding-top: 18px;
 }
 
+.run-contract {
+  border-top: 1px solid #27313d;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
 .context-head {
   display: flex;
   justify-content: space-between;
@@ -359,7 +365,9 @@ dt {
 .context-pack h4,
 .normalized-task h3,
 .run-packet h3,
-.run-packet h4 {
+.run-packet h4,
+.run-contract h3,
+.run-contract h4 {
   margin: 0 0 8px;
 }
 

@@ -11,7 +11,7 @@ from urllib.parse import unquote
 from .config_studio import EXPORT_CONFIG_DEFAULT, add_project, export_config
 from .config_validation import config_summary, validate_config
 from .evaluator import evaluate_tasks
-from .integration import handle_request, health, load_contract, version
+from .integration import handle_contract_check_request, handle_contract_request, handle_request, health, load_contract, version
 from .observability import export_file_list, observability_status, summarize_traces
 from .outcomes import save_feedback, summarize_outcomes
 from .packets import generate_packet, packet_from_route
@@ -90,6 +90,10 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_integration()
         elif self.path == "/api/v1/packet":
             self._handle_integration("packet")
+        elif self.path == "/api/v1/contract":
+            self._handle_integration_contract()
+        elif self.path == "/api/v1/contract/check":
+            self._handle_integration_contract_check()
         elif self.path == "/api/v1/shadow":
             self._handle_integration("shadow")
         elif self.path == "/api/v1/strict-check":
@@ -132,6 +136,7 @@ class RouterHandler(SimpleHTTPRequestHandler):
             _files(payload.get("files_touched", [])),
             result,
         )
+        result["run_contract"] = result["run_packet"]["run_contract"]
         self._json(result)
 
     def _handle_integration(self, forced_mode: str | None = None) -> None:
@@ -173,6 +178,18 @@ class RouterHandler(SimpleHTTPRequestHandler):
             return
 
         self._json(packet)
+
+    def _handle_integration_contract(self) -> None:
+        try:
+            self._json(handle_contract_request(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_integration_contract_check(self) -> None:
+        try:
+            self._json(handle_contract_check_request(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 
     def _handle_feedback(self) -> None:
         try:

@@ -5,6 +5,7 @@ from functools import lru_cache
 from typing import Any
 
 from .models import DATA_DIR
+from .contracts import contract_from_route
 from .observability import sanitize_text
 from .projects import find_project
 from .router import route
@@ -51,6 +52,7 @@ def packet_from_route(
     playbook_name = _playbook(project_name, task_description, files_touched, route_result)
     validation = load_validation_playbooks()[playbook_name]
     context_pack = route_result["context_pack"]
+    run_contract = contract_from_route(project_name, task_description, files_touched, route_result)
     safety = _safety_checklist(route_result, context_pack, project)
     stop_conditions = _stop_conditions(route_result, context_pack, playbook_name)
     escalation = _escalation_plan(route_result, playbook_name)
@@ -64,6 +66,7 @@ def packet_from_route(
         "operation_type": route_result.get("operation_type"),
         "false_positive_controls_triggered": route_result.get("false_positive_controls_triggered", []),
         "context_pack": context_pack,
+        "run_contract": run_contract,
         "execution_prompt": "",
         "context_checklist": _context_checklist(context_pack),
         "safety_checklist": safety,
@@ -195,6 +198,8 @@ def _execution_prompt(
             f"Risk notes: project risk={project.get('risk_level', result['risk_level'])}; route risk={result['risk_level']}; human review required={result['human_review_required']}.",
             f"Inspect these files/context: {files}. Also use: {', '.join(context['include_patterns'])}.",
             f"Do not inspect or include: {', '.join(context['exclude_patterns'])}. Forbidden context: {', '.join(context['forbidden_context'])}.",
+            f"Run contract allowed files: {', '.join(packet['run_contract']['allowed_file_patterns'])}.",
+            f"Run contract forbidden files/actions: {', '.join(packet['run_contract']['forbidden_file_patterns'])}; {', '.join(packet['run_contract']['forbidden_actions'])}.",
             "Use sanitized context only. Do not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.",
             ("Live-prod constraint: do not make broad refactors; require human review before deployment." if "live_prod_project" in result["matched_rules"] else "Keep the change narrow and avoid unrelated refactors."),
             "Validate with: " + "; ".join(packet["validation_checklist"]),

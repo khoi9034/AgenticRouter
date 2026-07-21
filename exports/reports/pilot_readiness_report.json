@@ -13,7 +13,7 @@
     "DevSpace v1 integration API",
     "shadow mode analytics"
   ],
-  "generated_at": "2026-07-21T14:58:09+00:00",
+  "generated_at": "2026-07-21T16:54:02+00:00",
   "known_limitations": [
     "Rules are keyword/catalog based and do not call an AI model.",
     "Cost savings use abstract units, not real dollars.",
@@ -64,7 +64,7 @@
   },
   "scorecard": {
     "config_validation_status": "pass",
-    "generated_at": "2026-07-21T14:58:09+00:00",
+    "generated_at": "2026-07-21T16:54:02+00:00",
     "golden_eval_count": 51,
     "golden_eval_pass_rate": 100.0,
     "golden_eval_passed": 51,
@@ -94,7 +94,7 @@
     "remote_tracing_enabled": false,
     "shadow_analytics_enabled": true,
     "shadow_run_count": 0,
-    "unit_test_count": 99
+    "unit_test_count": 111
   },
   "shadow_mode_readiness": {
     "enabled": true,

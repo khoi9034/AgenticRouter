@@ -7,6 +7,7 @@ from typing import Any
 
 from .config_studio import export_config, import_config
 from .config_validation import config_summary, format_config_summary, format_validation, validate_config
+from .contracts import check_contract, format_contract, format_scope_check, generate_contract, load_contract_file
 from .context import format_context_pack
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
@@ -61,6 +62,21 @@ def main(argv: list[str] | None = None) -> int:
     normalize_parser.add_argument("--files", nargs="*", default=[])
     normalize_parser.add_argument("--failures", type=int, default=0)
     normalize_parser.add_argument("--json", action="store_true", dest="json_output")
+    contract_parser = subparsers.add_parser("contract", help="generate a run contract")
+    contract_parser.add_argument("--project", required=True)
+    contract_parser.add_argument("--task", required=True)
+    contract_parser.add_argument("--files", nargs="*", default=[])
+    contract_parser.add_argument("--failures", type=int, default=0)
+    contract_parser.add_argument("--live-prod", action="store_true")
+    contract_parser.add_argument("--output")
+    contract_parser.add_argument("--json", action="store_true", dest="json_output")
+    _add_routing_controls(contract_parser)
+    check_parser = subparsers.add_parser("check-contract", help="check changed files against a run contract")
+    check_parser.add_argument("--contract-file", required=True)
+    check_parser.add_argument("--changed-files", nargs="*", default=[])
+    check_parser.add_argument("--diff-summary", default="")
+    check_parser.add_argument("--added-dependencies", nargs="*", default=[])
+    check_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -144,6 +160,29 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "normalize":
         normalized = normalize_task(args.task, args.files, previous_failure_count=args.failures)
         print(json.dumps(normalized, indent=2) if args.json_output else _format_normalized(normalized))
+    elif args.command == "contract":
+        contract = generate_contract(
+            project_name=args.project,
+            task_description=args.task,
+            files_touched=args.files,
+            previous_failure_count=args.failures,
+            live_prod=True if args.live_prod else None,
+            profile_name=args.profile,
+        )
+        if args.output:
+            path = Path(args.output)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(contract, indent=2), encoding="utf-8")
+        print(json.dumps(contract, indent=2) if args.json_output else format_contract(contract))
+    elif args.command == "check-contract":
+        result = check_contract(
+            load_contract_file(args.contract_file),
+            changed_files=args.changed_files,
+            diff_summary=args.diff_summary,
+            added_dependencies=args.added_dependencies,
+        )
+        print(json.dumps(result, indent=2) if args.json_output else format_scope_check(result))
+        return 1 if result["decision"] == "fail" else 0
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))

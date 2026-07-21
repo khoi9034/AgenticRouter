@@ -88,6 +88,21 @@ class WebSmokeTests(unittest.TestCase):
             },
         )
         self.assertIn("execution_prompt", packet)
+        self.assertIn("run_contract", packet)
+
+        contract = self._post_json(
+            "/api/v1/contract",
+            {
+                "project_name": "Diana Test Project",
+                "task_description": "Make the hello world page background prettier",
+                "files_touched": ["index.html", "style.css"],
+            },
+        )
+        guard = self._post_json(
+            "/api/v1/contract/check",
+            {"contract": contract["run_contract"], "changed_files": ["index.html", "style.css"]},
+        )
+        self.assertEqual(guard["scope_guard"]["decision"], "pass")
 
         feedback = self._post_json(
             "/api/feedback",

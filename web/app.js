@@ -10,6 +10,7 @@ const pilotReadiness = document.querySelector("#pilot-readiness");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
+let currentRunContract = null;
 
 async function loadProjects() {
   const response = await fetch("/api/projects");
@@ -213,10 +214,12 @@ function showResult(data) {
   const rules = data.matched_rules.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("");
   const pack = data.context_pack;
   const packet = data.run_packet;
+  const contract = data.run_contract || packet.run_contract || {};
   const normalized = data.normalized_task || {};
   const capabilities = normalized.requested_capabilities || data.requested_capabilities || [];
   const warnings = normalized.ambiguity_warnings || data.task_ambiguity_warnings || [];
   currentRouteId = data.route_id;
+  currentRunContract = contract;
   result.className = "panel result";
   result.innerHTML = `
     <div class="result-head">
@@ -303,6 +306,48 @@ function showResult(data) {
         <ul>${listItems(packet.escalation_plan)}</ul>
       </div>
     </section>
+    <section class="run-contract">
+      <h3>Run Contract</h3>
+      <div class="context-grid">
+        <div>
+          <h4>Allowed files</h4>
+          <ul>${listItems(contract.allowed_file_patterns || [])}</ul>
+        </div>
+        <div>
+          <h4>Forbidden files</h4>
+          <ul>${listItems(contract.forbidden_file_patterns || [])}</ul>
+        </div>
+      </div>
+      <div class="context-grid">
+        <div>
+          <h4>Allowed actions</h4>
+          <ul>${listItems(contract.allowed_actions || [])}</ul>
+        </div>
+        <div>
+          <h4>Forbidden actions</h4>
+          <ul>${listItems(contract.forbidden_actions || [])}</ul>
+        </div>
+      </div>
+      <div class="forbidden">
+        <strong>Validation and stop conditions</strong>
+        <ul>${listItems([...(contract.required_validation || []), ...(contract.stop_conditions || [])])}</ul>
+      </div>
+      ${contract.human_review_required ? '<div class="warning">Run contract requires human review.</div>' : ""}
+      <p>${escapeHtml(contract.contract_reasoning || "")}</p>
+      <div class="scope-guard">
+        <h4>Scope Guard Check</h4>
+        <label>
+          Changed files
+          <textarea id="scope-files" rows="4" placeholder="One changed file per line"></textarea>
+        </label>
+        <label>
+          Diff summary
+          <textarea id="scope-diff" rows="3" placeholder="Optional sanitized summary"></textarea>
+        </label>
+        <button type="button" id="check-scope">Check scope</button>
+        <div id="scope-result" class="status"></div>
+      </div>
+    </section>
     <form id="feedback-form" class="feedback">
       <h3>Feedback</h3>
       <p>Notes should be sanitized. Do not include secrets, PII, records, emails, tokens, or serial numbers.</p>
@@ -346,6 +391,7 @@ function showResult(data) {
     </form>
   `;
   document.querySelector("#feedback-form").addEventListener("submit", saveFeedback);
+  document.querySelector("#check-scope").addEventListener("click", checkScopeGuard);
 }
 
 function showError(message) {
@@ -425,6 +471,24 @@ async function saveFeedback(event) {
     const data = await response.json();
     status.textContent = response.ok ? "Feedback saved." : data.error || "Feedback failed.";
     status.className = response.ok ? "status ok" : "status bad";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function checkScopeGuard() {
+  const status = document.querySelector("#scope-result");
+  const payload = {
+    contract: currentRunContract,
+    changed_files: filesFromInput(document.querySelector("#scope-files").value),
+    diff_summary: document.querySelector("#scope-diff").value,
+  };
+  try {
+    const data = await postJson("/api/v1/contract/check", payload);
+    const guard = data.scope_guard;
+    status.textContent = `${guard.decision.toUpperCase()}: ${guard.explanation} ${guard.violations.join(" ")}`;
+    status.className = guard.decision === "pass" ? "status ok" : "status bad";
   } catch (error) {
     status.textContent = error.message;
     status.className = "status bad";

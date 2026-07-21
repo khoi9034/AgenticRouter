@@ -99,7 +99,7 @@ Savings estimates use abstract planning units only. Model units are cheap = 1, m
 
 ## DevSpace Integration Contract
 
-The v1 integration layer is a stable wrapper around the existing local router. DevSpace or another caller sends a small request to `/api/v1/route`, `/api/v1/packet`, `/api/v1/shadow`, or `/api/v1/strict-check`; AgenticRouter returns the same routing decision plus contract metadata, warnings, block status, and optional packet data.
+The v1 integration layer is a stable wrapper around the existing local router. DevSpace or another caller sends a small request to `/api/v1/route`, `/api/v1/packet`, `/api/v1/contract`, `/api/v1/contract/check`, `/api/v1/shadow`, or `/api/v1/strict-check`; AgenticRouter returns the same routing decision plus contract metadata, warnings, block status, and optional packet data.
 
 Modes:
 
@@ -167,14 +167,23 @@ Public official content such as Local Budget Book and Transparency Portal requir
 
 When files are not listed, the builder recommends patterns/categories instead of exact paths. When many files are listed, it recommends summarizing large or generated files rather than sending all content.
 
+## Run Contracts and Scope Guard
+
+The Run Contract layer converts a route result and normalized task brief into an enforceable local scope contract. It defines allowed file patterns, forbidden file patterns, allowed actions, forbidden actions, validation checks, stop conditions, production cautions, sensitive-data cautions, and whether human review is required.
+
+Policy is intentionally pattern-based and local. Docs and visual/static UI work can allow only Markdown, HTML, CSS, static assets, or web files while forbidding auth, API, config, secrets, database, dependency, and deployment edits. Backend/auth/database, external write, destructive, and production contracts require stronger validation, rollback or dry-run notes where relevant, and human review.
+
+Scope Guard checks changed files, an optional sanitized diff summary, and optional added dependencies against the contract. Forbidden file matches or files outside the allowed scope fail. Unexpected dependencies warn. High-risk compliant changes still warn when human review or rollback notes are required.
+
 ## Run Packets
 
-The DevSpace Run Packet Generator wraps a route result and context pack into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, and context pack.
+The DevSpace Run Packet Generator wraps a route result, context pack, and run contract into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, context pack, and scope guardrails.
 
 Each packet includes:
 
 - execution prompt
 - context checklist
+- run contract
 - safety checklist
 - validation checklist
 - stop conditions
