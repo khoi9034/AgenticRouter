@@ -1,0 +1,34 @@
+{
+  "autogate": {
+    "run_id": "run_example_failed",
+    "project_name": "Diana Test Project",
+    "task_summary": "Make hello world page prettier",
+    "risk_level": "low",
+    "model_tier": "cheap",
+    "recommended_model": "Haiku 4.5",
+    "final_decision": "needs_retry",
+    "changed_files": ["style.css"],
+    "tests_run": ["css smoke"],
+    "test_status": "failed",
+    "notes": "sanitized validation failure",
+    "approval_gate_reason": "Tests failed; retry with a fix.",
+    "run_contract": {
+      "allowed_file_patterns": ["*.html", "*.css", "static/*", "assets/*", "web/*"],
+      "forbidden_file_patterns": ["Auth/*", "api/*", "database/*", "migrations/*", ".env", "*.env"],
+      "stop_conditions": ["Stop if task expands into backend, auth, data, dependency, or deployment work."]
+    },
+    "scope_guard": {"decision": "pass", "violations": [], "warnings": []},
+    "diff_review": {"decision": "pass", "detected_change_types": ["ui_docs_safe"], "violations": [], "warnings": []}
+  },
+  "evidence": {
+    "validation_results": [
+      {
+        "name": "css smoke",
+        "command": ["css smoke"],
+        "status": "failed",
+        "stdout": "",
+        "stderr": "sanitized CSS smoke failure"
+      }
+    ]
+  }
+}

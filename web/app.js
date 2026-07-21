@@ -238,6 +238,19 @@ async function loadAutoGate() {
       </div>
       <div id="ev-result" class="status"></div>
     </div>
+    <div class="inline-form remediation-runner">
+      <h3>Auto-Remediation</h3>
+      <p>Turns AutoGate outcomes into the next safe local action. It does not repair files or run commands.</p>
+      <div class="split">
+        <label>Run ID<input id="rm-run-id" placeholder="run_..."></label>
+        <label>Repo path<input id="rm-repo-path" value="."></label>
+      </div>
+      <div class="action-row">
+        <button type="button" id="rm-plan">Generate Remediation Plan</button>
+        <button type="button" id="rm-retry">Show Retry Packet</button>
+      </div>
+      <div id="rm-result" class="status"></div>
+    </div>
     <h3>Recent Runs</h3>
     <ul id="ag-runs">${autoGateRunItems(runs.runs)}</ul>
   `;
@@ -246,6 +259,8 @@ async function loadAutoGate() {
   document.querySelector("#ev-plan").addEventListener("click", evidencePlan);
   document.querySelector("#ev-collect").addEventListener("click", collectEvidence);
   document.querySelector("#ev-complete").addEventListener("click", completeEvidenceAuto);
+  document.querySelector("#rm-plan").addEventListener("click", remediationPlan);
+  document.querySelector("#rm-retry").addEventListener("click", remediationRetryPacket);
 }
 
 function filesFromInput(value) {
@@ -636,6 +651,7 @@ async function startAutoGateRun() {
     currentAutoGateRunId = run.run_id;
     document.querySelector("#ag-run-id").value = run.run_id;
     document.querySelector("#ev-run-id").value = run.run_id;
+    document.querySelector("#rm-run-id").value = run.run_id;
     status.innerHTML = `<strong>${escapeHtml(run.start_status)}</strong> ${escapeHtml(run.run_id)} ${escapeHtml(run.recommended_model)} / ${escapeHtml(run.model_tier)}<br>Requirements: ${escapeHtml(run.automated_requirements.required_checks.join(", "))}`;
     status.className = "status ok";
     await refreshAutoGateRuns();
@@ -680,6 +696,13 @@ function evidencePayload() {
   };
 }
 
+function remediationPayload() {
+  return {
+    run_id: document.querySelector("#rm-run-id").value || currentAutoGateRunId,
+    repo_path: document.querySelector("#rm-repo-path").value || ".",
+  };
+}
+
 async function evidencePlan() {
   const status = document.querySelector("#ev-result");
   try {
@@ -717,6 +740,30 @@ async function completeEvidenceAuto() {
   }
 }
 
+async function remediationPlan() {
+  const status = document.querySelector("#rm-result");
+  try {
+    const data = await postJson("/api/v1/remediation/plan", remediationPayload());
+    status.innerHTML = renderRemediation(data.remediation);
+    status.className = data.remediation.severity === "high" ? "status bad" : "status ok";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function remediationRetryPacket() {
+  const status = document.querySelector("#rm-result");
+  try {
+    const data = await postJson("/api/v1/remediation/retry-packet", remediationPayload());
+    status.innerHTML = renderRetryPacket(data.retry_packet);
+    status.className = "status ok";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
 function renderEvidencePlan(plan) {
   return `
     <h4>Validation Plan</h4>
@@ -737,6 +784,35 @@ function renderEvidence(evidence) {
     <ul>${listItems(evidence.validation_results.map((item) => `${item.name}: ${item.status}`)) || "<li>none</li>"}</ul>
     <p>Missing evidence: ${escapeHtml(evidence.missing_evidence.join(", ") || "none")}</p>
     <p>Warnings: ${escapeHtml(evidence.warnings.join(" ") || "none")}</p>
+  `;
+}
+
+function renderRemediation(plan) {
+  return `
+    <h4>Next Action</h4>
+    <p><strong>${escapeHtml(plan.next_action)}</strong> | Severity: ${escapeHtml(plan.severity)} | Auto retry: ${escapeHtml(plan.auto_retry_allowed)}</p>
+    <p>${escapeHtml(plan.explanation)}</p>
+    <h4>Retry Packet</h4>
+    <pre>${escapeHtml(plan.retry_packet.prompt || "")}</pre>
+    <h4>Validation Commands</h4>
+    <ul>${listItems(plan.validation_commands.map((item) => item.command.join(" "))) || "<li>none</li>"}</ul>
+    <h4>Evidence Needed</h4>
+    <ul>${listItems(plan.evidence_needed) || "<li>none</li>"}</ul>
+    <h4>Rollback Steps</h4>
+    <ul>${listItems(plan.rollback_steps) || "<li>none</li>"}</ul>
+    <h4>Block Reasons</h4>
+    <ul>${listItems(plan.block_reasons) || "<li>none</li>"}</ul>
+    <h4>Stop Conditions</h4>
+    <ul>${listItems(plan.stop_conditions) || "<li>none</li>"}</ul>
+  `;
+}
+
+function renderRetryPacket(packet) {
+  return `
+    <h4>Retry Packet</h4>
+    <pre>${escapeHtml(packet.prompt || "")}</pre>
+    <h4>Instructions</h4>
+    <ul>${listItems(packet.instructions || []) || "<li>none</li>"}</ul>
   `;
 }
 

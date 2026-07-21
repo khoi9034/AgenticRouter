@@ -25,6 +25,8 @@ from .integration import (
     handle_evidence_collect,
     handle_evidence_plan,
     handle_request,
+    handle_remediation_plan,
+    handle_retry_packet,
     health,
     load_contract,
     version,
@@ -137,6 +139,10 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_evidence_plan()
         elif self.path == "/api/v1/evidence/collect":
             self._handle_evidence_collect()
+        elif self.path == "/api/v1/remediation/plan":
+            self._handle_remediation_plan()
+        elif self.path == "/api/v1/remediation/retry-packet":
+            self._handle_retry_packet()
         elif self.path == "/api/context":
             self._handle_context()
         elif self.path == "/api/packet":
@@ -269,6 +275,18 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def _handle_evidence_collect(self) -> None:
         try:
             self._json(handle_evidence_collect(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_remediation_plan(self) -> None:
+        try:
+            self._json(handle_remediation_plan(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_retry_packet(self) -> None:
+        try:
+            self._json(handle_retry_packet(self._read_json()))
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 

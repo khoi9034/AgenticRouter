@@ -1,0 +1,30 @@
+{
+  "version": "v1",
+  "examples": [
+    {
+      "name": "approved_static_change",
+      "current_decision": "auto_approved",
+      "expected_next_action": "no_action_needed"
+    },
+    {
+      "name": "high_risk_missing_tests",
+      "current_decision": "needs_tests",
+      "expected_next_action": "run_tests"
+    },
+    {
+      "name": "failed_validation_retry",
+      "current_decision": "needs_retry",
+      "expected_next_action": "retry_agent"
+    },
+    {
+      "name": "secret_block",
+      "current_decision": "auto_blocked",
+      "expected_next_action": "blocked_fix_required"
+    },
+    {
+      "name": "live_prod_rollback",
+      "current_decision": "rollback_required",
+      "expected_next_action": "rollback_required"
+    }
+  ]
+}

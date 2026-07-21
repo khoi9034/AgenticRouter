@@ -112,6 +112,9 @@ python -m agentic_router.cli evidence-plan --run-id RUN_ID --repo-path . --json
 python -m agentic_router.cli collect-evidence --run-id RUN_ID --repo-path . --json
 python -m agentic_router.cli complete-run-auto --run-id RUN_ID --repo-path . --json
 python -m agentic_router.cli evidence-current --project "Random Test App" --task "Change login button color" --repo-path . --json
+python -m agentic_router.cli remediation-plan --run-id RUN_ID --json
+python -m agentic_router.cli retry-packet --run-id RUN_ID --json
+python -m agentic_router.cli remediation-from-result --result-file examples/autogate_failed.json --json
 python -m agentic_router.cli autogate-report --run-id RUN_ID --json
 python -m agentic_router.cli list-runs --json
 python -m agentic_router.cli clear-runs
@@ -290,6 +293,8 @@ DevSpace AutoGate connects route, context pack, packet, run contract, Scope Guar
 
 The Evidence Runner collects local git status, changed files, staged/unstaged diffs, and safe validation results, then feeds AutoGate automatically. It uses `subprocess` with `shell=False`, timeouts, and a strict allowlist. It does not run install, deploy, migration, database, delete, purge, sync, production, or unlisted commands.
 
+The Auto-Remediation planner turns AutoGate decisions into structured next actions: no action, run tests, retry agent, collect more evidence, rollback required, or blocked fix required. It generates retry packets, validation command lists, evidence requests, rollback checklists, and correction steps, but it does not repair files or execute commands.
+
 ## Profiles, Aliases, and Sessions
 
 Model aliases live in `data/model_aliases.json`; fallback pools live in `data/fallback_policies.json`. The default aliases are `devspace-cheap`, `devspace-mid`, `devspace-advanced`, `devspace-docs`, `devspace-live-prod`, `devspace-security`, and `devspace-public-official-content`.
@@ -378,6 +383,8 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/v1/evidence/plan`
 - `/api/v1/evidence/collect`
 - `/api/v1/autogate/complete-auto`
+- `/api/v1/remediation/plan`
+- `/api/v1/remediation/retry-packet`
 - `/api/v1/autogate/report`
 - `/api/v1/autogate/list`
 - `/api/v1/autogate/clear`
@@ -434,6 +441,8 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/autogate_examples.json`: Sanitized AutoGate scenario metadata.
 - `data/evidence_policies.json`: Safe local git and validation command allowlist.
 - `data/evidence_examples.json`: Sanitized Evidence Runner example metadata.
+- `data/remediation_policies.json`: Auto-Remediation next-action policy notes.
+- `data/remediation_examples.json`: Sanitized Auto-Remediation example metadata.
 - `data/run_records.jsonl`: Local sanitized AutoGate run lifecycle records.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
@@ -453,7 +462,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, Diff Review quality gate, context policy, escalation policy, and matched rules. It also includes DevSpace AutoGate with an Evidence Runner for local git/test collection, captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, Diff Review quality gate, context policy, escalation policy, and matched rules. It also includes DevSpace AutoGate with an Evidence Runner and Auto-Remediation planner, captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, run contract scope, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

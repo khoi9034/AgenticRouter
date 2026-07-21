@@ -199,6 +199,14 @@ Allowed validation commands are intentionally narrow: Python unittest discovery,
 
 The runner never executes install, deploy, migration, database, delete, purge, sync, production, or unlisted commands. Raw diff text is used locally to feed Scope Guard and Diff Review; API/web summaries show compact diff summaries and validation results. Secret-like diffs, auth bypasses, or destructive changes still block through Diff Review even if validation passes.
 
+## Auto-Remediation and Retry Planning
+
+Auto-Remediation runs after AutoGate and the Evidence Runner. It is local, rule-based, and does not repair files or execute commands. Its job is to translate the current AutoGate decision into a structured next step: `no_action_needed`, `run_tests`, `retry_agent`, `collect_more_evidence`, `rollback_required`, or `blocked_fix_required`.
+
+For test failures, the planner creates a narrow retry packet that preserves the original run contract, allowed files, forbidden files, changed files, failed validation commands, and sanitized failure summary. The packet explicitly tells the next agent to fix only the failing issue, avoid scope expansion, avoid forbidden files, and rerun failed validation commands.
+
+For blocked runs, the planner explains whether the block came from forbidden files, out-of-contract changes, secret-like additions, auth bypasses, destructive SQL or bulk operations, or production config risk. It then produces safe correction steps and requires Diff Review plus AutoGate to be rerun after correction. Rollback-required runs produce a rollback checklist but never execute rollback automatically.
+
 ## Run Packets
 
 The DevSpace Run Packet Generator wraps a route result, context pack, and run contract into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, context pack, and scope guardrails.

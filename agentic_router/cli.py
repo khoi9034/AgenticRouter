@@ -33,6 +33,7 @@ from .outcomes import format_outcomes_summary, save_feedback, summarize_outcomes
 from .packets import format_packet, generate_packet
 from .pilot import demo_script_text, export_pilot_report, format_scorecard, pilot_scorecard, rollout_plan_text
 from .normalizer import normalize_task
+from .remediation import format_remediation, remediation_for_run, remediation_from_file, retry_packet_for_run
 from .router import route
 from .sessions import format_session_summary, summarize_sessions
 from .shadow import add_demo_data, export_shadow_report, format_shadow_summary, summarize_shadow_runs
@@ -143,6 +144,18 @@ def main(argv: list[str] | None = None) -> int:
     evidence_current_parser.add_argument("--repo-path", default=".")
     evidence_current_parser.add_argument("--live-prod", action="store_true")
     evidence_current_parser.add_argument("--json", action="store_true", dest="json_output")
+    remediation_parser = subparsers.add_parser("remediation-plan", help="generate an AutoGate remediation plan")
+    remediation_parser.add_argument("--run-id", required=True)
+    remediation_parser.add_argument("--repo-path")
+    remediation_parser.add_argument("--json", action="store_true", dest="json_output")
+    retry_parser = subparsers.add_parser("retry-packet", help="generate a narrow retry packet for an AutoGate run")
+    retry_parser.add_argument("--run-id", required=True)
+    retry_parser.add_argument("--repo-path")
+    retry_parser.add_argument("--json", action="store_true", dest="json_output")
+    remediation_file_parser = subparsers.add_parser("remediation-from-result", help="generate remediation from a saved AutoGate result JSON file")
+    remediation_file_parser.add_argument("--result-file", required=True)
+    remediation_file_parser.add_argument("--repo-path")
+    remediation_file_parser.add_argument("--json", action="store_true", dest="json_output")
     list_runs_parser = subparsers.add_parser("list-runs", help="list AutoGate runs")
     list_runs_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("clear-runs", help="clear local AutoGate run records")
@@ -314,6 +327,15 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "evidence-current":
         result = evidence_current(args.project, args.task, args.repo_path, live_prod=True if args.live_prod else None)
         print(json.dumps(result, indent=2) if args.json_output else format_evidence(result))
+    elif args.command == "remediation-plan":
+        result = remediation_for_run(args.run_id, repo_path=args.repo_path)
+        print(json.dumps(result, indent=2) if args.json_output else format_remediation(result))
+    elif args.command == "retry-packet":
+        result = retry_packet_for_run(args.run_id, repo_path=args.repo_path)
+        print(json.dumps(result, indent=2) if args.json_output else json.dumps(result, indent=2))
+    elif args.command == "remediation-from-result":
+        result = remediation_from_file(args.result_file, repo_path=args.repo_path)
+        print(json.dumps(result, indent=2) if args.json_output else format_remediation(result))
     elif args.command == "list-runs":
         runs = list_runs()
         print(json.dumps({"runs": runs}, indent=2) if args.json_output else format_run_list(runs))

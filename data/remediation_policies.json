@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "local_only": true,
+  "repairs_files_automatically": false,
+  "executes_commands": false,
+  "next_actions": [
+    "no_action_needed",
+    "run_tests",
+    "retry_agent",
+    "collect_more_evidence",
+    "rollback_required",
+    "blocked_fix_required"
+  ],
+  "auto_retry_policy": {
+    "low_medium_test_failures": "Allowed only when Scope Guard and Diff Review are safe.",
+    "high_risk_failures": "Usually not allowed unless retry is only tests/docs/static validation.",
+    "auto_blocked": "Do not auto-retry by default.",
+    "rollback_required": "Do not auto-retry until rollback evidence exists."
+  },
+  "blocked_fix_steps": {
+    "secret_detected": "Remove the secret-looking value and use a sanitized placeholder or environment variable name.",
+    "forbidden_file_change": "Undo forbidden file changes or start a new run with an explicit contract.",
+    "auth_bypass": "Restore auth or permission checks and validate unauthorized access.",
+    "destructive_operation": "Remove destructive or unbounded operations, or add bounded safety guards plus rollback evidence.",
+    "production_config_risk": "Revert production config/deploy changes until rollback and approval evidence are available."
+  }
+}

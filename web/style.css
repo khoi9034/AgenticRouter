@@ -358,7 +358,8 @@ dt {
 }
 
 .diff-review,
-.evidence-runner {
+.evidence-runner,
+.remediation-runner {
   border-top: 1px solid #27313d;
   margin-top: 18px;
   padding-top: 18px;
@@ -380,8 +381,19 @@ dt {
 .run-contract h4,
 .diff-review h3,
 .evidence-runner h3,
-.evidence-runner h4 {
+.evidence-runner h4,
+.remediation-runner h3,
+.remediation-runner h4 {
   margin: 0 0 8px;
+}
+
+.remediation-runner pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #101821;
+  border: 1px solid #27313d;
+  border-radius: 6px;
+  padding: 12px;
 }
 
 .packet-text {

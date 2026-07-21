@@ -28,6 +28,8 @@ python -m agentic_router.web
 - `POST /api/v1/evidence/plan`: build a safe local validation plan for an AutoGate run.
 - `POST /api/v1/evidence/collect`: collect local git evidence and safe validation results.
 - `POST /api/v1/autogate/complete-auto`: collect evidence and complete AutoGate automatically.
+- `POST /api/v1/remediation/plan`: generate the next safe action for an AutoGate run.
+- `POST /api/v1/remediation/retry-packet`: generate a narrow retry packet for an AutoGate run.
 - `POST /api/v1/autogate/report`: return a stored AutoGate run report by `run_id`.
 - `GET /api/v1/autogate/list`: list latest local AutoGate run records.
 - `POST /api/v1/autogate/clear`: clear local AutoGate run records.
@@ -225,6 +227,37 @@ The plan endpoint returns safe validation commands only:
 ```
 
 The collect endpoint returns changed files, a compact diff summary, validation results, missing evidence, warnings, and `tests_status`. It does not run installs, deploys, migrations, database commands, delete/purge/sync commands, production commands, or unlisted commands. The complete-auto endpoint returns the evidence summary plus the final AutoGate decision.
+
+`POST /api/v1/remediation/plan` and `POST /api/v1/remediation/retry-packet` accept:
+
+```json
+{
+  "run_id": "run_...",
+  "repo_path": "."
+}
+```
+
+The remediation plan endpoint returns:
+
+```json
+{
+  "contract_version": "v1",
+  "remediation": {
+    "current_decision": "needs_retry",
+    "next_action": "retry_agent",
+    "severity": "medium",
+    "auto_retry_allowed": true,
+    "retry_packet": {},
+    "validation_commands": [],
+    "evidence_needed": [],
+    "rollback_steps": [],
+    "block_reasons": [],
+    "stop_conditions": []
+  }
+}
+```
+
+The planner does not call an AI model, repair files, or execute commands. It only produces structured next-step instructions, retry packets, evidence requests, rollback checklists, and safe correction steps.
 
 `POST /api/v1/diff-review` accepts:
 

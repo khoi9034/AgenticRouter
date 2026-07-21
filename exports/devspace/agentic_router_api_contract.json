@@ -20,6 +20,8 @@
     "POST /api/v1/evidence/collect": "Collect local git evidence and safe validation command results for an AutoGate run.",
     "POST /api/v1/evidence/plan": "Build a safe local validation plan for an AutoGate run.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
+    "POST /api/v1/remediation/plan": "Generate a safe next-action remediation plan from an AutoGate run.",
+    "POST /api/v1/remediation/retry-packet": "Generate a narrow retry packet for an AutoGate run.",
     "POST /api/v1/route": "Run advise or requested mode.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
     "POST /api/v1/strict-check": "Return block=true for human-review or forbidden-context cases."

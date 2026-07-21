@@ -110,6 +110,8 @@
     "POST /api/v1/evidence/plan": "Build a safe local validation plan for an AutoGate run.",
     "POST /api/v1/evidence/collect": "Collect local git evidence and safe validation command results for an AutoGate run.",
     "POST /api/v1/autogate/complete-auto": "Collect evidence and complete an AutoGate run automatically.",
+    "POST /api/v1/remediation/plan": "Generate a safe next-action remediation plan from an AutoGate run.",
+    "POST /api/v1/remediation/retry-packet": "Generate a narrow retry packet for an AutoGate run.",
     "POST /api/v1/autogate/report": "Return a stored AutoGate run report by run_id.",
     "GET /api/v1/autogate/list": "List latest local AutoGate run records.",
     "POST /api/v1/autogate/list": "List latest local AutoGate run records.",

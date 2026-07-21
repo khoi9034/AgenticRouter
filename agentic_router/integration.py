@@ -12,6 +12,7 @@ from .evidence import build_validation_plan_for_run, collect_evidence, complete_
 from .models import DATA_DIR
 from .observability import sanitize_text
 from .packets import packet_from_route
+from .remediation import remediation_for_run, remediation_for_result, retry_packet_for_run
 from .router import route
 from .shadow import write_shadow_run
 
@@ -280,6 +281,25 @@ def handle_autogate_complete_auto(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("run_id is required")
     result = complete_run_with_evidence(str(payload["run_id"]), _repo_path(payload))
     return {"contract_version": CONTRACT_VERSION, **result}
+
+
+def handle_remediation_plan(payload: dict[str, Any]) -> dict[str, Any]:
+    if "autogate" in payload or "final_decision" in payload:
+        plan = remediation_for_result(payload, repo_path=payload.get("repo_path"))
+    else:
+        if "run_id" not in payload:
+            raise ValueError("run_id is required")
+        plan = remediation_for_run(str(payload["run_id"]), repo_path=payload.get("repo_path"))
+    return {"contract_version": CONTRACT_VERSION, "remediation": plan}
+
+
+def handle_retry_packet(payload: dict[str, Any]) -> dict[str, Any]:
+    if "run_id" not in payload:
+        raise ValueError("run_id is required")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "retry_packet": retry_packet_for_run(str(payload["run_id"]), repo_path=payload.get("repo_path")),
+    }
 
 
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:
