@@ -14,8 +14,10 @@ class WebSmokeTests(unittest.TestCase):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.old_outcomes = os.environ.get("AGENTIC_ROUTER_OUTCOMES")
         cls.old_traces = os.environ.get("AGENTIC_ROUTER_TRACES")
+        cls.old_runs = os.environ.get("AGENTIC_ROUTER_RUN_RECORDS")
         os.environ["AGENTIC_ROUTER_OUTCOMES"] = os.path.join(cls.tmp.name, "outcomes.jsonl")
         os.environ["AGENTIC_ROUTER_TRACES"] = os.path.join(cls.tmp.name, "traces.jsonl")
+        os.environ["AGENTIC_ROUTER_RUN_RECORDS"] = os.path.join(cls.tmp.name, "run_records.jsonl")
         cls.server = make_server(port=0)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -34,6 +36,10 @@ class WebSmokeTests(unittest.TestCase):
             os.environ.pop("AGENTIC_ROUTER_TRACES", None)
         else:
             os.environ["AGENTIC_ROUTER_TRACES"] = cls.old_traces
+        if cls.old_runs is None:
+            os.environ.pop("AGENTIC_ROUTER_RUN_RECORDS", None)
+        else:
+            os.environ["AGENTIC_ROUTER_RUN_RECORDS"] = cls.old_runs
         cls.tmp.cleanup()
 
     def test_index_loads(self):
@@ -112,6 +118,19 @@ class WebSmokeTests(unittest.TestCase):
             },
         )
         self.assertEqual(diff_review["diff_review"]["decision"], "pass")
+        autogate = self._post_json(
+            "/api/v1/autogate/start",
+            {"project_name": "Diana Test Project", "task_description": "Make page prettier"},
+        )
+        complete = self._post_json(
+            "/api/v1/autogate/complete",
+            {
+                "run_id": autogate["autogate"]["run_id"],
+                "changed_files": ["style.css"],
+                "git_diff": "diff --git a/style.css b/style.css\n--- a/style.css\n+++ b/style.css\n@@ -1 +1 @@\n-.x{color:blue}\n+.x{color:green}\n",
+            },
+        )
+        self.assertEqual(complete["autogate"]["final_decision"], "auto_approved")
 
         feedback = self._post_json(
             "/api/feedback",

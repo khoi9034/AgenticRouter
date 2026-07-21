@@ -1,0 +1,29 @@
+{
+  "version": "v1",
+  "decisions": [
+    "auto_approved",
+    "auto_blocked",
+    "needs_tests",
+    "needs_retry",
+    "needs_more_evidence",
+    "rollback_required"
+  ],
+  "requirements_by_risk": {
+    "low": ["contract_pass_required", "diff_pass_required"],
+    "medium": ["contract_pass_required", "diff_pass_required", "tests_or_validation_required"],
+    "high": [
+      "contract_pass_required",
+      "diff_pass_required",
+      "tests_required",
+      "no_secret_detection_required",
+      "no_auth_bypass_required",
+      "no_destructive_operation_without_safety_required"
+    ]
+  },
+  "live_prod_extra_requirements": ["rollback_plan_required"],
+  "blocked_diff_types": ["secret_credential_added", "auth_bypass_or_weakening", "destructive_or_bulk_operation"],
+  "notes": [
+    "AutoGate is automated decisioning, not a human review queue.",
+    "Legacy human_review_required fields may remain for compatibility but are not the primary AutoGate outcome."
+  ]
+}

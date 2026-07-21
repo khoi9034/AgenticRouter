@@ -72,7 +72,8 @@ form.panel {
 .simulator-panel,
 .integration-panel,
 .shadow-panel,
-.pilot-panel {
+.pilot-panel,
+.autogate-panel {
   grid-column: 1;
   padding: 18px;
 }
@@ -83,7 +84,8 @@ form.panel {
 .simulator-panel h2,
 .integration-panel h2,
 .shadow-panel h2,
-.pilot-panel h2 {
+.pilot-panel h2,
+.autogate-panel h2 {
   margin-bottom: 8px;
   font-size: 1.2rem;
 }
@@ -94,7 +96,8 @@ form.panel {
 .simulator-panel p,
 .integration-panel p,
 .shadow-panel p,
-.pilot-panel p {
+.pilot-panel p,
+.autogate-panel p {
   color: #aeb9c5;
   font-size: 0.92rem;
 }

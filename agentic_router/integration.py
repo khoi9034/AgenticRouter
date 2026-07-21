@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .autogate import clear_runs, complete_run, get_run, list_runs, start_run
 from .config_validation import contains_sensitive_value
 from .contracts import check_contract, contract_from_route, generate_contract
 from .diff_review import review_current_diff, review_diff
@@ -205,6 +206,54 @@ def handle_current_diff_review_request(payload: dict[str, Any], cwd: Path | None
         cwd=cwd or DATA_DIR.parent,
     )
     return {"contract_version": CONTRACT_VERSION, "diff_review": result}
+
+
+def handle_autogate_start(payload: dict[str, Any]) -> dict[str, Any]:
+    if "project_name" not in payload or "task_description" not in payload:
+        raise ValueError("project_name and task_description are required")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "autogate": start_run(
+            project_name=str(payload["project_name"]),
+            task_description=str(payload["task_description"]),
+            files_touched=_files(payload.get("files_touched", [])),
+            live_prod=payload.get("live_prod") if isinstance(payload.get("live_prod"), bool) else None,
+            previous_failure_count=int(payload.get("previous_failure_count", 0)),
+            routing_profile=str(payload.get("routing_profile") or payload.get("profile") or "balanced"),
+        ),
+    }
+
+
+def handle_autogate_complete(payload: dict[str, Any]) -> dict[str, Any]:
+    if "run_id" not in payload:
+        raise ValueError("run_id is required")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "autogate": complete_run(
+            run_id=str(payload["run_id"]),
+            changed_files=_files(payload.get("changed_files", [])),
+            git_diff=str(payload.get("git_diff") or payload.get("patch") or ""),
+            tests_run=_files(payload.get("tests_run", [])),
+            test_status=str(payload.get("test_status") or "not_run"),
+            rollback_plan_present=bool(payload.get("rollback_plan_present")),
+            notes=str(payload.get("notes", "")),
+        ),
+    }
+
+
+def handle_autogate_report(payload: dict[str, Any]) -> dict[str, Any]:
+    run = get_run(str(payload.get("run_id", "")))
+    if not run:
+        raise ValueError("unknown run_id")
+    return {"contract_version": CONTRACT_VERSION, "autogate": run}
+
+
+def handle_autogate_list() -> dict[str, Any]:
+    return {"contract_version": CONTRACT_VERSION, "runs": list_runs()}
+
+
+def handle_autogate_clear() -> dict[str, Any]:
+    return {"contract_version": CONTRACT_VERSION, "autogate": clear_runs()}
 
 
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:

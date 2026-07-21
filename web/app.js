@@ -7,10 +7,12 @@ const scenarioSimulator = document.querySelector("#scenario-simulator");
 const integrationContract = document.querySelector("#integration-contract");
 const shadowAnalytics = document.querySelector("#shadow-analytics");
 const pilotReadiness = document.querySelector("#pilot-readiness");
+const autogate = document.querySelector("#autogate");
 const tradeoff = document.querySelector("#tradeoff");
 const tradeoffValue = document.querySelector("#tradeoff-value");
 let currentRouteId = "";
 let currentRunContract = null;
+let currentAutoGateRunId = "";
 
 async function loadProjects() {
   const response = await fetch("/api/projects");
@@ -191,6 +193,44 @@ async function loadPilotReadiness() {
   document.querySelector("#export-pilot-report").addEventListener("click", exportPilotReport);
 }
 
+async function loadAutoGate() {
+  const [projects, runs] = await Promise.all([getJson("/api/projects"), getJson("/api/v1/autogate/list")]);
+  autogate.innerHTML = `
+    <h2>DevSpace AutoGate</h2>
+    <p>Automated run lifecycle and approval gate. This is not a human review queue.</p>
+    <div class="split">
+      <label>Project<select id="ag-project">${projects.projects.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("")}</select></label>
+      <label>Profile<select id="ag-profile">
+        <option value="balanced">balanced</option>
+        <option value="max_savings">max_savings</option>
+        <option value="safe_prod">safe_prod</option>
+      </select></label>
+    </div>
+    <label>Task<textarea id="ag-task" rows="3" placeholder="Describe the run task"></textarea></label>
+    <label>Files touched<textarea id="ag-files" rows="2" placeholder="Optional starting files"></textarea></label>
+    <label class="check"><input id="ag-live-prod" type="checkbox"> Live/prod</label>
+    <button type="button" id="ag-start">Start Run</button>
+    <div id="ag-start-result" class="status"></div>
+    <div class="inline-form">
+      <h3>Complete Run</h3>
+      <label>Run ID<input id="ag-run-id" placeholder="run_..."></label>
+      <label>Changed files<textarea id="ag-changed-files" rows="3"></textarea></label>
+      <label>Git diff<textarea id="ag-diff" rows="5"></textarea></label>
+      <div class="split">
+        <label>Test status<select id="ag-test-status"><option>not_run</option><option>passed</option><option>failed</option></select></label>
+        <label class="check"><input id="ag-rollback" type="checkbox"> Rollback plan present</label>
+      </div>
+      <label>Tests run<textarea id="ag-tests-run" rows="2"></textarea></label>
+      <button type="button" id="ag-complete">Complete Run</button>
+      <div id="ag-complete-result" class="status"></div>
+    </div>
+    <h3>Recent Runs</h3>
+    <ul id="ag-runs">${autoGateRunItems(runs.runs)}</ul>
+  `;
+  document.querySelector("#ag-start").addEventListener("click", startAutoGateRun);
+  document.querySelector("#ag-complete").addEventListener("click", completeAutoGateRun);
+}
+
 function filesFromInput(value) {
   return value
     .split(/[\n,]/)
@@ -208,6 +248,20 @@ function tierBadgeClass(tier) {
   if (tier === "cheap") return "badge low";
   if (tier === "mid") return "badge medium";
   return "badge high";
+}
+
+function gateBadgeClass(status) {
+  if (status === "auto_approved" || status === "ready") return "badge low";
+  if (status === "needs_tests" || status === "needs_retry" || status === "needs_more_evidence" || status === "rollback_required" || status === "caution") return "badge medium";
+  return "badge high";
+}
+
+function autoGateRunItems(runs) {
+  if (!runs.length) return '<li class="muted">No runs yet.</li>';
+  return runs.slice(0, 6).map((item) => {
+    const status = item.final_decision || item.start_status || item.status;
+    return `<li><span class="${gateBadgeClass(status)}">${escapeHtml(status)}</span> ${escapeHtml(item.run_id)} ${escapeHtml(item.project_name)} ${escapeHtml(item.risk_level)} / ${escapeHtml(item.model_tier)}</li>`;
+  }).join("");
 }
 
 function showResult(data) {
@@ -550,6 +604,57 @@ async function reviewDiffGate() {
   }
 }
 
+async function startAutoGateRun() {
+  const status = document.querySelector("#ag-start-result");
+  const payload = {
+    project_name: document.querySelector("#ag-project").value,
+    task_description: document.querySelector("#ag-task").value,
+    files_touched: filesFromInput(document.querySelector("#ag-files").value),
+    live_prod: document.querySelector("#ag-live-prod").checked || null,
+    routing_profile: document.querySelector("#ag-profile").value,
+  };
+  try {
+    const data = await postJson("/api/v1/autogate/start", payload);
+    const run = data.autogate;
+    currentAutoGateRunId = run.run_id;
+    document.querySelector("#ag-run-id").value = run.run_id;
+    status.innerHTML = `<strong>${escapeHtml(run.start_status)}</strong> ${escapeHtml(run.run_id)} ${escapeHtml(run.recommended_model)} / ${escapeHtml(run.model_tier)}<br>Requirements: ${escapeHtml(run.automated_requirements.required_checks.join(", "))}`;
+    status.className = "status ok";
+    await refreshAutoGateRuns();
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function completeAutoGateRun() {
+  const status = document.querySelector("#ag-complete-result");
+  const payload = {
+    run_id: document.querySelector("#ag-run-id").value || currentAutoGateRunId,
+    changed_files: filesFromInput(document.querySelector("#ag-changed-files").value),
+    git_diff: document.querySelector("#ag-diff").value,
+    tests_run: filesFromInput(document.querySelector("#ag-tests-run").value),
+    test_status: document.querySelector("#ag-test-status").value,
+    rollback_plan_present: document.querySelector("#ag-rollback").checked,
+  };
+  try {
+    const data = await postJson("/api/v1/autogate/complete", payload);
+    const run = data.autogate;
+    status.innerHTML = `<strong>${escapeHtml(run.final_decision)}</strong> ${escapeHtml(run.approval_gate_reason)}`;
+    status.className = run.final_decision === "auto_approved" ? "status ok" : "status bad";
+    await refreshAutoGateRuns();
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function refreshAutoGateRuns() {
+  const data = await getJson("/api/v1/autogate/list");
+  const list = document.querySelector("#ag-runs");
+  if (list) list.innerHTML = autoGateRunItems(data.runs);
+}
+
 async function validateConfig() {
   const data = await getJson("/api/config/validate");
   setConfigStatus(data.ok ? "Config validation passed." : `Config validation failed: ${data.errors.join("; ")}`, data.ok);
@@ -712,3 +817,4 @@ loadScenarioSimulator().catch(() => {});
 loadIntegrationContract().catch(() => {});
 loadShadowAnalytics().catch(() => {});
 loadPilotReadiness().catch(() => {});
+loadAutoGate().catch(() => {});

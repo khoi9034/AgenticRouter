@@ -1,0 +1,28 @@
+{
+  "examples": [
+    {
+      "name": "low_risk_css_auto_approved",
+      "project_name": "Diana Test Project",
+      "task_description": "Make hello world page prettier",
+      "changed_files": ["index.html", "style.css"],
+      "diff_file": "examples/css_only.diff",
+      "expected_decision": "auto_approved"
+    },
+    {
+      "name": "forbidden_auth_file_auto_blocked",
+      "project_name": "Random Test App",
+      "task_description": "Change login button color",
+      "changed_files": ["Auth/require_auth.php"],
+      "diff_file": "examples/auth_change.diff",
+      "expected_decision": "auto_blocked"
+    },
+    {
+      "name": "database_missing_tests",
+      "project_name": "Random Test App",
+      "task_description": "Build login and database",
+      "changed_files": ["database/001_create_users.sql"],
+      "diff_file": "examples/sql_migration.diff",
+      "expected_decision": "needs_tests"
+    }
+  ]
+}

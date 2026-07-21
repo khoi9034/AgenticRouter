@@ -23,6 +23,11 @@ python -m agentic_router.web
 - `POST /api/v1/contract/check`: check changed files and a sanitized diff summary against a run contract.
 - `POST /api/v1/diff-review`: review a supplied git diff or patch with local quality gate rules.
 - `POST /api/v1/diff-review/current`: review the current local git diff.
+- `POST /api/v1/autogate/start`: start an automated run lifecycle.
+- `POST /api/v1/autogate/complete`: complete a run and return the final automated decision.
+- `POST /api/v1/autogate/report`: return a stored AutoGate run report by `run_id`.
+- `GET /api/v1/autogate/list`: list latest local AutoGate run records.
+- `POST /api/v1/autogate/clear`: clear local AutoGate run records.
 - `POST /api/v1/shadow`: forced `shadow` mode.
 - `POST /api/v1/strict-check`: forced `strict` mode.
 - `GET /api/shadow/summary`: local shadow analytics summary.
@@ -152,6 +157,41 @@ It returns:
   }
 }
 ```
+
+`POST /api/v1/autogate/start` accepts the same core project/task fields and returns:
+
+```json
+{
+  "contract_version": "v1",
+  "autogate": {
+    "run_id": "run_...",
+    "recommended_model": "Haiku 4.5",
+    "model_tier": "cheap",
+    "risk_level": "low",
+    "run_contract": {},
+    "automated_requirements": {
+      "required_checks": ["contract_pass_required", "diff_pass_required"]
+    },
+    "start_status": "ready"
+  }
+}
+```
+
+`POST /api/v1/autogate/complete` accepts:
+
+```json
+{
+  "run_id": "run_...",
+  "changed_files": ["style.css"],
+  "git_diff": "diff --git ...",
+  "tests_run": ["unit tests"],
+  "test_status": "passed",
+  "rollback_plan_present": false,
+  "notes": "sanitized notes only"
+}
+```
+
+It returns a final automated decision: `auto_approved`, `auto_blocked`, `needs_tests`, `needs_retry`, `needs_more_evidence`, or `rollback_required`.
 
 `POST /api/v1/diff-review` accepts:
 

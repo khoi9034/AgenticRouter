@@ -12,6 +12,11 @@ from .config_studio import EXPORT_CONFIG_DEFAULT, add_project, export_config
 from .config_validation import config_summary, validate_config
 from .evaluator import evaluate_tasks
 from .integration import (
+    handle_autogate_clear,
+    handle_autogate_complete,
+    handle_autogate_list,
+    handle_autogate_report,
+    handle_autogate_start,
     handle_contract_check_request,
     handle_contract_request,
     handle_current_diff_review_request,
@@ -49,6 +54,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._json(version())
         elif self.path == "/api/contracts":
             self._json(load_contract())
+        elif self.path == "/api/v1/autogate/list":
+            self._json(handle_autogate_list())
         elif self.path == "/api/eval":
             self._json(evaluate_tasks())
         elif self.path == "/api/outcomes":
@@ -107,6 +114,16 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_diff_review()
         elif self.path == "/api/v1/diff-review/current":
             self._handle_current_diff_review()
+        elif self.path == "/api/v1/autogate/start":
+            self._handle_autogate_start()
+        elif self.path == "/api/v1/autogate/complete":
+            self._handle_autogate_complete()
+        elif self.path == "/api/v1/autogate/report":
+            self._handle_autogate_report()
+        elif self.path == "/api/v1/autogate/list":
+            self._json(handle_autogate_list())
+        elif self.path == "/api/v1/autogate/clear":
+            self._json(handle_autogate_clear())
         elif self.path == "/api/v1/shadow":
             self._handle_integration("shadow")
         elif self.path == "/api/v1/strict-check":
@@ -213,6 +230,24 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def _handle_current_diff_review(self) -> None:
         try:
             self._json(handle_current_diff_review_request(self._read_json(), cwd=WEB_DIR.parent))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_autogate_start(self) -> None:
+        try:
+            self._json(handle_autogate_start(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_autogate_complete(self) -> None:
+        try:
+            self._json(handle_autogate_complete(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_autogate_report(self) -> None:
+        try:
+            self._json(handle_autogate_report(self._read_json()))
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .autogate import clear_runs, complete_run, format_run, format_run_list, get_run, list_runs, start_run
 from .config_studio import export_config, import_config
 from .config_validation import config_summary, format_config_summary, format_validation, validate_config
 from .contracts import check_contract, format_contract, format_scope_check, generate_contract, load_contract_file
@@ -96,6 +97,29 @@ def main(argv: list[str] | None = None) -> int:
     current_review_parser.add_argument("--tests-run", nargs="*", default=[])
     current_review_parser.add_argument("--live-prod", action="store_true")
     current_review_parser.add_argument("--json", action="store_true", dest="json_output")
+    start_run_parser = subparsers.add_parser("start-run", help="start an automated DevSpace AutoGate run")
+    start_run_parser.add_argument("--project", required=True)
+    start_run_parser.add_argument("--task", required=True)
+    start_run_parser.add_argument("--files", nargs="*", default=[])
+    start_run_parser.add_argument("--failures", type=int, default=0)
+    start_run_parser.add_argument("--live-prod", action="store_true")
+    start_run_parser.add_argument("--profile", default="balanced")
+    start_run_parser.add_argument("--json", action="store_true", dest="json_output")
+    complete_run_parser = subparsers.add_parser("complete-run", help="complete an AutoGate run")
+    complete_run_parser.add_argument("--run-id", required=True)
+    complete_run_parser.add_argument("--changed-files", nargs="*", default=[])
+    complete_run_parser.add_argument("--diff-file")
+    complete_run_parser.add_argument("--tests-run", nargs="*", default=[])
+    complete_run_parser.add_argument("--test-status", choices=["passed", "failed", "not_run"], default="not_run")
+    complete_run_parser.add_argument("--rollback-plan-present", action="store_true")
+    complete_run_parser.add_argument("--notes", default="")
+    complete_run_parser.add_argument("--json", action="store_true", dest="json_output")
+    report_run_parser = subparsers.add_parser("autogate-report", help="show an AutoGate run report")
+    report_run_parser.add_argument("--run-id", required=True)
+    report_run_parser.add_argument("--json", action="store_true", dest="json_output")
+    list_runs_parser = subparsers.add_parser("list-runs", help="list AutoGate runs")
+    list_runs_parser.add_argument("--json", action="store_true", dest="json_output")
+    subparsers.add_parser("clear-runs", help="clear local AutoGate run records")
     subparsers.add_parser("eval", help="run golden routing evaluation")
     feedback_parser = subparsers.add_parser("feedback", help="save routing outcome feedback")
     feedback_parser.add_argument("--route-id", required=True)
@@ -225,6 +249,38 @@ def main(argv: list[str] | None = None) -> int:
             cwd=Path.cwd(),
         )
         print(json.dumps(result, indent=2) if args.json_output else format_diff_review(result))
+    elif args.command == "start-run":
+        result = start_run(
+            project_name=args.project,
+            task_description=args.task,
+            files_touched=args.files,
+            live_prod=True if args.live_prod else None,
+            previous_failure_count=args.failures,
+            routing_profile=args.profile,
+        )
+        print(json.dumps(result, indent=2) if args.json_output else format_run(result))
+    elif args.command == "complete-run":
+        result = complete_run(
+            run_id=args.run_id,
+            changed_files=args.changed_files,
+            git_diff=Path(args.diff_file).read_text(encoding="utf-8") if args.diff_file else "",
+            tests_run=args.tests_run,
+            test_status=args.test_status,
+            rollback_plan_present=args.rollback_plan_present,
+            notes=args.notes,
+        )
+        print(json.dumps(result, indent=2) if args.json_output else format_run(result))
+    elif args.command == "autogate-report":
+        result = get_run(args.run_id)
+        if not result:
+            raise SystemExit(f"unknown run_id: {args.run_id}")
+        print(json.dumps(result, indent=2) if args.json_output else format_run(result))
+    elif args.command == "list-runs":
+        runs = list_runs()
+        print(json.dumps({"runs": runs}, indent=2) if args.json_output else format_run_list(runs))
+    elif args.command == "clear-runs":
+        result = clear_runs()
+        print(f"Cleared AutoGate runs at {result['path']}")
     elif args.command == "eval":
         summary = evaluate_tasks()
         print(format_summary(summary))

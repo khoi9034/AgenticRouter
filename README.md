@@ -103,6 +103,16 @@ python -m agentic_router.cli review-diff --project "Random Test App" --task "Cha
 python -m agentic_router.cli review-current-diff --project "Random Test App" --task "Change login button color" --json
 ```
 
+DevSpace AutoGate:
+
+```bash
+python -m agentic_router.cli start-run --project "Diana Test Project" --task "Make hello world page prettier" --json
+python -m agentic_router.cli complete-run --run-id RUN_ID --changed-files index.html style.css --test-status passed --json
+python -m agentic_router.cli autogate-report --run-id RUN_ID --json
+python -m agentic_router.cli list-runs --json
+python -m agentic_router.cli clear-runs
+```
+
 Enterprise gateway templates:
 
 ```bash
@@ -272,6 +282,8 @@ Run contracts convert the route and normalized task into allowed file patterns, 
 
 Diff Review inspects the actual patch content after Scope Guard. It flags secret-like values, auth/session changes, API contract changes, SQL/schema changes, destructive/bulk operations, external writes, dependency/config/deploy changes, and weakened validation/error handling. UI/docs-only diffs usually pass unless the project or contract requires review.
 
+DevSpace AutoGate connects route, context pack, packet, run contract, Scope Guard, and Diff Review into one automated lifecycle. It starts a run, stores a sanitized local run record, completes the run with changed files/diff/tests/rollback evidence, and returns one machine decision: `auto_approved`, `auto_blocked`, `needs_tests`, `needs_retry`, `needs_more_evidence`, or `rollback_required`. High-risk work can still be auto-approved when stronger automated evidence passes; AutoGate is not a human review queue.
+
 ## Profiles, Aliases, and Sessions
 
 Model aliases live in `data/model_aliases.json`; fallback pools live in `data/fallback_policies.json`. The default aliases are `devspace-cheap`, `devspace-mid`, `devspace-advanced`, `devspace-docs`, `devspace-live-prod`, `devspace-security`, and `devspace-public-official-content`.
@@ -355,6 +367,11 @@ The UI serves a dependency-free local dashboard at http://127.0.0.1:8765 with:
 - `/api/v1/contract/check`
 - `/api/v1/diff-review`
 - `/api/v1/diff-review/current`
+- `/api/v1/autogate/start`
+- `/api/v1/autogate/complete`
+- `/api/v1/autogate/report`
+- `/api/v1/autogate/list`
+- `/api/v1/autogate/clear`
 - `/api/v1/shadow`
 - `/api/v1/strict-check`
 - `/api/shadow/summary`
@@ -404,6 +421,9 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 - `data/run_contract_examples.json`: Sanitized run contract examples.
 - `data/diff_risk_rules.json`: Local Diff Review risk rules.
 - `data/diff_review_examples.json`: Sanitized Diff Review example metadata.
+- `data/autogate_policies.json`: AutoGate automated lifecycle decision policy notes.
+- `data/autogate_examples.json`: Sanitized AutoGate scenario metadata.
+- `data/run_records.jsonl`: Local sanitized AutoGate run lifecycle records.
 - `data/validation_playbooks.json`: Validation checklist templates for run packets.
 - `data/enterprise_gateway_templates.json`: Enterprise routing, guardrail, observability, and budget template source.
 - `data/litellm_model_aliases.json`: DevSpace model aliases for LiteLLM-style exports.
@@ -422,7 +442,7 @@ Keep examples realistic and avoid secrets, tokens, private paths, PII, PHI, and 
 
 ## Web UI
 
-The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, Diff Review quality gate, context policy, escalation policy, and matched rules. It also captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
+The web UI loads projects from `data/projects.json`, routes tasks through the same rule-based router as the CLI, and shows the recommendation, normalized task brief, selected model alias, fallback candidates, profile, sticky-route status, route ID, risk, human-review flag, context pack, DevSpace run packet, run contract, Scope Guard checker, Diff Review quality gate, context policy, escalation policy, and matched rules. It also includes DevSpace AutoGate for automated start/complete decisions, captures sanitized feedback, shows a local observability panel with trace counts and export links, includes Config Studio for local validation, provides a Scenario Simulator panel for hypothetical batch routing, shows the local DevSpace Integration contract status, summarizes Shadow Analytics for rollout pilots, and includes a Pilot Readiness scorecard for demos. It is local-only and uses Python `http.server`; no Flask, FastAPI, LangSmith API, or AI calls.
 
 Run packets are copy-pasteable prompts for DevSpace/Codex. They include model choice, risk notes, context instructions, run contract scope, forbidden context, safety constraints, validation steps, stop conditions, and escalation plan. They must not include secrets, PII, real records, tokens, passwords, emails, tenant IDs, USB serials, or production log content.
 

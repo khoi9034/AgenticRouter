@@ -183,6 +183,14 @@ The review flags secret-like additions, auth/session/access-control changes, API
 
 The quality gate never downgrades Scope Guard. If file scope fails, the final decision remains `fail`. If file scope passes but the diff adds risky behavior, the decision escalates to `warn` or `fail`, with required follow-up checks and human-review flags.
 
+## DevSpace AutoGate
+
+AutoGate connects the existing local pieces into one automated run lifecycle. Start-run normalizes and routes the task, builds the context pack, run packet, and run contract, generates automated requirements from risk/live-prod status, creates a `run_id`, and writes a sanitized record to `data/run_records.jsonl`.
+
+Complete-run loads the original run, runs Scope Guard, runs Diff Review, checks test and rollback evidence, and returns one machine decision: `auto_approved`, `auto_blocked`, `needs_tests`, `needs_retry`, `needs_more_evidence`, or `rollback_required`.
+
+AutoGate is not a human review queue. Legacy `human_review_required` fields may remain in older route/contract responses for compatibility, but AutoGate decisions are based on automated evidence. Low-risk docs/CSS work can approve with passing scope and diff checks. Medium-risk work requires tests or validation evidence. High-risk work requires passing tests and no blocking secret/auth-bypass/destructive findings; live-prod work also requires rollback evidence.
+
 ## Run Packets
 
 The DevSpace Run Packet Generator wraps a route result, context pack, and run contract into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, context pack, and scope guardrails.
