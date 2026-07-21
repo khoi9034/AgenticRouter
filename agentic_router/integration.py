@@ -8,6 +8,7 @@ from .autogate import clear_runs, complete_run, get_run, list_runs, start_run
 from .config_validation import contains_sensitive_value
 from .contracts import check_contract, contract_from_route, generate_contract
 from .diff_review import review_current_diff, review_diff
+from .evidence import build_validation_plan_for_run, collect_evidence, complete_run_with_evidence, public_evidence
 from .models import DATA_DIR
 from .observability import sanitize_text
 from .packets import packet_from_route
@@ -256,6 +257,31 @@ def handle_autogate_clear() -> dict[str, Any]:
     return {"contract_version": CONTRACT_VERSION, "autogate": clear_runs()}
 
 
+def handle_evidence_plan(payload: dict[str, Any]) -> dict[str, Any]:
+    if "run_id" not in payload:
+        raise ValueError("run_id is required")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "evidence_plan": build_validation_plan_for_run(str(payload["run_id"]), _repo_path(payload)),
+    }
+
+
+def handle_evidence_collect(payload: dict[str, Any]) -> dict[str, Any]:
+    if "run_id" not in payload:
+        raise ValueError("run_id is required")
+    return {
+        "contract_version": CONTRACT_VERSION,
+        "evidence": public_evidence(collect_evidence(str(payload["run_id"]), _repo_path(payload))),
+    }
+
+
+def handle_autogate_complete_auto(payload: dict[str, Any]) -> dict[str, Any]:
+    if "run_id" not in payload:
+        raise ValueError("run_id is required")
+    result = complete_run_with_evidence(str(payload["run_id"]), _repo_path(payload))
+    return {"contract_version": CONTRACT_VERSION, **result}
+
+
 def export_devspace_contract(output_dir: Path | None = None) -> dict[str, Any]:
     folder = output_dir or EXPORT_DIR
     folder.mkdir(parents=True, exist_ok=True)
@@ -357,6 +383,10 @@ def _files(value: Any) -> list[str]:
     if isinstance(value, list):
         return [str(item).strip() for item in value if str(item).strip()]
     raise ValueError("list field must be a list or string")
+
+
+def _repo_path(payload: dict[str, Any]) -> Path:
+    return Path(str(payload.get("repo_path") or "."))
 
 
 def _optional_text(value: Any) -> str | None:

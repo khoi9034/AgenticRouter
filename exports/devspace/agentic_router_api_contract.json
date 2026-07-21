@@ -9,6 +9,7 @@
     "GET /api/version": "Version and contract metadata.",
     "POST /api/v1/autogate/clear": "Clear local AutoGate run records.",
     "POST /api/v1/autogate/complete": "Complete an AutoGate run and return the final automated decision.",
+    "POST /api/v1/autogate/complete-auto": "Collect evidence and complete an AutoGate run automatically.",
     "POST /api/v1/autogate/list": "List latest local AutoGate run records.",
     "POST /api/v1/autogate/report": "Return a stored AutoGate run report by run_id.",
     "POST /api/v1/autogate/start": "Start an automated run lifecycle and return route, packet, contract, and requirements.",
@@ -16,6 +17,8 @@
     "POST /api/v1/contract/check": "Check changed files or a diff summary against a run contract.",
     "POST /api/v1/diff-review": "Review a supplied git diff or patch with local quality gate rules.",
     "POST /api/v1/diff-review/current": "Review the current local git diff for the AgenticRouter repo.",
+    "POST /api/v1/evidence/collect": "Collect local git evidence and safe validation command results for an AutoGate run.",
+    "POST /api/v1/evidence/plan": "Build a safe local validation plan for an AutoGate run.",
     "POST /api/v1/packet": "Return route plus DevSpace run packet.",
     "POST /api/v1/route": "Run advise or requested mode.",
     "POST /api/v1/shadow": "Log recommendation metadata for caller comparison.",
@@ -39,7 +42,8 @@
     "actual_model_used",
     "caller",
     "task_id",
-    "include_packet"
+    "include_packet",
+    "repo_path"
   ],
   "privacy": [
     "No secrets",
@@ -68,6 +72,7 @@
     "previous_failure_count": "integer",
     "profile": "string",
     "project_name": "string",
+    "repo_path": "string, evidence endpoints only, defaults to .",
     "session_id": "string|null",
     "task_description": "string",
     "task_id": "string|null"

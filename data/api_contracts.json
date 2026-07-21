@@ -13,7 +13,8 @@
     "actual_model_used",
     "caller",
     "task_id",
-    "include_packet"
+    "include_packet",
+    "repo_path"
   ],
   "modes": ["advise", "packet", "shadow", "strict"],
   "request_shape": {
@@ -30,7 +31,8 @@
     "actual_model_used": "string|null",
     "caller": "string|null",
     "task_id": "string|null",
-    "include_packet": "boolean"
+    "include_packet": "boolean",
+    "repo_path": "string, evidence endpoints only, defaults to ."
   },
   "response_shape": {
     "contract_version": "v1",
@@ -105,6 +107,9 @@
     "POST /api/v1/diff-review/current": "Review the current local git diff for the AgenticRouter repo.",
     "POST /api/v1/autogate/start": "Start an automated run lifecycle and return route, packet, contract, and requirements.",
     "POST /api/v1/autogate/complete": "Complete an AutoGate run and return the final automated decision.",
+    "POST /api/v1/evidence/plan": "Build a safe local validation plan for an AutoGate run.",
+    "POST /api/v1/evidence/collect": "Collect local git evidence and safe validation command results for an AutoGate run.",
+    "POST /api/v1/autogate/complete-auto": "Collect evidence and complete an AutoGate run automatically.",
     "POST /api/v1/autogate/report": "Return a stored AutoGate run report by run_id.",
     "GET /api/v1/autogate/list": "List latest local AutoGate run records.",
     "POST /api/v1/autogate/list": "List latest local AutoGate run records.",

@@ -191,6 +191,14 @@ Complete-run loads the original run, runs Scope Guard, runs Diff Review, checks 
 
 AutoGate is not a human review queue. Legacy `human_review_required` fields may remain in older route/contract responses for compatibility, but AutoGate decisions are based on automated evidence. Low-risk docs/CSS work can approve with passing scope and diff checks. Medium-risk work requires tests or validation evidence. High-risk work requires passing tests and no blocking secret/auth-bypass/destructive findings; live-prod work also requires rollback evidence.
 
+## Automated Evidence Runner
+
+The Evidence Runner automates the evidence that `complete-run` previously required by hand. It collects local git status, staged and unstaged changed files, staged and unstaged diffs, builds a validation plan from the run contract, normalized task, project risk, changed files, and project type indicators, then runs only allowlisted validation commands.
+
+Allowed validation commands are intentionally narrow: Python unittest discovery, Python compile checks for changed `.py` files, existing npm test/lint/typecheck/build scripts, Node syntax checks for changed JavaScript files, PHP lint checks for changed PHP files, and `dotnet test` when a `.csproj` exists. The runner uses `subprocess` with `shell=False`, captures stdout/stderr, applies timeouts, and treats missing local tools as `unavailable` rather than crashing.
+
+The runner never executes install, deploy, migration, database, delete, purge, sync, production, or unlisted commands. Raw diff text is used locally to feed Scope Guard and Diff Review; API/web summaries show compact diff summaries and validation results. Secret-like diffs, auth bypasses, or destructive changes still block through Diff Review even if validation passes.
+
 ## Run Packets
 
 The DevSpace Run Packet Generator wraps a route result, context pack, and run contract into a copy-pasteable execution packet for a DevSpace/Codex run. It uses the existing router result, so the packet keeps the same `route_id`, recommended model, effort, risk, human-review flag, context pack, and scope guardrails.

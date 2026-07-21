@@ -14,6 +14,7 @@ from .evaluator import evaluate_tasks
 from .integration import (
     handle_autogate_clear,
     handle_autogate_complete,
+    handle_autogate_complete_auto,
     handle_autogate_list,
     handle_autogate_report,
     handle_autogate_start,
@@ -21,6 +22,8 @@ from .integration import (
     handle_contract_request,
     handle_current_diff_review_request,
     handle_diff_review_request,
+    handle_evidence_collect,
+    handle_evidence_plan,
     handle_request,
     health,
     load_contract,
@@ -118,6 +121,8 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_autogate_start()
         elif self.path == "/api/v1/autogate/complete":
             self._handle_autogate_complete()
+        elif self.path == "/api/v1/autogate/complete-auto":
+            self._handle_autogate_complete_auto()
         elif self.path == "/api/v1/autogate/report":
             self._handle_autogate_report()
         elif self.path == "/api/v1/autogate/list":
@@ -128,6 +133,10 @@ class RouterHandler(SimpleHTTPRequestHandler):
             self._handle_integration("shadow")
         elif self.path == "/api/v1/strict-check":
             self._handle_integration("strict")
+        elif self.path == "/api/v1/evidence/plan":
+            self._handle_evidence_plan()
+        elif self.path == "/api/v1/evidence/collect":
+            self._handle_evidence_collect()
         elif self.path == "/api/context":
             self._handle_context()
         elif self.path == "/api/packet":
@@ -242,6 +251,24 @@ class RouterHandler(SimpleHTTPRequestHandler):
     def _handle_autogate_complete(self) -> None:
         try:
             self._json(handle_autogate_complete(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_autogate_complete_auto(self) -> None:
+        try:
+            self._json(handle_autogate_complete_auto(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_evidence_plan(self) -> None:
+        try:
+            self._json(handle_evidence_plan(self._read_json()))
+        except (KeyError, TypeError, ValueError) as exc:
+            self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
+
+    def _handle_evidence_collect(self) -> None:
+        try:
+            self._json(handle_evidence_collect(self._read_json()))
         except (KeyError, TypeError, ValueError) as exc:
             self._json({"error": str(exc), "contract_version": "v1"}, HTTPStatus.BAD_REQUEST)
 

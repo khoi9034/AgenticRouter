@@ -224,11 +224,28 @@ async function loadAutoGate() {
       <button type="button" id="ag-complete">Complete Run</button>
       <div id="ag-complete-result" class="status"></div>
     </div>
+    <div class="inline-form evidence-runner">
+      <h3>Evidence Runner</h3>
+      <p>Collects local git diff and safe validation command results. No deploy, install, migration, delete, sync, or production commands are run.</p>
+      <div class="split">
+        <label>Run ID<input id="ev-run-id" placeholder="run_..."></label>
+        <label>Repo path<input id="ev-repo-path" value="."></label>
+      </div>
+      <div class="action-row">
+        <button type="button" id="ev-plan">Build Validation Plan</button>
+        <button type="button" id="ev-collect">Collect Evidence</button>
+        <button type="button" id="ev-complete">Complete Automatically</button>
+      </div>
+      <div id="ev-result" class="status"></div>
+    </div>
     <h3>Recent Runs</h3>
     <ul id="ag-runs">${autoGateRunItems(runs.runs)}</ul>
   `;
   document.querySelector("#ag-start").addEventListener("click", startAutoGateRun);
   document.querySelector("#ag-complete").addEventListener("click", completeAutoGateRun);
+  document.querySelector("#ev-plan").addEventListener("click", evidencePlan);
+  document.querySelector("#ev-collect").addEventListener("click", collectEvidence);
+  document.querySelector("#ev-complete").addEventListener("click", completeEvidenceAuto);
 }
 
 function filesFromInput(value) {
@@ -618,6 +635,7 @@ async function startAutoGateRun() {
     const run = data.autogate;
     currentAutoGateRunId = run.run_id;
     document.querySelector("#ag-run-id").value = run.run_id;
+    document.querySelector("#ev-run-id").value = run.run_id;
     status.innerHTML = `<strong>${escapeHtml(run.start_status)}</strong> ${escapeHtml(run.run_id)} ${escapeHtml(run.recommended_model)} / ${escapeHtml(run.model_tier)}<br>Requirements: ${escapeHtml(run.automated_requirements.required_checks.join(", "))}`;
     status.className = "status ok";
     await refreshAutoGateRuns();
@@ -653,6 +671,73 @@ async function refreshAutoGateRuns() {
   const data = await getJson("/api/v1/autogate/list");
   const list = document.querySelector("#ag-runs");
   if (list) list.innerHTML = autoGateRunItems(data.runs);
+}
+
+function evidencePayload() {
+  return {
+    run_id: document.querySelector("#ev-run-id").value || currentAutoGateRunId,
+    repo_path: document.querySelector("#ev-repo-path").value || ".",
+  };
+}
+
+async function evidencePlan() {
+  const status = document.querySelector("#ev-result");
+  try {
+    const data = await postJson("/api/v1/evidence/plan", evidencePayload());
+    status.innerHTML = renderEvidencePlan(data.evidence_plan);
+    status.className = "status ok";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function collectEvidence() {
+  const status = document.querySelector("#ev-result");
+  try {
+    const data = await postJson("/api/v1/evidence/collect", evidencePayload());
+    status.innerHTML = renderEvidence(data.evidence);
+    status.className = data.evidence.tests_status === "failed" ? "status bad" : "status ok";
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+async function completeEvidenceAuto() {
+  const status = document.querySelector("#ev-result");
+  try {
+    const data = await postJson("/api/v1/autogate/complete-auto", evidencePayload());
+    status.innerHTML = `${renderEvidence(data.evidence)}<h4>Final AutoGate Decision</h4><p><strong>${escapeHtml(data.final_decision)}</strong>: ${escapeHtml(data.autogate.approval_gate_reason)}</p>`;
+    status.className = data.final_decision === "auto_approved" ? "status ok" : "status bad";
+    await refreshAutoGateRuns();
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = "status bad";
+  }
+}
+
+function renderEvidencePlan(plan) {
+  return `
+    <h4>Validation Plan</h4>
+    <p>Project types: ${escapeHtml(plan.project_types.join(", ") || "unknown")}</p>
+    <p>Static only: ${escapeHtml(plan.static_only)} | Requires validation: ${escapeHtml(plan.requires_validation)}</p>
+    <ul>${listItems(plan.commands.map((item) => `${item.name}: ${item.command.join(" ")} (${item.required ? "required" : "optional"})`)) || "<li>none</li>"}</ul>
+    <p>${escapeHtml((plan.notes || []).join(" "))}</p>
+  `;
+}
+
+function renderEvidence(evidence) {
+  return `
+    <h4>Evidence</h4>
+    <p>Changed files: ${escapeHtml(evidence.changed_files.join(", ") || "none")}</p>
+    <p>Tests status: <strong>${escapeHtml(evidence.tests_status)}</strong> | Complete: ${escapeHtml(evidence.evidence_complete)}</p>
+    <p>Diff summary: ${escapeHtml(evidence.diff_summary || "none")}</p>
+    <h4>Validation Results</h4>
+    <ul>${listItems(evidence.validation_results.map((item) => `${item.name}: ${item.status}`)) || "<li>none</li>"}</ul>
+    <p>Missing evidence: ${escapeHtml(evidence.missing_evidence.join(", ") || "none")}</p>
+    <p>Warnings: ${escapeHtml(evidence.warnings.join(" ") || "none")}</p>
+  `;
 }
 
 async function validateConfig() {

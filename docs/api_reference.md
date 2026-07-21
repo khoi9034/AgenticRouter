@@ -25,6 +25,9 @@ python -m agentic_router.web
 - `POST /api/v1/diff-review/current`: review the current local git diff.
 - `POST /api/v1/autogate/start`: start an automated run lifecycle.
 - `POST /api/v1/autogate/complete`: complete a run and return the final automated decision.
+- `POST /api/v1/evidence/plan`: build a safe local validation plan for an AutoGate run.
+- `POST /api/v1/evidence/collect`: collect local git evidence and safe validation results.
+- `POST /api/v1/autogate/complete-auto`: collect evidence and complete AutoGate automatically.
 - `POST /api/v1/autogate/report`: return a stored AutoGate run report by `run_id`.
 - `GET /api/v1/autogate/list`: list latest local AutoGate run records.
 - `POST /api/v1/autogate/clear`: clear local AutoGate run records.
@@ -61,11 +64,13 @@ Optional:
   "actual_model_used": "Sonnet 4.6",
   "caller": "devspace-local",
   "task_id": "TASK-123",
-  "include_packet": false
+  "include_packet": false,
+  "repo_path": "."
 }
 ```
 
 `mode` must be one of `advise`, `packet`, `shadow`, or `strict`.
+`repo_path` is used only by local evidence endpoints and defaults to `.`.
 
 ## Response Schema
 
@@ -192,6 +197,34 @@ It returns:
 ```
 
 It returns a final automated decision: `auto_approved`, `auto_blocked`, `needs_tests`, `needs_retry`, `needs_more_evidence`, or `rollback_required`.
+
+`POST /api/v1/evidence/plan`, `POST /api/v1/evidence/collect`, and `POST /api/v1/autogate/complete-auto` accept:
+
+```json
+{
+  "run_id": "run_...",
+  "repo_path": "."
+}
+```
+
+The plan endpoint returns safe validation commands only:
+
+```json
+{
+  "contract_version": "v1",
+  "evidence_plan": {
+    "project_types": ["python"],
+    "changed_files": ["agentic_router/router.py"],
+    "commands": [
+      {"name": "python_unittest", "command": ["python", "-m", "unittest", "discover", "-s", "tests"], "required": false}
+    ],
+    "requires_validation": true,
+    "static_only": false
+  }
+}
+```
+
+The collect endpoint returns changed files, a compact diff summary, validation results, missing evidence, warnings, and `tests_status`. It does not run installs, deploys, migrations, database commands, delete/purge/sync commands, production commands, or unlisted commands. The complete-auto endpoint returns the evidence summary plus the final AutoGate decision.
 
 `POST /api/v1/diff-review` accepts:
 

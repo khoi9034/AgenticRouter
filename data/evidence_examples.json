@@ -1,0 +1,29 @@
+{
+  "version": "v1",
+  "examples": [
+    {
+      "name": "low_risk_css",
+      "project_name": "Diana Test Project",
+      "task_description": "Make hello world page prettier",
+      "changed_files": ["web/style.css"],
+      "expected_decision": "auto_approved",
+      "notes": "Static CSS/docs work can approve when scope and diff checks pass."
+    },
+    {
+      "name": "high_risk_auth_without_tests",
+      "project_name": "Random Test App",
+      "task_description": "Create login, roles, SQL database, and admin dashboard",
+      "changed_files": ["Auth/login.php"],
+      "expected_decision": "needs_tests",
+      "notes": "High-risk code requires passing safe validation evidence."
+    },
+    {
+      "name": "secret_like_diff",
+      "project_name": "Random Test App",
+      "task_description": "Change login button color",
+      "changed_files": ["login.html"],
+      "expected_decision": "auto_blocked",
+      "notes": "Secret-like additions block even if validation commands pass."
+    }
+  ]
+}

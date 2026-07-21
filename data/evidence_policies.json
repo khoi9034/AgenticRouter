@@ -1,0 +1,53 @@
+{
+  "version": "v1",
+  "local_only": true,
+  "shell_allowed": false,
+  "timeouts_seconds": {
+    "git": 8,
+    "validation": 30
+  },
+  "allowed_git_commands": [
+    ["git", "status", "--short"],
+    ["git", "diff", "--name-only"],
+    ["git", "diff"],
+    ["git", "diff", "--cached", "--name-only"],
+    ["git", "diff", "--cached"]
+  ],
+  "allowed_validation_commands": [
+    ["python", "-m", "unittest", "discover", "-s", "tests"],
+    ["python", "-m", "py_compile", "<changed .py files>"],
+    ["npm", "test"],
+    ["npm", "run", "test"],
+    ["npm", "run", "lint"],
+    ["npm", "run", "typecheck"],
+    ["npm", "run", "build"],
+    ["node", "--check", "<changed .js file>"],
+    ["php", "-l", "<changed .php file>"],
+    ["dotnet", "test"]
+  ],
+  "blocked_command_examples": [
+    "npm install",
+    "pip install",
+    "deploy",
+    "migrate",
+    "database migration execution",
+    "delete",
+    "purge",
+    "sync production"
+  ],
+  "privacy": {
+    "do_not_store": [
+      "secrets",
+      "api keys",
+      "bearer tokens",
+      "passwords",
+      "emails",
+      "tenant IDs",
+      "USB serials",
+      "real records",
+      "production logs",
+      "private Windows paths"
+    ],
+    "raw_diff_is_for_local_autogate_only": true
+  }
+}

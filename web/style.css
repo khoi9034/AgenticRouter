@@ -357,7 +357,8 @@ dt {
   padding-top: 18px;
 }
 
-.diff-review {
+.diff-review,
+.evidence-runner {
   border-top: 1px solid #27313d;
   margin-top: 18px;
   padding-top: 18px;
@@ -377,7 +378,9 @@ dt {
 .run-packet h4,
 .run-contract h3,
 .run-contract h4,
-.diff-review h3 {
+.diff-review h3,
+.evidence-runner h3,
+.evidence-runner h4 {
   margin: 0 0 8px;
 }
 

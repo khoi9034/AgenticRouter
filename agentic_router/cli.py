@@ -13,6 +13,14 @@ from .context import format_context_pack
 from .diff_review import format_diff_review, review_current_diff, review_diff
 from .enterprise import export_enterprise, format_export_result
 from .evaluator import evaluate_tasks, format_summary
+from .evidence import (
+    build_validation_plan_for_run,
+    collect_evidence,
+    complete_run_with_evidence,
+    evidence_current,
+    format_evidence,
+    format_evidence_plan,
+)
 from .integration import export_devspace_contract, format_contract_summary, integration_self_test
 from .observability import (
     export_langsmith_files,
@@ -117,6 +125,24 @@ def main(argv: list[str] | None = None) -> int:
     report_run_parser = subparsers.add_parser("autogate-report", help="show an AutoGate run report")
     report_run_parser.add_argument("--run-id", required=True)
     report_run_parser.add_argument("--json", action="store_true", dest="json_output")
+    evidence_plan_parser = subparsers.add_parser("evidence-plan", help="build a safe local validation plan for an AutoGate run")
+    evidence_plan_parser.add_argument("--run-id", required=True)
+    evidence_plan_parser.add_argument("--repo-path", default=".")
+    evidence_plan_parser.add_argument("--json", action="store_true", dest="json_output")
+    collect_evidence_parser = subparsers.add_parser("collect-evidence", help="collect local git and validation evidence for an AutoGate run")
+    collect_evidence_parser.add_argument("--run-id", required=True)
+    collect_evidence_parser.add_argument("--repo-path", default=".")
+    collect_evidence_parser.add_argument("--json", action="store_true", dest="json_output")
+    complete_auto_parser = subparsers.add_parser("complete-run-auto", help="complete an AutoGate run with automatically collected evidence")
+    complete_auto_parser.add_argument("--run-id", required=True)
+    complete_auto_parser.add_argument("--repo-path", default=".")
+    complete_auto_parser.add_argument("--json", action="store_true", dest="json_output")
+    evidence_current_parser = subparsers.add_parser("evidence-current", help="start and complete an AutoGate run from current local evidence")
+    evidence_current_parser.add_argument("--project", required=True)
+    evidence_current_parser.add_argument("--task", required=True)
+    evidence_current_parser.add_argument("--repo-path", default=".")
+    evidence_current_parser.add_argument("--live-prod", action="store_true")
+    evidence_current_parser.add_argument("--json", action="store_true", dest="json_output")
     list_runs_parser = subparsers.add_parser("list-runs", help="list AutoGate runs")
     list_runs_parser.add_argument("--json", action="store_true", dest="json_output")
     subparsers.add_parser("clear-runs", help="clear local AutoGate run records")
@@ -275,6 +301,19 @@ def main(argv: list[str] | None = None) -> int:
         if not result:
             raise SystemExit(f"unknown run_id: {args.run_id}")
         print(json.dumps(result, indent=2) if args.json_output else format_run(result))
+    elif args.command == "evidence-plan":
+        result = build_validation_plan_for_run(args.run_id, args.repo_path)
+        print(json.dumps(result, indent=2) if args.json_output else format_evidence_plan(result))
+    elif args.command == "collect-evidence":
+        result = collect_evidence(args.run_id, args.repo_path)
+        result = {key: value for key, value in result.items() if not key.startswith("_")}
+        print(json.dumps(result, indent=2) if args.json_output else format_evidence(result))
+    elif args.command == "complete-run-auto":
+        result = complete_run_with_evidence(args.run_id, args.repo_path)
+        print(json.dumps(result, indent=2) if args.json_output else format_evidence(result))
+    elif args.command == "evidence-current":
+        result = evidence_current(args.project, args.task, args.repo_path, live_prod=True if args.live_prod else None)
+        print(json.dumps(result, indent=2) if args.json_output else format_evidence(result))
     elif args.command == "list-runs":
         runs = list_runs()
         print(json.dumps({"runs": runs}, indent=2) if args.json_output else format_run_list(runs))
